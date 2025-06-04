@@ -1,6 +1,6 @@
 🛒 Smart Shelf Display System
 <div align="center">
-Show Image
+<img src="https://img.shields.io/badge/Status-In%20Development-orange" />
 Show Image
 Show Image
 Show Image
