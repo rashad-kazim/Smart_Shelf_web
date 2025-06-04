@@ -1,135 +1,130 @@
-🏪 Supermarket Digital Price Display System
+🛒 Smart Shelf Display System
 <div align="center">
 Show Image
 Show Image
 Show Image
-Next-generation digital shelf labeling system for modern retail
-🚀 Features • 🏗️ Architecture • ⚡ Quick Start • 📱 Demo
+Show Image
+Revolutionary digital price display system for modern retail environments
+🚀 Features • 🏗️ Architecture • 📱 Demo • 🛠️ Installation
 </div>
 
-🎯 Overview
-Transform your supermarket with intelligent digital price displays! Our system replaces traditional paper price tags with sleek, ultra-thin LED screens that update automatically when prices change in your POS system.
-✨ Key Benefits
+🌟 Overview
+Transform traditional paper price tags into smart, dynamic digital displays. Our system provides real-time price updates, centralized management, and seamless integration with existing POS systems.
+✨ Features
+🎯 Core Functionality
 
-📊 Real-time Updates - Prices sync instantly from your POS system
-🔋 Ultra Low Power - Weeks of battery life with smart power management
-🌐 Multi-Store Management - Centralized control across all locations
-📱 Mobile App - Easy product management for store staff
-🔒 Enterprise Security - Token-based authentication system
+Real-time Price Updates - Instant synchronization across all displays
+Multi-Store Management - Centralized control for multiple locations
+Smart Inventory Sync - Automatic integration with POS systems
+Battery Monitoring - Long-lasting power with intelligent management
 
+🔧 Management Tools
 
-🛠️ System Architecture
+Web Dashboard - Intuitive control panel for administrators
+Mobile App - On-the-go management for store staff
+Role-based Access - Secure permissions for different user types
+Analytics & Reports - Comprehensive insights and logging
+
+🌐 Multi-Platform Support
+
+Universal Integration - Works with SAP, 1C, Oracle, and custom POS systems
+Token-based Security - Enterprise-grade authentication
+OTA Updates - Remote firmware updates for ESP32 devices
+Multi-language Support - Global deployment ready
+
+🏗️ Architecture
+┌─────────────────────────────────────────────────────────────┐
+│                    Web Management Panel                     │
+│  🔐 Admin  👥 Analyst  🛠️ Installer  🎧 Support           │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────────────┐
+│                   Central Server                            │
+│  📊 Data Processing  🔄 Sync Management  📡 Communication  │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+         ┌────────┼────────┐
+         │                 │
+┌────────▼────────┐ ┌─────▼──────┐
+│   POS System    │ │   ESP32    │
+│   Integration   │ │  Displays  │
+│                 │ │            │
+└─────────────────┘ └────────────┘
+🛠️ Technology Stack
 <div align="center">
-mermaidgraph TD
-    A[POS System] --> B[Layer 1: Database Monitor]
-    B --> C[Layer 2: Core Server]
-    C --> D[ESP32 Displays]
-    C --> E[Web Management Panel]
-    C --> F[Mobile App]
-    
-    style A fill:#ff6b6b
-    style C fill:#4ecdc4
-    style D fill:#45b7d1
-    style E fill:#96ceb4
-    style F fill:#ffeaa7
+ComponentTechnologyPurposeFrontendReact + TypeScriptModern web interfaceBackendPython FastAPIHigh-performance APIDatabaseMySQLReliable data storageHardwareESP32 + E-PaperEnergy-efficient displaysCommunicationWebSocket + RESTReal-time updates
 </div>
-🏗️ Components
-ComponentTechnologyPurposeWeb PanelReact + FastAPIStore management & analyticsCore ServerPython + MySQLCentral coordination & APIESP32 FirmwareC++Display control & communicationMobile AppReact NativeStore staff operationsDatabase MonitorPythonPOS system integration
+📱 Demo
 
-🚀 Features
-🖥️ Web Management Panel
+🚧 Coming Soon: Live demo will be available once the MVP is complete
 
-Multi-role access (Admin, Analyst, Installer, Support)
-Real-time store monitoring across countries
-Automated token generation and security
-Comprehensive logging and analytics
+Screenshots Preview
 
-📱 Mobile Application
+ Web Dashboard
+ Mobile App Interface
+ ESP32 Display Examples
+ Installation Process
 
-Drag & drop product arrangement
-Battery level monitoring
-Instant price updates
-Support ticket system
-
-🔌 ESP32 Hardware
-
-Ultra-thin Design: Max 1cm thickness
-Long Battery Life: 15,000 mAh Li-Po battery
-Flexible Sizing: 100-130cm width displays
-Easy Installation: Plug & play setup
-
-🔄 Smart Synchronization
-
-Automatic POS system detection
-Multi-database support (1C, SAP, Oracle, MySQL)
-Conflict-free updates
-Offline operation capability
-
-
-⚡ Quick Start
+🚀 Getting Started
 Prerequisites
 
-Python 3.9+
+Python 3.8+
 Node.js 16+
 MySQL 8.0+
 ESP32 Development Board
 
-🖥️ Backend Setup
-bashcd backend
+Quick Installation
+bash# Clone the repository
+git clone https://github.com/yourusername/supermarket-price-display-system.git
+cd supermarket-price-display-system
+
+# Backend setup
+cd backend
 python -m venv venv
 venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-uvicorn app.main:app --reload
-🌐 Frontend Setup
-bashcd frontend
+
+# Frontend setup
+cd ../frontend
 npm install
 npm start
-📡 ESP32 Setup
-cpp// Upload firmware via Arduino IDE
-// Configure WiFi via Bluetooth
-// System auto-registers with server
+🏪 Use Cases
 
-📊 System Status
-Development Progress
+Supermarkets & Hypermarkets - Large-scale price management
+Convenience Stores - Efficient small-scale operations
+Pharmacies - Regulatory compliance with digital displays
+Electronics Stores - Dynamic pricing strategies
+Fashion Retail - Seasonal promotion management
 
- Phase 1: Web Panel MVP
- Phase 2: Core Server Development
- Phase 3: ESP32 Firmware
- Phase 4: Mobile Application
- Phase 5: POS Integration Layer
+🔒 Security Features
 
-Hardware Specifications
-ComponentSpecificationDisplayFSTN LCD, 100-130cm x 4cmControllerESP32-WROOM-32Battery15,000 mAh Li-PoPower3.3V-5V Operating RangeConnectivityWiFi 802.11n, Bluetooth 4.2
+🛡️ Token-based Authentication
+🔐 Encrypted Communication
+🎯 Role-based Access Control
+📊 Audit Logging
+🔄 Automatic Security Updates
 
-🌟 Screenshots
-Web Management Panel
-Coming soon...
-Mobile Application
-Coming soon...
-Hardware Installation
-Coming soon...
+📈 Roadmap
+
+ Initial system architecture
+ MVP Web Panel (In Progress)
+ ESP32 Basic Firmware
+ POS Integration Layer
+ Mobile Application
+ Advanced Analytics
+ AI-powered Price Optimization
 
 🤝 Contributing
-We welcome contributions! Please see our Contributing Guide for details.
-Development Team
-
-Architecture & Backend: @yourusername
-Frontend Development: @yourusername
-Hardware Engineering: @yourusername
-
-
+We welcome contributions! Please see our Contributing Guidelines for details.
 📞 Support
 
-📧 Email: support@yourcompany.com
+📧 Email: support@smartshelf.com
 💬 Discord: Join our community
-📖 Documentation: Full docs
-🐛 Bug Reports: GitHub Issues
-
+📖 Documentation: docs.smartshelf.com
 
 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 <div align="center">
-Made with ❤️ for the future of retail
-⭐ Star this repo if you found it helpful!
+
 </div>
