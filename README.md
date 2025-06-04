@@ -1,10 +1,11 @@
 🛒 Smart Shelf Display System
 <div align="center">
 <img src="https://img.shields.io/badge/Status-In%20Development-orange" />
-Show Image
-Show Image
-Show Image
-Revolutionary digital price display system for modern retail environments
+<img src="https://img.shields.io/badge/Version-1.0.0-blue" />
+<img src="https://img.shields.io/badge/License-MIT-green" />
+<img src="https://img.shields.io/badge/Platform-ESP32-red" />
+
+<p>Revolutionary digital price display system for modern retail environments</p>
 🚀 Features • 🏗️ Architecture • 📱 Demo • 🛠️ Installation
 </div>
 
