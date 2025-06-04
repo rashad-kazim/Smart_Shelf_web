@@ -1,4 +1,5 @@
-🛒 Smart Shelf Display System
+<div align="center">🛒 Smart Shelf Display System</div>
+<p></p>
 <div align="center">
 <img src="https://img.shields.io/badge/Status-In%20Development-orange" />
 <img src="https://img.shields.io/badge/Version-1.0.0-blue" />
@@ -33,24 +34,7 @@ Token-based Security - Enterprise-grade authentication
 OTA Updates - Remote firmware updates for ESP32 devices
 Multi-language Support - Global deployment ready
 
-🏗️ Architecture
-┌─────────────────────────────────────────────────────────────┐
-│                    Web Management Panel                     │
-│  🔐 Admin  👥 Analyst  🛠️ Installer  🎧 Support           │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────────────┐
-│                   Central Server                            │
-│  📊 Data Processing  🔄 Sync Management  📡 Communication  │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-         ┌────────┼────────┐
-         │                 │
-┌────────▼────────┐ ┌─────▼──────┐
-│   POS System    │ │   ESP32    │
-│   Integration   │ │  Displays  │
-│                 │ │            │
-└─────────────────┘ └────────────┘
+
 🛠️ Technology Stack
 <div align="center">
 ComponentTechnologyPurposeFrontendReact + TypeScriptModern web interfaceBackendPython FastAPIHigh-performance APIDatabaseMySQLReliable data storageHardwareESP32 + E-PaperEnergy-efficient displaysCommunicationWebSocket + RESTReal-time updates
@@ -126,6 +110,4 @@ We welcome contributions! Please see our Contributing Guidelines for details.
 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-<div align="center">
 
-</div>
