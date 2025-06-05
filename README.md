@@ -61,6 +61,7 @@ ESP32 Development Board
 Quick Installation
 bash# Clone the repository
 git clone https://github.com/rashad-kazim/Smart_Shelf_web.git
+
 cd Smart_Shelf_web
 
 # Backend setup
@@ -100,12 +101,6 @@ Fashion Retail - Seasonal promotion management
  Advanced Analytics
  AI-powered Price Optimization
 
-🤝 Contributing
-We welcome contributions! Please see our Contributing Guidelines for details.
-📞 Support
-
-📧 Email: support@smartshelf.com
-💬 Discord: Join our community
 📖 Documentation: docs.smartshelf.com
 
 📄 License
