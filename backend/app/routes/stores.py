@@ -23,6 +23,29 @@ async def get_stores():
     finally:
         cursor.close()
 
+@router.get("/{store_id}", response_model=StoreResponse)
+async def get_store(store_id: int):
+    """Get single store details"""
+    connection = db.get_connection()
+    if not connection:
+        raise HTTPException(status_code=500, detail="Database connection error")
+    
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM stores WHERE id = %s", (store_id,))
+        store = cursor.fetchone()
+        
+        if not store:
+            raise HTTPException(status_code=404, detail="Store not found")
+        
+        return store
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Veri çekme hatası: {str(e)}")
+    finally:
+        cursor.close()
+
 @router.post("/", response_model=StoreResponse)
 async def create_store(store: StoreCreate):
     """New store creation"""
@@ -62,6 +85,42 @@ async def create_store(store: StoreCreate):
         raise HTTPException(status_code=500, detail=f"Store creation error: {str(e)}")
     finally:
         cursor.close()
+
+
+@router.post("/{store_id}/regenerate-token")
+async def regenerate_server_token(store_id: int):
+    """Mağaza server tokenını yeniler"""
+    connection = db.get_connection()
+    if not connection:
+        raise HTTPException(status_code=500, detail="Veritabanı bağlantı hatası")
+    
+    cursor = connection.cursor(dictionary=True)
+    try:
+        # Controlla store exists
+        cursor.execute("SELECT id FROM stores WHERE id = %s", (store_id,))
+        if not cursor.fetchone():
+            raise HTTPException(status_code=404, detail="Store not found")
+
+        # Generate new server token and update it
+        new_token = generate_server_token()
+        cursor.execute(
+            "UPDATE stores SET server_token = %s WHERE id = %s",
+            (new_token, store_id)
+        )
+        connection.commit()
+
+        return {"message": "Token added successfully", "new_token": new_token}
+    except HTTPException:
+        raise
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Token regeneration error: {str(e)}")
+    finally:
+        cursor.close()
+
+
+
+
 
 @router.delete("/{store_id}")
 async def delete_store(store_id: int):
