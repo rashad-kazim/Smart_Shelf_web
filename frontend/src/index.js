@@ -1,11 +1,18 @@
+// src/index.js
 import React from "react";
 import ReactDOM from "react-dom/client";
+import "./index.css";
 import App from "./App";
-import "./index.css"; // index.css dosyasını buraya ekliyoruz
+import { BrowserRouter } from "react-router-dom";
+import { AppProvider } from "./context/AuthContext"; // AuthProvider -> AppProvider olarak değişti
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AppProvider>
+        <App />
+      </AppProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );

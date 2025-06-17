@@ -1,0 +1,53 @@
+// src/data/mockCompanyUsers.js
+import { ROLES } from "../config/roles";
+
+export const mockCompanyUsers = [
+  {
+    id: 101,
+    name: "Emre",
+    surname: "Can",
+    dob: "1985-02-01",
+    country: "Turkey",
+    city: "Istanbul",
+    role: ROLES.COUNTRY_CHIEF,
+    email: "emre.can@company.com",
+    password: "comp_password1",
+    profilePicture: null,
+  },
+  {
+    id: 102,
+    name: "Zeynep",
+    surname: "Kaya",
+    dob: "1990-08-15",
+    country: "Turkey",
+    city: "Ankara",
+    role: ROLES.ANALYST,
+    email: "zeynep.kaya@company.com",
+    password: "comp_password2",
+    profilePicture: null,
+  },
+  {
+    id: 103,
+    name: "Ahmet",
+    surname: "Tekin",
+    dob: "1982-11-30",
+    country: "Turkey",
+    city: "Izmir",
+    role: ROLES.ENGINEER,
+    email: "ahmet.tekin@company.com",
+    password: "comp_password3",
+    profilePicture: null,
+  },
+  {
+    id: 104,
+    name: "John",
+    surname: "Smith",
+    dob: "1984-04-12",
+    country: "USA",
+    city: "New York",
+    role: ROLES.COUNTRY_CHIEF,
+    email: "john.smith@company.com",
+    password: "comp_password4",
+    profilePicture: null,
+  },
+];

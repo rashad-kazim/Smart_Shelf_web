@@ -1135,6 +1135,7 @@ function NewUserFormPage({ currentColors, translations, setActiveRoute, users, s
           {formErrors.repeatPassword && <p className="text-red-500 text-xs mt-1">{formErrors.repeatPassword}</p>}
         </div>
       </form>
+      
       <div className="flex justify-between mt-6">
         <button
           onClick={() => setActiveRoute("/users-supermarket")}
