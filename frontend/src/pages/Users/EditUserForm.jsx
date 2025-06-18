@@ -12,7 +12,7 @@ const EditUserForm = () => {
   const navigate = useNavigate();
   const {
     profileUser,
-    currentColors,
+    currentColors: colors,
     appTranslations,
     language,
     users,
@@ -175,6 +175,13 @@ const EditUserForm = () => {
     }
   };
 
+  // Stil tanımlamaları
+  const inputStyle = {
+    backgroundColor: colors.pureWhite,
+    color: colors.darkText,
+    borderColor: colors.mediumGrayText,
+  };
+
   if (!userToEdit) {
     return <div>User not found...</div>;
   }
@@ -190,8 +197,8 @@ const EditUserForm = () => {
     <div
       className="p-8 rounded-lg shadow-md"
       style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
+        backgroundColor: colors.pureWhite,
+        color: colors.darkText,
       }}>
       <h1 className="text-3xl font-semibold mb-6">
         {translations.editUserTitle || "Edit User"}: {formData.name}{" "}
@@ -240,7 +247,16 @@ const EditUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.name ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
+          {formErrors.name && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
+          )}
         </div>
         <div>
           <label htmlFor="surname" className="block text-sm font-medium mb-1">
@@ -255,6 +271,12 @@ const EditUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.surname ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div>
@@ -270,6 +292,12 @@ const EditUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.dob ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div>
@@ -284,7 +312,13 @@ const EditUserForm = () => {
             disabled={!isAdmin}
             className={`w-full p-2 border rounded-md ${
               formErrors.country ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             <option value="">{translations.selectCountry}</option>
             {countryOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -305,7 +339,13 @@ const EditUserForm = () => {
             disabled={!formData.country}
             className={`w-full p-2 border rounded-md ${
               formErrors.city ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             <option value="">{translations.selectCity}</option>
             {cityOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -326,7 +366,13 @@ const EditUserForm = () => {
             disabled={!formData.city}
             className={`w-full p-2 border rounded-md ${
               formErrors.storeName ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             <option value="">{translations.selectStore}</option>
             {storeNameOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -344,7 +390,13 @@ const EditUserForm = () => {
             name="role"
             value={formData.role || ""}
             readOnly
-            className={`w-full p-2 border rounded-md bg-gray-100 cursor-not-allowed`}>
+            className={`w-full p-2 border rounded-md bg-gray-100 cursor-not-allowed`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -365,6 +417,12 @@ const EditUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.email ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div className="relative">

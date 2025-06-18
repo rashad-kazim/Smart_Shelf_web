@@ -1,30 +1,44 @@
-// CompanyUsers.js
-// Company user list
-// src/pages/Users/CompanyUsers.js
+// src/pages/Users/CompanyUsers.jsx
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../config/roles";
 import { PlusCircle, RotateCcw } from "lucide-react";
 import { mockStores } from "../../data/mockStores";
-import { mockCompanyUsers } from "../../data/mockCompanyUsers";
 
 const CompanyUsers = () => {
-  const { profileUser, currentColors, appTranslations, language } = useAuth();
-  const navigate = useNavigate();
-  const translations = appTranslations[language]?.users || {};
+  const {
+    profileUser,
+    currentColors: colors,
+    appTranslations,
+    language,
+    companyUsers,
+    setCompanyUsers,
+    // DÜZELTME: Dialog fonksiyonları context'ten alınıyor
+    setShowDialog,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
+    setDialogConfirmationText,
+  } = useAuth();
 
-  const [companyUsers, setCompanyUsers] = useState(mockCompanyUsers);
+  const navigate = useNavigate();
+  const translations = useMemo(
+    () => appTranslations[language]?.users || {},
+    [appTranslations, language]
+  );
+
   const [filters, setFilters] = useState({ country: "", city: "" });
 
   const isAdmin = profileUser?.role === ROLES.ADMIN;
   const isCountryChief = profileUser?.role === ROLES.COUNTRY_CHIEF;
 
   useEffect(() => {
-    if (isCountryChief) {
+    if (!isAdmin && profileUser?.country) {
       setFilters((prev) => ({ ...prev, country: profileUser.country }));
     }
-  }, [profileUser, isCountryChief]);
+  }, [profileUser, isAdmin]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -37,21 +51,6 @@ const CompanyUsers = () => {
     } else {
       setFilters((prev) => ({ ...prev, city: "" }));
     }
-  };
-
-  const handleDeleteUser = (userToDelete) => {
-    console.log("Deleting company user:", userToDelete);
-    setCompanyUsers((prevUsers) =>
-      prevUsers.filter((user) => user.id !== userToDelete.id)
-    );
-  };
-
-  const handleEditUser = (userId) => {
-    navigate(`/users/company/edit/${userId}`);
-  };
-
-  const handleAddNewUser = () => {
-    navigate("/users/company/add");
   };
 
   const uniqueCountries = useMemo(() => {
@@ -70,15 +69,11 @@ const CompanyUsers = () => {
       relevantStores = relevantStores.filter(
         (store) => store.country === filters.country
       );
-    } else if (isCountryChief) {
-      relevantStores = relevantStores.filter(
-        (store) => store.country === profileUser.country
-      );
     }
     return [...new Set(relevantStores.map((store) => store.city))]
       .filter(Boolean)
       .sort();
-  }, [filters.country, profileUser, isCountryChief]);
+  }, [filters.country]);
 
   const filteredUsers = useMemo(() => {
     let baseUsers = companyUsers;
@@ -90,38 +85,67 @@ const CompanyUsers = () => {
     return baseUsers.filter((user) => {
       const countryMatch =
         filters.country === "" || user.country === filters.country;
-      const cityMatch = filters.city === "" || user.city === filters.city;
+      const cityMatch =
+        filters.city === "" || !user.city || user.city === filters.city;
       return countryMatch && cityMatch;
     });
   }, [companyUsers, filters, profileUser, isCountryChief]);
 
+  // DÜZELTME: Silme fonksiyonu onay mekanizmasını kullanacak şekilde güncellendi
+  const handleDeleteUser = (userToDelete) => {
+    if (!isAdmin && !isCountryChief) return;
+
+    const confirmationFullName = `${userToDelete.name} ${userToDelete.surname}`;
+
+    setDialogTitle(
+      translations.confirmDeleteUserTitle || "Confirm User Deletion"
+    );
+    setDialogMessage(
+      `${
+        translations.confirmDeleteUserMessage ||
+        "Are you sure you want to delete"
+      } '${confirmationFullName}'?`
+    );
+    setDialogConfirmationText(confirmationFullName); // Onay için kullanıcının tam adını ayarla
+    setDialogType("confirm");
+
+    setDialogCallback(() => () => {
+      setCompanyUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userToDelete.id)
+      );
+    });
+
+    setShowDialog(true);
+  };
+
+  const handleEditUser = (userId) => {
+    navigate(`/users/company/edit/${userId}`);
+  };
+
+  const handleAddNewUser = () => {
+    navigate("/users/company/add");
+  };
+
   return (
     <div
       className="p-8 rounded-lg shadow-md"
-      style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
-      }}>
-      <h1
-        className="text-3xl font-semibold mb-6"
-        style={{ color: currentColors.darkText }}>
-        {translations.usersForCompanyTitle || "Users For Company"}
+      style={{ backgroundColor: colors.pureWhite, color: colors.darkText }}>
+      <h1 className="text-3xl font-semibold mb-6">
+        {translations.userForCompanyTitle || "Users For Company"}
       </h1>
 
-      {(isAdmin || isCountryChief) && (
-        <div className="flex justify-center mb-6">
-          <button
-            onClick={handleAddNewUser}
-            className="px-6 py-3 rounded-md font-medium flex items-center justify-center transition-colors duration-200 cursor-pointer"
-            style={{
-              backgroundColor: currentColors.logoPrimaryBlue,
-              color: currentColors.whiteText,
-            }}>
-            <PlusCircle size={20} className="mr-2" />{" "}
-            {translations.addNewUserButton || "Add New User"}
-          </button>
-        </div>
-      )}
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={handleAddNewUser}
+          className="px-6 py-3 rounded-md font-medium flex items-center justify-center"
+          style={{
+            backgroundColor: colors.logoPrimaryBlue,
+            color: colors.whiteText,
+          }}>
+          <PlusCircle size={20} className="mr-2" />{" "}
+          {translations.addNewUserButton || "Add New User"}
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
@@ -136,11 +160,11 @@ const CompanyUsers = () => {
             value={filters.country}
             onChange={handleFilterChange}
             disabled={!isAdmin}
-            className="w-full p-2 rounded-md border"
+            className="w-full p-2 rounded-md border cursor-pointer"
             style={{
-              borderColor: currentColors.mediumGrayText,
-              backgroundColor: currentColors.lightGrayBg,
-              color: currentColors.darkText,
+              borderColor: colors.mediumGrayText,
+              backgroundColor: colors.lightGrayBg,
+              color: colors.darkText,
             }}>
             <option value="">
               {translations.allCountries || "All Countries"}
@@ -164,11 +188,11 @@ const CompanyUsers = () => {
             value={filters.city}
             onChange={handleFilterChange}
             disabled={!filters.country}
-            className="w-full p-2 rounded-md border"
+            className="w-full p-2 rounded-md border cursor-pointer"
             style={{
-              borderColor: currentColors.mediumGrayText,
-              backgroundColor: currentColors.lightGrayBg,
-              color: currentColors.darkText,
+              borderColor: colors.mediumGrayText,
+              backgroundColor: colors.lightGrayBg,
+              color: colors.darkText,
             }}>
             <option value="">{translations.allCities || "All Cities"}</option>
             {uniqueCities.map((city) => (
@@ -183,10 +207,10 @@ const CompanyUsers = () => {
       <div className="w-full text-right mb-4">
         <button
           onClick={handleClearFilters}
-          className="px-4 py-2 rounded-md font-medium flex items-center justify-center transition-colors duration-200 cursor-pointer inline-flex"
+          className="px-4 py-2 rounded-md font-medium flex items-center inline-flex"
           style={{
-            backgroundColor: currentColors.logoPrimaryBlue,
-            color: currentColors.whiteText,
+            backgroundColor: colors.logoPrimaryBlue,
+            color: colors.whiteText,
           }}>
           <RotateCcw size={18} className="mr-2" />{" "}
           {translations.clearFilters || "Clear Filters"}
@@ -195,11 +219,11 @@ const CompanyUsers = () => {
 
       <div
         className="overflow-x-auto rounded-lg border"
-        style={{ borderColor: currentColors.mediumGrayText }}>
+        style={{ borderColor: colors.mediumGrayText }}>
         <table
           className="min-w-full divide-y"
-          style={{ borderColor: currentColors.mediumGrayText }}>
-          <thead style={{ backgroundColor: currentColors.lightGrayBg }}>
+          style={{ borderColor: colors.mediumGrayText }}>
+          <thead style={{ backgroundColor: colors.lightGrayBg }}>
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 {translations.nameSurnameHeader || "Name"}
@@ -216,17 +240,13 @@ const CompanyUsers = () => {
               <th></th>
             </tr>
           </thead>
-          <tbody
-            style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
-            }}>
+          <tbody style={{ backgroundColor: colors.pureWhite }}>
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-t hover:bg-gray-50"
-                  style={{ borderColor: currentColors.lightGrayBg }}>
+                  className="border-t hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                  style={{ borderColor: colors.lightGrayBg }}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.name} {user.surname}
                   </td>
@@ -236,20 +256,16 @@ const CompanyUsers = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{user.city}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
                   <td className="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                    {(isAdmin || isCountryChief) && (
-                      <button
-                        onClick={() => handleEditUser(user.id)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-md">
-                        {translations.editButton || "Edit"}
-                      </button>
-                    )}
-                    {(isAdmin || isCountryChief) && (
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-md">
-                        {translations.deleteButton || "Delete"}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleEditUser(user.id)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-md">
+                      {translations.editButton || "Edit"}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(user)}
+                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-md">
+                      {translations.deleteButton || "Delete"}
+                    </button>
                   </td>
                 </tr>
               ))

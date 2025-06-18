@@ -1,5 +1,6 @@
 // src/components/InstallationSteps/Step1.jsx
 import React from "react";
+import { ChevronDown } from "lucide-react";
 
 const Step1 = ({
   storeForm,
@@ -20,6 +21,7 @@ const Step1 = ({
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
     }));
+
     if (name === "country") {
       if (value === "Poland") {
         setCitiesOptions([
@@ -44,6 +46,7 @@ const Step1 = ({
     let isValid = true;
     const newErrors = {};
     let firstInvalidFieldElement = null;
+
     const requiredFields = [
       "country",
       "city",
@@ -54,12 +57,14 @@ const Step1 = ({
       "installerName",
       "installerSurname",
     ];
+
     if (!storeForm.allDayOpen) {
       requiredFields.push("openingHour", "closingHour");
     }
     if (storeForm.addBranch) {
       requiredFields.push("branchName");
     }
+
     for (const field of requiredFields) {
       if (
         !storeForm[field] ||
@@ -68,17 +73,22 @@ const Step1 = ({
         isValid = false;
         newErrors[field] =
           translations?.requiredFieldWarning || "This field is required.";
-        if (!firstInvalidFieldElement)
+        if (!firstInvalidFieldElement) {
           firstInvalidFieldElement = document.getElementById(field);
+        }
       }
     }
+
     setFormErrors(newErrors);
-    if (isValid) onNext();
-    else if (firstInvalidFieldElement)
+
+    if (isValid) {
+      onNext();
+    } else if (firstInvalidFieldElement) {
       firstInvalidFieldElement.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
+    }
   };
 
   return (
@@ -101,10 +111,16 @@ const Step1 = ({
                 name="country"
                 value={storeForm.country}
                 onChange={handleStoreFormChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded-md appearance-none ${
                   formErrors.country ? "border-red-500" : ""
                 }`}
-                required>
+                style={{
+                  backgroundColor: colors.pureWhite,
+                  color: colors.darkText,
+                  borderColor: formErrors.country
+                    ? colors.errorRed
+                    : colors.mediumGrayText,
+                }}>
                 <option value="">
                   {translations?.countryPlaceholder || "Select Country"}
                 </option>
@@ -114,6 +130,10 @@ const Step1 = ({
                   </option>
                 ))}
               </select>
+              <ChevronDown
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                size={18}
+              />
             </div>
             {formErrors.country && (
               <p className="text-red-500 text-xs mt-1">{formErrors.country}</p>
@@ -130,11 +150,19 @@ const Step1 = ({
                 name="city"
                 value={storeForm.city}
                 onChange={handleStoreFormChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded-md appearance-none ${
                   formErrors.city ? "border-red-500" : ""
                 }`}
                 disabled={!storeForm.country}
-                required>
+                style={{
+                  backgroundColor: !storeForm.country
+                    ? colors.lightGrayBg
+                    : colors.pureWhite,
+                  color: colors.darkText,
+                  borderColor: formErrors.city
+                    ? colors.errorRed
+                    : colors.mediumGrayText,
+                }}>
                 <option value="">
                   {translations?.cityPlaceholder || "Select City"}
                 </option>
@@ -144,6 +172,10 @@ const Step1 = ({
                   </option>
                 ))}
               </select>
+              <ChevronDown
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                size={18}
+              />
             </div>
             {formErrors.city && (
               <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>
@@ -164,7 +196,13 @@ const Step1 = ({
             className={`w-full p-2 border rounded-md ${
               formErrors.storeName ? "border-red-500" : ""
             }`}
-            required
+            style={{
+              backgroundColor: colors.pureWhite,
+              color: colors.darkText,
+              borderColor: formErrors.storeName
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
           {formErrors.storeName && (
             <p className="text-red-500 text-xs mt-1">{formErrors.storeName}</p>
@@ -200,7 +238,13 @@ const Step1 = ({
               className={`w-full p-2 border rounded-md ${
                 formErrors.branchName ? "border-red-500" : ""
               }`}
-              required
+              style={{
+                backgroundColor: colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.branchName
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             {formErrors.branchName && (
               <p className="text-red-500 text-xs mt-1">
@@ -223,7 +267,13 @@ const Step1 = ({
             className={`w-full p-2 border rounded-md resize-y ${
               formErrors.address ? "border-red-500" : ""
             }`}
-            required></textarea>
+            style={{
+              backgroundColor: colors.pureWhite,
+              color: colors.darkText,
+              borderColor: formErrors.address
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}></textarea>
           {formErrors.address && (
             <p className="text-red-500 text-xs mt-1">{formErrors.address}</p>
           )}
@@ -258,7 +308,15 @@ const Step1 = ({
                 formErrors.openingHour ? "border-red-500" : ""
               }`}
               disabled={storeForm.allDayOpen}
-              required={!storeForm.allDayOpen}>
+              style={{
+                backgroundColor: storeForm.allDayOpen
+                  ? colors.lightGrayBg
+                  : colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.openingHour
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}>
               <option value="">
                 {translations?.selectHour || "Select Hour"}
               </option>
@@ -290,7 +348,15 @@ const Step1 = ({
                 formErrors.closingHour ? "border-red-500" : ""
               }`}
               disabled={storeForm.allDayOpen}
-              required={!storeForm.allDayOpen}>
+              style={{
+                backgroundColor: storeForm.allDayOpen
+                  ? colors.lightGrayBg
+                  : colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.closingHour
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}>
               <option value="">
                 {translations?.selectHour || "Select Hour"}
               </option>
@@ -322,7 +388,13 @@ const Step1 = ({
               className={`w-full p-2 border rounded-md ${
                 formErrors.ownerName ? "border-red-500" : ""
               }`}
-              required
+              style={{
+                backgroundColor: colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.ownerName
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             {formErrors.ownerName && (
               <p className="text-red-500 text-xs mt-1">
@@ -346,7 +418,13 @@ const Step1 = ({
               className={`w-full p-2 border rounded-md ${
                 formErrors.ownerSurname ? "border-red-500" : ""
               }`}
-              required
+              style={{
+                backgroundColor: colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.ownerSurname
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             {formErrors.ownerSurname && (
               <p className="text-red-500 text-xs mt-1">
@@ -372,7 +450,13 @@ const Step1 = ({
               className={`w-full p-2 border rounded-md ${
                 formErrors.installerName ? "border-red-500" : ""
               }`}
-              required
+              style={{
+                backgroundColor: colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.installerName
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             {formErrors.installerName && (
               <p className="text-red-500 text-xs mt-1">
@@ -396,7 +480,13 @@ const Step1 = ({
               className={`w-full p-2 border rounded-md ${
                 formErrors.installerSurname ? "border-red-500" : ""
               }`}
-              required
+              style={{
+                backgroundColor: colors.pureWhite,
+                color: colors.darkText,
+                borderColor: formErrors.installerSurname
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             {formErrors.installerSurname && (
               <p className="text-red-500 text-xs mt-1">

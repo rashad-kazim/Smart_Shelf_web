@@ -1,15 +1,16 @@
-// DashboardPage.js
-// Dashboard main page
-// src/pages/Dashboard/DashboardPage.js
+// src/pages/Dashboard/DashboardPage.jsx
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
 
-const DashboardPage = ({ appTranslations, currentColors }) => {
-  const { profileUser } = useAuth();
+const DashboardPage = () => {
+  // DÜZELTME: İhtiyaç duyduğu her şeyi doğrudan context'ten alıyor
+  const { currentColors, appTranslations, language, profileUser } = useAuth();
 
-  // Get the correct data for language and theme from props
-  const language = localStorage.getItem("language") || "en";
-  const translations = appTranslations[language] || appTranslations.en;
+  // Hatanın olduğu yer burasıydı. appTranslations artık tanımsız değil.
+  const translations = appTranslations[language]?.dashboard || {};
+  const welcomeText = `${translations.welcomeText || "Welcome!"} ${
+    profileUser?.name || "User"
+  }`;
 
   return (
     <div
@@ -21,21 +22,12 @@ const DashboardPage = ({ appTranslations, currentColors }) => {
       <h1
         className="text-3xl font-semibold mb-6"
         style={{ color: currentColors.darkText }}>
-        {translations.dashboard.title}
+        {translations.title || "Dashboard"}
       </h1>
-      <p className="mb-4 text-lg">
-        {translations.dashboard.welcomeText.replace(
-          "John Doe",
-          `${profileUser.name} ${profileUser.surname}`
-        )}
-      </p>
-      <p className="mb-4" style={{ color: currentColors.mediumGrayText }}>
-        {translations.dashboard.instructionText}
-      </p>
-      <p
-        className="text-sm italic"
-        style={{ color: currentColors.mediumGrayText }}>
-        {translations.dashboard.note}
+      <p className="mb-4">{welcomeText}</p>
+      <p className="mb-4">
+        {translations.instructionText ||
+          "This area will summarize the overall status of your system..."}
       </p>
     </div>
   );

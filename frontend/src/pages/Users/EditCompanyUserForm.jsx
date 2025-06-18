@@ -12,7 +12,7 @@ const EditCompanyUserForm = () => {
   const navigate = useNavigate();
   const {
     profileUser,
-    currentColors,
+    currentColors: colors,
     appTranslations,
     language,
     companyUsers,
@@ -88,6 +88,11 @@ const EditCompanyUserForm = () => {
     }
   }, [userToEdit]);
 
+  const inputStyle = {
+    backgroundColor: colors.pureWhite,
+    color: colors.darkText,
+    borderColor: colors.mediumGrayText,
+  };
   if (!userToEdit) {
     return <div>User not found...</div>;
   }
@@ -185,8 +190,8 @@ const EditCompanyUserForm = () => {
     <div
       className="p-8 rounded-lg shadow-md"
       style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
+        backgroundColor: colors.pureWhite,
+        color: colors.darkText,
       }}>
       <h1 className="text-3xl font-semibold mb-6">
         {translations.editCompanyUserTitle || "Edit Company User"}:{" "}
@@ -230,6 +235,12 @@ const EditCompanyUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.name ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div>
@@ -243,6 +254,12 @@ const EditCompanyUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.surname ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div>
@@ -254,7 +271,13 @@ const EditCompanyUserForm = () => {
             onChange={handleFormChange}
             className={`w-full p-2 border rounded-md ${
               formErrors.role ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             {roleOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -272,7 +295,13 @@ const EditCompanyUserForm = () => {
             onChange={handleFormChange}
             className={`w-full p-2 border rounded-md ${
               formErrors.country ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             {countryOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
@@ -290,7 +319,13 @@ const EditCompanyUserForm = () => {
             onChange={handleFormChange}
             className={`w-full p-2 border rounded-md ${
               formErrors.city ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             <option value="">{translations.selectCity}</option>
             {cityOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -310,6 +345,12 @@ const EditCompanyUserForm = () => {
             className={`w-full p-2 border rounded-md ${
               formErrors.email ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
         </div>
         <div className="relative">
@@ -324,6 +365,12 @@ const EditCompanyUserForm = () => {
               className={`w-full p-2 border rounded-md ${
                 formErrors.password ? "border-red-500" : ""
               }`}
+              style={{
+                ...inputStyle,
+                borderColor: formErrors.name
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             <span
               className="p-2 cursor-pointer"
@@ -346,6 +393,12 @@ const EditCompanyUserForm = () => {
               className={`w-full p-2 border rounded-md ${
                 formErrors.repeatPassword ? "border-red-500" : ""
               }`}
+              style={{
+                ...inputStyle,
+                borderColor: formErrors.name
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
+              }}
             />
             <span
               className="p-2 cursor-pointer"

@@ -11,7 +11,7 @@ const AddCompanyUserForm = () => {
   // 1. DÜZELTME: Gerekli tüm global verileri ve fonksiyonları useAuth'dan alıyoruz
   const {
     profileUser,
-    currentColors,
+    currentColors: colors,
     appTranslations,
     language,
     companyUsers,
@@ -164,15 +164,26 @@ const AddCompanyUserForm = () => {
     }
   };
 
+  // Define styles for the form inputs
+  const inputStyle = {
+    backgroundColor: colors.pureWhite,
+    color: colors.darkText,
+    borderColor: colors.mediumGrayText,
+  };
+
+  const disabledInputStyle = {
+    backgroundColor: colors.lightGrayBg,
+    color: colors.mediumGrayText,
+    borderColor: colors.mediumGrayText,
+    cursor: "not-allowed",
+  };
+
   return (
     <div
       className="p-8 rounded-lg shadow-md"
-      style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
-      }}>
+      style={{ backgroundColor: colors.pureWhite, color: colors.darkText }}>
       <h1 className="text-3xl font-semibold mb-6">
-        {translations.addNewUserTitle || "Add New Company User"}
+        {translations.addCompanyUserTitle || "Add New Company User"}
       </h1>
 
       <form className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -184,7 +195,8 @@ const AddCompanyUserForm = () => {
           </label>
           <div
             className="w-32 h-32 rounded-full overflow-hidden border-2 flex items-center justify-center cursor-pointer"
-            onClick={handleProfilePictureClick}>
+            onClick={handleProfilePictureClick}
+            style={{ borderColor: colors.mediumGrayText }}>
             {formData.profilePicture ? (
               <img
                 src={formData.profilePicture}
@@ -192,7 +204,7 @@ const AddCompanyUserForm = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <Camera size={64} color={currentColors.mediumGrayText} />
+              <Camera size={64} color={colors.mediumGrayText} />
             )}
           </div>
           <input
@@ -204,11 +216,16 @@ const AddCompanyUserForm = () => {
             ref={fileInputRef}
             className="hidden"
           />
+          {formErrors.profilePicture && (
+            <p className="text-red-500 text-xs mt-1">
+              {formErrors.profilePicture}
+            </p>
+          )}
         </div>
+
         <div>
           <label htmlFor="name" className="block text-sm font-medium mb-1">
-            {translations.employeeNameLabel}{" "}
-            <span className="text-red-500">*</span>
+            {translations.employeeNameLabel}*
           </label>
           <input
             type="text"
@@ -219,6 +236,12 @@ const AddCompanyUserForm = () => {
             className={`w-full p-2 rounded-md border ${
               formErrors.name ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
           {formErrors.name && (
             <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
@@ -226,8 +249,7 @@ const AddCompanyUserForm = () => {
         </div>
         <div>
           <label htmlFor="surname" className="block text-sm font-medium mb-1">
-            {translations.employeeSurnameLabel}{" "}
-            <span className="text-red-500">*</span>
+            {translations.employeeSurnameLabel}*
           </label>
           <input
             type="text"
@@ -238,6 +260,12 @@ const AddCompanyUserForm = () => {
             className={`w-full p-2 rounded-md border ${
               formErrors.surname ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.surname
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
           {formErrors.surname && (
             <p className="text-red-500 text-xs mt-1">{formErrors.surname}</p>
@@ -245,7 +273,7 @@ const AddCompanyUserForm = () => {
         </div>
         <div>
           <label htmlFor="country" className="block text-sm font-medium mb-1">
-            {translations.countryLabel} <span className="text-red-500">*</span>
+            {translations.countryLabel}*
           </label>
           <select
             id="country"
@@ -255,7 +283,17 @@ const AddCompanyUserForm = () => {
             disabled={isCountryChief}
             className={`w-full p-2 rounded-md border ${
               formErrors.country ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={
+              isCountryChief
+                ? disabledInputStyle
+                : {
+                    ...inputStyle,
+                    borderColor: formErrors.country
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }
+            }>
             <option value="">{translations.selectCountry}</option>
             {countryOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -263,6 +301,9 @@ const AddCompanyUserForm = () => {
               </option>
             ))}
           </select>
+          {formErrors.country && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.country}</p>
+          )}
         </div>
         <div>
           <label htmlFor="city" className="block text-sm font-medium mb-1">
@@ -276,7 +317,17 @@ const AddCompanyUserForm = () => {
             disabled={!formData.country}
             className={`w-full p-2 rounded-md border ${
               formErrors.city ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={
+              !formData.country
+                ? disabledInputStyle
+                : {
+                    ...inputStyle,
+                    borderColor: formErrors.city
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }
+            }>
             <option value="">{translations.selectCity}</option>
             {cityOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -284,10 +335,13 @@ const AddCompanyUserForm = () => {
               </option>
             ))}
           </select>
+          {formErrors.city && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>
+          )}
         </div>
         <div>
           <label htmlFor="role" className="block text-sm font-medium mb-1">
-            {translations.roleLabel} <span className="text-red-500">*</span>
+            {translations.roleLabel}*
           </label>
           <select
             id="role"
@@ -296,7 +350,13 @@ const AddCompanyUserForm = () => {
             onChange={handleFormChange}
             className={`w-full p-2 rounded-md border ${
               formErrors.role ? "border-red-500" : ""
-            }`}>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.role
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}>
             <option value="">{translations.selectRole}</option>
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -304,10 +364,13 @@ const AddCompanyUserForm = () => {
               </option>
             ))}
           </select>
+          {formErrors.role && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.role}</p>
+          )}
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-1">
-            {translations.mailLabel} <span className="text-red-500">*</span>
+            {translations.mailLabel}*
           </label>
           <input
             type="email"
@@ -318,68 +381,97 @@ const AddCompanyUserForm = () => {
             className={`w-full p-2 rounded-md border ${
               formErrors.email ? "border-red-500" : ""
             }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.email
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
           />
+          {formErrors.email && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+          )}
         </div>
         <div className="relative">
-          <label htmlFor="password">
-            {translations.passwordLabel} <span className="text-red-500">*</span>
-          </label>
-          <div
-            className={`flex items-center rounded-md border ${
+          <label htmlFor="password">{translations.passwordLabel}*</label>
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleFormChange}
+            className={`w-full p-2 pr-10 border rounded-md ${
               formErrors.password ? "border-red-500" : ""
-            }`}>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleFormChange}
-              className="w-full p-2 focus:outline-none focus:ring-0 bg-transparent"
-            />
-            <span
-              className="p-2 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.password
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
+          />
+          <span
+            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+            onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? (
+              <EyeOff size={18} color={colors.mediumGrayText} />
+            ) : (
+              <Eye size={18} color={colors.mediumGrayText} />
+            )}
+          </span>
+          {formErrors.password && (
+            <p className="text-red-500 text-xs mt-1">{formErrors.password}</p>
+          )}
         </div>
         <div className="relative">
           <label htmlFor="repeatPassword">
-            {translations.repeatPasswordLabel}{" "}
-            <span className="text-red-500">*</span>
+            {translations.repeatPasswordLabel}*
           </label>
-          <div
-            className={`flex items-center rounded-md border ${
+          <input
+            type={showRepeatPassword ? "text" : "password"}
+            id="repeatPassword"
+            name="repeatPassword"
+            value={formData.repeatPassword}
+            onChange={handleFormChange}
+            className={`w-full p-2 pr-10 border rounded-md ${
               formErrors.repeatPassword ? "border-red-500" : ""
-            }`}>
-            <input
-              type={showRepeatPassword ? "text" : "password"}
-              id="repeatPassword"
-              name="repeatPassword"
-              value={formData.repeatPassword}
-              onChange={handleFormChange}
-              className="w-full p-2 focus:outline-none focus:ring-0 bg-transparent"
-            />
-            <span
-              className="p-2 cursor-pointer"
-              onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
-              {showRepeatPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
+            }`}
+            style={{
+              ...inputStyle,
+              borderColor: formErrors.repeatPassword
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
+          />
+          <span
+            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+            onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
+            {showRepeatPassword ? (
+              <EyeOff size={18} color={colors.mediumGrayText} />
+            ) : (
+              <Eye size={18} color={colors.mediumGrayText} />
+            )}
+          </span>
+          {formErrors.repeatPassword && (
+            <p className="text-red-500 text-xs mt-1">
+              {formErrors.repeatPassword}
+            </p>
+          )}
         </div>
       </form>
-
       <div className="flex justify-between mt-6">
         <button
           type="button"
           onClick={() => navigate("/users/company")}
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md">
+          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md"
+          style={{ backgroundColor: colors.prevButtonBg }}>
           {translations.removeProcessButton || "Cancel"}
         </button>
         <button
           type="button"
           onClick={handleSaveUser}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md"
+          style={{ backgroundColor: colors.logoPrimaryBlue }}>
           {translations.saveButton || "Save"}
         </button>
       </div>

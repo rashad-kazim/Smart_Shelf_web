@@ -6,19 +6,20 @@ import React, {
   useContext,
   useMemo,
 } from "react";
-import { appTranslations } from "../config/translations"; // Çevirileri buradan import ediyoruz
+import { appTranslations } from "../config/translations";
 import { mockUsers } from "../data/mockUsers";
 import { mockCompanyUsers } from "../data/mockCompanyUsers";
+import { mockStores } from "../data/mockStores";
 
 const AuthContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
-  // === State Tanımlamaları ===
   const [profileUser, setProfileUser] = useState(
     () => JSON.parse(localStorage.getItem("profileUser")) || null
   );
   const [users, setUsers] = useState(mockUsers);
   const [companyUsers, setCompanyUsers] = useState(mockCompanyUsers);
+  const [stores, setStores] = useState(mockStores);
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("isDarkMode") === "true"
   );
@@ -26,7 +27,13 @@ export const AppProvider = ({ children }) => {
     () => localStorage.getItem("language") || "en"
   );
 
-  // === Renk Paletleri ===
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState("");
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [dialogType, setDialogType] = useState("alert");
+  const [dialogCallback, setDialogCallback] = useState(() => () => {});
+
+  const [dialogConfirmationText, setDialogConfirmationText] = useState("");
   const lightColors = useMemo(
     () => ({
       headerSidebarBg: "#212B36",
@@ -45,6 +52,7 @@ export const AppProvider = ({ children }) => {
       progressBarLine: "#D1D5DB",
       progressBarActive: "#28A745",
       nextButtonBg: "#28A745",
+      cancelButton: "#6B7280",
     }),
     []
   );
@@ -67,6 +75,7 @@ export const AppProvider = ({ children }) => {
       progressBarLine: "#4B5563",
       progressBarActive: "#48BB78",
       nextButtonBg: "#48BB78",
+      cancelButton: "#A0AEC0",
     }),
     []
   );
@@ -80,10 +89,7 @@ export const AppProvider = ({ children }) => {
   const toggleTheme = () => setIsDarkMode((prev) => !prev);
   const login = (userData) => setProfileUser(userData);
   const logout = () => {
-    setProfileUser(null);
-    localStorage.removeItem("rememberedEmail");
-    localStorage.removeItem("rememberedPassword");
-    localStorage.removeItem("rememberMe");
+    setProfileUser(null); /* ... */
   };
 
   useEffect(() => {
@@ -108,12 +114,26 @@ export const AppProvider = ({ children }) => {
     setUsers,
     companyUsers,
     setCompanyUsers,
+    stores,
+    setStores,
     isDarkMode,
     toggleTheme,
     currentColors,
     language,
     setLanguage,
-    appTranslations, // <-- ÖNEMLİ: Çeviri nesnesini context'e ekliyoruz
+    appTranslations,
+    showDialog,
+    setShowDialog,
+    dialogTitle,
+    setDialogTitle,
+    dialogMessage,
+    setDialogMessage,
+    dialogType,
+    setDialogType,
+    dialogCallback,
+    setDialogCallback,
+    dialogConfirmationText,
+    setDialogConfirmationText,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

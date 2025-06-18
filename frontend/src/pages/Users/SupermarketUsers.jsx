@@ -9,11 +9,17 @@ import { mockStores } from "../../data/mockStores";
 const SupermarketUsers = () => {
   const {
     profileUser,
-    currentColors,
+    currentColors: colors,
     appTranslations,
     language,
     users,
     setUsers,
+    setDialogConfirmationText,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
+    setShowDialog,
   } = useAuth();
 
   const navigate = useNavigate();
@@ -54,12 +60,29 @@ const SupermarketUsers = () => {
   };
 
   const handleDeleteUser = (userToDelete) => {
-    // Gerçek uygulamada burada bir onay dialog'u gösterilir.
-    // Şimdilik direkt siliyoruz.
-    console.log("Deleting user:", userToDelete);
-    setUsers((prevUsers) =>
-      prevUsers.filter((user) => user.id !== userToDelete.id)
+    // Yetki kontrolü...
+
+    const confirmationFullName = `${userToDelete.name} ${userToDelete.surname}`;
+
+    setDialogTitle(translations.confirmDeleteUserTitle || "Confirm Deletion");
+    setDialogMessage(
+      `${
+        translations.confirmDeleteUserMessage ||
+        "Are you sure you want to delete"
+      } '${confirmationFullName}'?`
     );
+    setDialogConfirmationText(confirmationFullName); // ONAY METNİNİ AYARLA
+    setDialogType("confirm");
+
+    setDialogCallback(() => () => {
+      // "Yes" butonuna basıldığında çalışacak fonksiyon
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userToDelete.id)
+      );
+      // Başarılı silme mesajı da gösterilebilir.
+    });
+
+    setShowDialog(true);
   };
 
   const handleEditUser = (userId) => {
@@ -130,12 +153,12 @@ const SupermarketUsers = () => {
     <div
       className="p-8 rounded-lg shadow-md"
       style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
+        backgroundColor: colors.pureWhite,
+        color: colors.darkText,
       }}>
       <h1
         className="text-3xl font-semibold mb-6"
-        style={{ color: currentColors.darkText }}>
+        style={{ color: colors.darkText }}>
         {translations.usersForSupermarketTitle || "Users For Supermarket"}
       </h1>
 
@@ -145,8 +168,8 @@ const SupermarketUsers = () => {
             onClick={handleAddNewUser}
             className="px-6 py-3 rounded-md font-medium flex items-center justify-center transition-colors duration-200 cursor-pointer"
             style={{
-              backgroundColor: currentColors.logoPrimaryBlue,
-              color: currentColors.whiteText,
+              backgroundColor: colors.logoPrimaryBlue,
+              color: colors.whiteText,
             }}>
             <PlusCircle size={20} className="mr-2" />{" "}
             {translations.addNewUserButton || "Add New User"}
@@ -167,12 +190,12 @@ const SupermarketUsers = () => {
             name="storeName"
             value={filters.storeName}
             onChange={handleFilterChange}
-            className="w-full p-2 rounded-md border"
+            className="w-full p-2 rounded-md border cursor-pointer"
             style={{
-              borderColor: currentColors.mediumGrayText,
-              backgroundColor: currentColors.lightGrayBg,
-              color: currentColors.darkText,
-              outlineColor: currentColors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              borderColor: colors.mediumGrayText,
+              backgroundColor: colors.lightGrayBg,
+              color: colors.darkText,
+              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
             }}>
             <option value="">{translations.allStores || "All Stores"}</option>
             {uniqueStores.map((storeName) => (
@@ -197,12 +220,12 @@ const SupermarketUsers = () => {
             disabled={
               !isAdmin && !(isEngineer && profileUser?.country === "Global")
             }
-            className="w-full p-2 rounded-md border"
+            className="w-full p-2 rounded-md border cursor-pointer"
             style={{
-              borderColor: currentColors.mediumGrayText,
-              backgroundColor: currentColors.lightGrayBg,
-              color: currentColors.darkText,
-              outlineColor: currentColors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              borderColor: colors.mediumGrayText,
+              backgroundColor: colors.lightGrayBg,
+              color: colors.darkText,
+              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
             }}>
             <option value="">
               {translations.allCountries || "All Countries"}
@@ -231,12 +254,12 @@ const SupermarketUsers = () => {
               !isAdmin &&
               !(isEngineer && profileUser?.country === "Global")
             }
-            className="w-full p-2 rounded-md border"
+            className="w-full p-2 rounded-md border  cursor-pointer"
             style={{
-              borderColor: currentColors.mediumGrayText,
-              backgroundColor: currentColors.lightGrayBg,
-              color: currentColors.darkText,
-              outlineColor: currentColors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              borderColor: colors.mediumGrayText,
+              backgroundColor: colors.lightGrayBg,
+              color: colors.darkText,
+              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
             }}>
             <option value="">{translations.allCities || "All Cities"}</option>
             {uniqueCities.map((city) => (
@@ -253,8 +276,8 @@ const SupermarketUsers = () => {
           onClick={handleClearFilters}
           className="px-4 py-2 rounded-md font-medium flex items-center justify-center transition-colors duration-200 cursor-pointer inline-flex"
           style={{
-            backgroundColor: currentColors.logoPrimaryBlue,
-            color: currentColors.whiteText,
+            backgroundColor: colors.logoPrimaryBlue,
+            color: colors.whiteText,
           }}>
           <RotateCcw size={18} className="mr-2" />{" "}
           {translations.clearFilters || "Clear Filters"}
@@ -263,11 +286,11 @@ const SupermarketUsers = () => {
 
       <div
         className="overflow-x-auto rounded-lg border"
-        style={{ borderColor: currentColors.mediumGrayText }}>
+        style={{ borderColor: colors.mediumGrayText }}>
         <table
           className="min-w-full divide-y"
-          style={{ borderColor: currentColors.mediumGrayText }}>
-          <thead style={{ backgroundColor: currentColors.lightGrayBg }}>
+          style={{ borderColor: colors.mediumGrayText }}>
+          <thead style={{ backgroundColor: colors.lightGrayBg }}>
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 {translations.nameSurnameHeader || "Name"}
@@ -286,15 +309,15 @@ const SupermarketUsers = () => {
           </thead>
           <tbody
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              backgroundColor: colors.pureWhite,
+              color: colors.darkText,
             }}>
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-t hover:bg-gray-50"
-                  style={{ borderColor: currentColors.lightGrayBg }}>
+                  className="border-t hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                  style={{ borderColor: colors.lightGrayBg }}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.name} {user.surname}
                   </td>

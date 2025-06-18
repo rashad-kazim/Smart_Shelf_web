@@ -208,6 +208,8 @@ const NewInstallationPage = () => {
   );
 
   const handleSaveDevice = useCallback(() => {
+    // İSTEK 2: Bluetooth bağlantı kontrolü
+    // Eğer bu bir DÜZENLEME işlemi DEĞİLSE ve Bluetooth bağlı DEĞİLSE, hata ver.
     if (!currentInstallingDevice && !bluetoothConnectedDevice) {
       setShowDialog(true);
       setDialogTitle(translations.errorTitle || "Error");
@@ -217,13 +219,17 @@ const NewInstallationPage = () => {
       );
       setDialogType("alert");
       setDialogCallback(() => () => setShowDialog(false));
-      return;
+      return; // Fonksiyonu durdur
     }
+
     const newErrors = {};
     let isValid = true;
+
+    // İSTEK 6: Zorunlu alan kontrolü
     if (!deviceForm.screenSize) {
       isValid = false;
-      newErrors.screenSize = translations.requiredFieldWarning;
+      newErrors.screenSize =
+        translations.requiredFieldWarning || "This field is required.";
     }
     if (!deviceForm.allDayWork) {
       if (!deviceForm.awakeTime) {
@@ -235,29 +241,55 @@ const NewInstallationPage = () => {
         newErrors.sleepTime = translations.requiredFieldWarning;
       }
     }
+
+    // İSTEK 1: Tekrarlanan ID kontrolü
+    const parsedId = parseInt(deviceForm.id);
+    if (isNaN(parsedId) || String(deviceForm.id).trim() === "") {
+      isValid = false;
+      newErrors.id = translations.invalidID || "ID must be a number.";
+    } else if (
+      installedDevices.some(
+        (d) => d.id === parsedId && d.id !== currentInstallingDevice?.id
+      )
+    ) {
+      // Eğer bu ID listede varsa VE şu an düzenlediğimiz cihazın ID'si değilse hata ver.
+      isValid = false;
+      newErrors.id =
+        translations.deviceIdExists || "This ID is already in use.";
+    }
+
     setDeviceFormErrors(newErrors);
+
     if (!isValid) {
+      // İSTEK 6: Hata varsa ilk hatalı alana smooth scroll yap
       const firstErrorFieldId = Object.keys(newErrors)[0];
-      if (firstErrorFieldId)
+      if (firstErrorFieldId) {
         document
           .getElementById(firstErrorFieldId)
           ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
+
+    // Doğrulama başarılıysa kaydetme işlemini yap
+    const deviceToSave = { ...deviceForm, id: parsedId };
     setInstalledDevices((prev) => {
       const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
       return isEditing
         ? prev.map((d) =>
-            d.id === currentInstallingDevice.id ? { ...deviceForm } : d
+            d.id === currentInstallingDevice.id ? deviceToSave : d
           )
-        : [...prev, { ...deviceForm }];
+        : [...prev, deviceToSave];
     });
+
     setIsDeviceFormActive(false);
     setCurrentInstallingDevice(null);
+    setBluetoothConnectedDevice(null);
   }, [
     deviceForm,
     currentInstallingDevice,
     bluetoothConnectedDevice,
+    installedDevices,
     translations,
     setShowDialog,
     setDialogTitle,
@@ -268,6 +300,7 @@ const NewInstallationPage = () => {
     setInstalledDevices,
     setIsDeviceFormActive,
     setCurrentInstallingDevice,
+    setBluetoothConnectedDevice,
   ]);
 
   const handleCancelDeviceForm = useCallback(() => {
@@ -427,6 +460,8 @@ const NewInstallationPage = () => {
       setIsDeviceFormActive,
       handleBluetoothConnect,
       bluetoothConnectedDevice,
+      storeForm,
+      esp32Token,
     },
     5: { ...commonProps, logs, handleGetLogs, handleCompleteInstallation },
   };

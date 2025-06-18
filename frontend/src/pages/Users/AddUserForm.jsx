@@ -11,7 +11,7 @@ import { Camera, Eye, EyeOff } from "lucide-react";
 const AddUserForm = () => {
   const {
     profileUser,
-    currentColors,
+    currentColors: colors,
     appTranslations,
     language,
     users,
@@ -25,6 +25,13 @@ const AddUserForm = () => {
   const isAdmin = profileUser?.role === ROLES.ADMIN;
   const isEngineer = profileUser?.role === ROLES.ENGINEER;
   const isCountryChief = profileUser?.role === ROLES.COUNTRY_CHIEF;
+
+  // Define styles for the form inputs
+  const inputStyle = {
+    backgroundColor: colors.pureWhite,
+    color: colors.darkText,
+    borderColor: colors.mediumGrayText,
+  };
 
   const initialCountry =
     isAdmin || (isEngineer && profileUser?.country === "Global")
@@ -172,8 +179,8 @@ const AddUserForm = () => {
     <div
       className="p-8 rounded-lg shadow-md"
       style={{
-        backgroundColor: currentColors.pureWhite,
-        color: currentColors.darkText,
+        backgroundColor: colors.pureWhite,
+        color: colors.darkText,
       }}>
       <h1 className="text-3xl font-semibold mb-6">
         {translations.addNewUserTitle || "Add New User"}
@@ -185,12 +192,12 @@ const AddUserForm = () => {
           <label
             htmlFor="profilePicture"
             className="block text-sm font-medium mb-2"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.profilePictureLabel}
           </label>
           <div
             className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 flex items-center justify-center mb-3 cursor-pointer hover:border-blue-500 transition-colors duration-200"
-            style={{ borderColor: currentColors.mediumGrayText }}
+            style={{ borderColor: colors.mediumGrayText }}
             onClick={handleProfilePictureClick}>
             {formData.profilePicture ? (
               <img
@@ -199,7 +206,7 @@ const AddUserForm = () => {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <Camera size={64} color={currentColors.mediumGrayText} />
+              <Camera size={64} color={colors.mediumGrayText} />
             )}
           </div>
           <input
@@ -222,7 +229,7 @@ const AddUserForm = () => {
           <label
             htmlFor="name"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.employeeNameLabel}{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -236,8 +243,10 @@ const AddUserForm = () => {
               formErrors.name ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
           />
           {formErrors.name && (
@@ -248,7 +257,7 @@ const AddUserForm = () => {
           <label
             htmlFor="surname"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.employeeSurnameLabel}{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -262,8 +271,10 @@ const AddUserForm = () => {
               formErrors.surname ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.surname
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
           />
           {formErrors.surname && (
@@ -274,7 +285,7 @@ const AddUserForm = () => {
           <label
             htmlFor="dob"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.dobLabel} <span className="text-red-500">*</span>
           </label>
           <input
@@ -287,8 +298,10 @@ const AddUserForm = () => {
               formErrors.dob ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.name
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
           />
           {formErrors.dob && (
@@ -299,7 +312,7 @@ const AddUserForm = () => {
           <label
             htmlFor="country"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.countryLabel} <span className="text-red-500">*</span>
           </label>
           <select
@@ -311,8 +324,10 @@ const AddUserForm = () => {
               formErrors.country ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.country
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
             disabled={
               !isAdmin && !(isEngineer && profileUser?.country === "Global")
@@ -332,7 +347,7 @@ const AddUserForm = () => {
           <label
             htmlFor="city"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.cityLabel} <span className="text-red-500">*</span>
           </label>
           <select
@@ -344,8 +359,10 @@ const AddUserForm = () => {
               formErrors.city ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.city
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
             disabled={!formData.country}>
             <option value="">{translations.selectCity}</option>
@@ -363,7 +380,7 @@ const AddUserForm = () => {
           <label
             htmlFor="storeName"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.storeNameLabel}{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -376,8 +393,10 @@ const AddUserForm = () => {
               formErrors.storeName ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.storeName
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
             disabled={!formData.country || !formData.city}>
             <option value="">{translations.selectStore}</option>
@@ -399,12 +418,12 @@ const AddUserForm = () => {
             checked={formData.addBranch}
             onChange={handleFormChange}
             className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            style={{ borderColor: currentColors.mediumGrayText }}
+            style={{ borderColor: colors.mediumGrayText }}
           />
           <label
             htmlFor="addBranch"
             className="text-sm"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.addBranchLabel}
           </label>
         </div>
@@ -413,7 +432,7 @@ const AddUserForm = () => {
             <label
               htmlFor="branch"
               className="block text-sm font-medium mb-1"
-              style={{ color: currentColors.darkText }}>
+              style={{ color: colors.darkText }}>
               {translations.branchLabel} <span className="text-red-500">*</span>
             </label>
             <input
@@ -426,8 +445,10 @@ const AddUserForm = () => {
                 formErrors.branch ? "border-red-500" : "border-gray-300"
               }`}
               style={{
-                backgroundColor: currentColors.pureWhite,
-                color: currentColors.darkText,
+                ...inputStyle,
+                borderColor: formErrors.branch
+                  ? colors.errorRed
+                  : colors.mediumGrayText,
               }}
             />
             {formErrors.branch && (
@@ -439,7 +460,7 @@ const AddUserForm = () => {
           <label
             htmlFor="role"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
+            style={{ color: colors.darkText }}>
             {translations.roleLabel} <span className="text-red-500">*</span>
           </label>
           <select
@@ -451,8 +472,10 @@ const AddUserForm = () => {
               formErrors.role ? "border-red-500" : "border-gray-300"
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.role
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}>
             {roleOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -465,11 +488,8 @@ const AddUserForm = () => {
           )}
         </div>
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
-            {translations.mailLabel} <span className="text-red-500">*</span>
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
+            {translations.mailLabel}*
           </label>
           <input
             type="email"
@@ -477,12 +497,14 @@ const AddUserForm = () => {
             name="email"
             value={formData.email}
             onChange={handleFormChange}
-            className={`w-full p-2 rounded-md border ${
-              formErrors.email ? "border-red-500" : "border-gray-300"
+            className={`w-full p-2 border rounded-md ${
+              formErrors.email ? "border-red-500" : ""
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
+              ...inputStyle,
+              borderColor: formErrors.email
+                ? colors.errorRed
+                : colors.mediumGrayText,
             }}
           />
           {formErrors.email && (
@@ -490,72 +512,71 @@ const AddUserForm = () => {
           )}
         </div>
         <div className="relative">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
-            {translations.passwordLabel} <span className="text-red-500">*</span>
+          <label htmlFor="password" className="block text-sm font-medium mb-1">
+            {translations.passwordLabel}*
           </label>
-          <div
-            className={`flex items-center rounded-md border ${
-              formErrors.password ? "border-red-500" : "border-gray-300"
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleFormChange}
+            className={`w-full p-2 pr-10 border rounded-md ${
+              formErrors.password ? "border-red-500" : ""
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
-            }}>
-            <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleFormChange}
-              className="w-full p-2 focus:outline-none focus:ring-0 bg-transparent"
-              style={{ color: currentColors.darkText }}
-            />
-            <span
-              className="p-2 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ color: currentColors.mediumGrayText }}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
+              ...inputStyle,
+              borderColor: formErrors.password
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
+          />
+          <span
+            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+            onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? (
+              <EyeOff size={18} color={colors.mediumGrayText} />
+            ) : (
+              <Eye size={18} color={colors.mediumGrayText} />
+            )}
+          </span>
           {formErrors.password && (
             <p className="text-red-500 text-xs mt-1">{formErrors.password}</p>
           )}
         </div>
+
         <div className="relative">
           <label
             htmlFor="repeatPassword"
             className="block text-sm font-medium mb-1"
-            style={{ color: currentColors.darkText }}>
-            {translations.repeatPasswordLabel}{" "}
-            <span className="text-red-500">*</span>
+            style={{ color: colors.darkText }}>
+            {translations.repeatPasswordLabel}*
           </label>
-          <div
-            className={`flex items-center rounded-md border ${
-              formErrors.repeatPassword ? "border-red-500" : "border-gray-300"
+          <input
+            type={showRepeatPassword ? "text" : "password"}
+            id="repeatPassword"
+            name="repeatPassword"
+            value={formData.repeatPassword}
+            onChange={handleFormChange}
+            className={`w-full p-2 pr-10 border rounded-md ${
+              formErrors.repeatPassword ? "border-red-500" : ""
             }`}
             style={{
-              backgroundColor: currentColors.pureWhite,
-              color: currentColors.darkText,
-            }}>
-            <input
-              type={showRepeatPassword ? "text" : "password"}
-              id="repeatPassword"
-              name="repeatPassword"
-              value={formData.repeatPassword}
-              onChange={handleFormChange}
-              className="w-full p-2 focus:outline-none focus:ring-0 bg-transparent"
-              style={{ color: currentColors.darkText }}
-            />
-            <span
-              className="p-2 cursor-pointer"
-              onClick={() => setShowRepeatPassword(!showRepeatPassword)}
-              style={{ color: currentColors.mediumGrayText }}>
-              {showRepeatPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </span>
-          </div>
+              ...inputStyle,
+              borderColor: formErrors.repeatPassword
+                ? colors.errorRed
+                : colors.mediumGrayText,
+            }}
+          />
+          <span
+            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+            onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
+            {showRepeatPassword ? (
+              <EyeOff size={18} color={colors.mediumGrayText} />
+            ) : (
+              <Eye size={18} color={colors.mediumGrayText} />
+            )}
+          </span>
           {formErrors.repeatPassword && (
             <p className="text-red-500 text-xs mt-1">
               {formErrors.repeatPassword}

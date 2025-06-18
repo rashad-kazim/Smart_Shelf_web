@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { ROLES } from "../../config/roles";
-import { mockUsers } from "../../data/mockUsers";
-import { mockCompanyUsers } from "../../data/mockCompanyUsers";
+import { useAuth } from "../context/AuthContext";
+import { ROLES } from "../config/roles";
+import { mockUsers } from "../data/mockUsers";
+import { mockCompanyUsers } from "../data/mockCompanyUsers";
 
 const LoginPage = ({ appTranslations, currentColors }) => {
   const [email, setEmail] = useState(
