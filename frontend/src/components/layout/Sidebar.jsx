@@ -2,16 +2,10 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { PERMISSIONS } from "../../config/roles";
 import { Home, Store, PlusCircle, Settings, Users } from "lucide-react";
 
 const Sidebar = ({ isSidebarExpanded, setLanguage }) => {
-  const {
-    profileUser,
-    currentColors: colors,
-    appTranslations,
-    language,
-  } = useAuth();
+  const { currentColors: colors, appTranslations, language } = useAuth();
   const translations = appTranslations[language] || appTranslations.en;
 
   const navItems = [
@@ -47,8 +41,6 @@ const Sidebar = ({ isSidebarExpanded, setLanguage }) => {
     },
   ];
 
-  const allowedRoutes = PERMISSIONS[profileUser?.role]?.viewableRoutes || [];
-
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100vh-64px)] overflow-y-auto shadow-lg transition-all duration-300 z-30 flex flex-col`}
@@ -59,7 +51,6 @@ const Sidebar = ({ isSidebarExpanded, setLanguage }) => {
       <nav className="flex-grow">
         <ul className="space-y-2 py-4">
           {navItems.map((item) => {
-            if (!allowedRoutes.includes(item.accessKey)) return null;
             return (
               <li key={item.route}>
                 <NavLink
@@ -108,6 +99,7 @@ const Sidebar = ({ isSidebarExpanded, setLanguage }) => {
             borderColor: colors.mediumGrayText,
           }}>
           <option value="en">{isSidebarExpanded ? "English" : "EN"}</option>
+          <option value="az">{isSidebarExpanded ? "Azerbaycan" : "AZ"}</option>
           <option value="tr">{isSidebarExpanded ? "Türkçe" : "TR"}</option>
           <option value="ru">{isSidebarExpanded ? "Русский" : "RU"}</option>
           <option value="pl">{isSidebarExpanded ? "Polski" : "PL"}</option>

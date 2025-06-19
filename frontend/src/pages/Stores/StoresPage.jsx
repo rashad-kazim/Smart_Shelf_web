@@ -32,8 +32,8 @@ const StoresPage = () => {
       description: translations.editStoreDesc || "",
       icon: Edit,
       route: "/edit-store-details", // We will create this route later
-      // Only Admin, Country Chief, and Analyst can access
-      access: isAdmin || isCountryChief || profileUser?.role === ROLES.ANALYST,
+      // Only Admin, Country Chief, and Engineer can access
+      access: isAdmin || isCountryChief || profileUser?.role === ROLES.ENGINEER,
     },
     {
       title: translations.deleteStoreTitle || "Delete Store",
@@ -68,9 +68,6 @@ const StoresPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardData.map((card, index) => {
-          // If the user does not have access to the card, do not render the card
-          if (!card.access) return null;
-
           return (
             <div
               key={index}

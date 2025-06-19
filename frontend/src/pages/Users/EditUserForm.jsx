@@ -107,28 +107,23 @@ const EditUserForm = () => {
   };
 
   const handleProfilePictureClick = () => fileInputRef.current.click();
+
+  // Validate required fields, email format, and password match
   const validateForm = () => {
     let errors = {};
 
-    let isValid = true; // Gerekli alanları tanımla
+    let isValid = true; // Define required fields
 
     const requiredFields = [
       "name",
-
       "surname",
-
       "country",
-
       "city",
-
       "role",
-
       "email",
-
       "password",
-
       "repeatPassword",
-    ]; // Gerekli alanların boş olup olmadığını kontrol et
+    ]; // Check if required fields are empty
 
     requiredFields.forEach((field) => {
       if (
@@ -141,14 +136,14 @@ const EditUserForm = () => {
 
         isValid = false;
       }
-    }); // Şifrelerin eşleşip eşleşmediğini kontrol et
+    }); // Check if passwords match
 
     if (formData.password !== formData.repeatPassword) {
       errors.repeatPassword =
         translations.passwordMismatch || "Passwords do not match.";
 
       isValid = false;
-    } // E-posta formatını kontrol et
+    } // Check email format
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email =
@@ -175,7 +170,7 @@ const EditUserForm = () => {
     }
   };
 
-  // Stil tanımlamaları
+  // Style definitions
   const inputStyle = {
     backgroundColor: colors.pureWhite,
     color: colors.darkText,

@@ -1,5 +1,4 @@
 // src/pages/Users/AddCompanyUserForm.js
-// src/pages/Users/AddCompanyUserForm.js
 import React, { useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -8,7 +7,7 @@ import { mockStores } from "../../data/mockStores";
 import { Camera, Eye, EyeOff } from "lucide-react";
 
 const AddCompanyUserForm = () => {
-  // 1. DÜZELTME: Gerekli tüm global verileri ve fonksiyonları useAuth'dan alıyoruz
+  // 1. FIX: Get all necessary global data and functions from useAuth
   const {
     profileUser,
     currentColors: colors,
@@ -19,7 +18,7 @@ const AddCompanyUserForm = () => {
   } = useAuth();
   const navigate = useNavigate();
 
-  // 2. DÜZELTME: Çeviri nesnesini doğru şekilde oluşturuyoruz
+  // 2. FIX: Create the translation object correctly
   const translations = appTranslations[language]?.users || {};
   const fileInputRef = useRef(null);
 
@@ -28,7 +27,7 @@ const AddCompanyUserForm = () => {
 
   const initialCountry = isAdmin ? "" : profileUser?.country || "";
 
-  // 3. DÜZELTME: ID'yi ve rolü doğru şekilde başlatıyoruz
+  // 3. FIX: Initialize ID and role correctly
   const [formData, setFormData] = useState({
     id:
       companyUsers.length > 0
@@ -112,7 +111,7 @@ const AddCompanyUserForm = () => {
     let errors = {};
     let isValid = true;
 
-    // Gerekli alanları tanımla
+    // Define required fields
     const requiredFields = [
       "name",
       "surname",
@@ -124,7 +123,7 @@ const AddCompanyUserForm = () => {
       "repeatPassword",
     ];
 
-    // Gerekli alanların boş olup olmadığını kontrol et
+    // Check if required fields are empty
     requiredFields.forEach((field) => {
       if (
         !formData[field] ||
@@ -137,14 +136,14 @@ const AddCompanyUserForm = () => {
       }
     });
 
-    // Şifrelerin eşleşip eşleşmediğini kontrol et
+    // Check if passwords match
     if (formData.password !== formData.repeatPassword) {
       errors.repeatPassword =
         translations.passwordMismatch || "Passwords do not match.";
       isValid = false;
     }
 
-    // E-posta formatını kontrol et
+    // Check email format
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email =
         translations.invalidEmail || "Please enter a valid email address.";

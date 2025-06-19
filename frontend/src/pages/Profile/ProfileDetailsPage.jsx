@@ -53,7 +53,7 @@ const ProfileDetailsPage = () => {
     return <div>Loading profile...</div>;
   }
 
-  // DÜZELTME: Stil tanımlamaları
+  // FIX: Style definitions
   const inputStyle = {
     backgroundColor: colors.pureWhite,
     color: colors.darkText,

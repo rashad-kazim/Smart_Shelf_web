@@ -8,13 +8,14 @@ import { mockStores } from "../../data/mockStores";
 
 const CompanyUsers = () => {
   const {
+    isDarkMode,
     profileUser,
     currentColors: colors,
     appTranslations,
     language,
     companyUsers,
     setCompanyUsers,
-    // DÜZELTME: Dialog fonksiyonları context'ten alınıyor
+    // FIX: Dialog functions are taken from context
     setShowDialog,
     setDialogTitle,
     setDialogMessage,
@@ -91,7 +92,7 @@ const CompanyUsers = () => {
     });
   }, [companyUsers, filters, profileUser, isCountryChief]);
 
-  // DÜZELTME: Silme fonksiyonu onay mekanizmasını kullanacak şekilde güncellendi
+  // FIX: Delete function updated to use confirmation mechanism
   const handleDeleteUser = (userToDelete) => {
     if (!isAdmin && !isCountryChief) return;
 
@@ -106,7 +107,7 @@ const CompanyUsers = () => {
         "Are you sure you want to delete"
       } '${confirmationFullName}'?`
     );
-    setDialogConfirmationText(confirmationFullName); // Onay için kullanıcının tam adını ayarla
+    setDialogConfirmationText(confirmationFullName); // Set user's full name for confirmation
     setDialogType("confirm");
 
     setDialogCallback(() => () => {
@@ -245,7 +246,11 @@ const CompanyUsers = () => {
               filteredUsers.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-t hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                  className={`border-t transition-colors duration-150 ${
+                    isDarkMode
+                      ? "text-gray-100 hover:bg-gray-700"
+                      : "text-gray-700 hover:bg-gray-200 hover:text-black"
+                  }`}
                   style={{ borderColor: colors.lightGrayBg }}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.name} {user.surname}

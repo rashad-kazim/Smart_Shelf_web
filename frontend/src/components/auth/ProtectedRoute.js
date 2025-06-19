@@ -9,27 +9,27 @@ import AccessDeniedPage from "../../pages/misc/AccessDeniedPage";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, profileUser } = useAuth();
-  const location = useLocation(); // Mevcut sayfanın yolunu almak için
+  const location = useLocation(); // To get the current page's path
 
-  // 1. Kullanıcı giriş yapmamışsa, login sayfasına yönlendir.
+  // 1. If the user is not logged in, redirect to the login page.
   if (!isAuthenticated) {
-    // Kullanıcının gitmek istediği sayfayı state olarak saklayalım ki,
-    // giriş yaptıktan sonra oraya geri dönebilsin.
+    // Save the page the user wants to go to as state,
+    // so they can return there after logging in.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. Kullanıcının rolüne göre erişebileceği rotaları al.
+  // 2. Get the routes the user can access based on their role.
   const allowedRoutes = PERMISSIONS[profileUser?.role]?.viewableRoutes || [];
 
-  // Gidilmek istenen ana rotayı bulalım (ör: /users/add -> /users)
+  // Find the main route being accessed (e.g., /users/add -> /users)
   const mainRoute = `/${location.pathname.split("/")[1] || ""}`;
 
-  // 3. Kullanıcının bu ana rotaya erişim izni yoksa, "Erişim Reddedildi" sayfasını göster.
+  // 3. If the user does not have permission to access this main route, show the "Access Denied" page.
   if (!allowedRoutes.includes(mainRoute)) {
     return <AccessDeniedPage />;
   }
 
-  // 4. Tüm kontrollerden geçtiyse, istenen sayfayı (children) göster.
+  // 4. If all checks pass, show the requested page (children).
   return children;
 };
 

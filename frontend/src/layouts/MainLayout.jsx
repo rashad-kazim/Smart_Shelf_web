@@ -6,7 +6,7 @@ import Header from "../components/layout/Header";
 import Sidebar from "../components/layout/Sidebar";
 
 const MainLayout = () => {
-  // Context'ten TÜM global verileri ve fonksiyonları alıyoruz
+  // Get ALL global data and functions from context
   const { currentColors, setLanguage, isDarkMode, toggleTheme } = useAuth();
 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -21,12 +21,12 @@ const MainLayout = () => {
         isSidebarExpanded={isSidebarExpanded}
         toggleSidebar={toggleSidebar}
         isDarkMode={isDarkMode}
-        toggleTheme={toggleTheme} // DÜZELTME: toggleTheme fonksiyonu Header'a gönderiliyor
+        toggleTheme={toggleTheme} // FIX: toggleTheme function is sent to Header
       />
       <div className="flex flex-1 pt-16">
         <Sidebar
           isSidebarExpanded={isSidebarExpanded}
-          setLanguage={setLanguage} // DÜZELTME: setLanguage fonksiyonu Sidebar'a gönderiliyor
+          setLanguage={setLanguage} // FIX: setLanguage function is sent to Sidebar
         />
         <main
           className="flex-1 p-6 transition-all duration-300 ease-in-out overflow-y-auto"

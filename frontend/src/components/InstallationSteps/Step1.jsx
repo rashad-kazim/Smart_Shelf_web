@@ -14,6 +14,8 @@ const Step1 = ({
   formErrors,
   setFormErrors,
   onNext,
+  isCountryFilterDisabled,
+  isAdmin,
 }) => {
   const handleStoreFormChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -90,7 +92,17 @@ const Step1 = ({
       });
     }
   };
-
+  const disabledInputStyle = {
+    backgroundColor: colors.lightGrayBg,
+    color: colors.mediumGrayText,
+    cursor: "not-allowed",
+    borderColor: colors.mediumGrayText,
+  };
+  const inputStyle = {
+    backgroundColor: colors.pureWhite,
+    color: colors.darkText,
+    borderColor: colors.mediumGrayText,
+  };
   return (
     <div
       className="p-6 rounded-lg shadow-md max-w-2xl mx-auto"
@@ -111,19 +123,25 @@ const Step1 = ({
                 name="country"
                 value={storeForm.country}
                 onChange={handleStoreFormChange}
+                disabled={isCountryFilterDisabled} // the disabled property is bound here
                 className={`w-full p-2 border rounded-md appearance-none ${
                   formErrors.country ? "border-red-500" : ""
                 }`}
-                style={{
-                  backgroundColor: colors.pureWhite,
-                  color: colors.darkText,
-                  borderColor: formErrors.country
-                    ? colors.errorRed
-                    : colors.mediumGrayText,
-                }}>
-                <option value="">
-                  {translations?.countryPlaceholder || "Select Country"}
-                </option>
+                style={
+                  isCountryFilterDisabled
+                    ? disabledInputStyle
+                    : {
+                        ...inputStyle,
+                        borderColor: formErrors.country
+                          ? colors.errorRed
+                          : colors.mediumGrayText,
+                      }
+                }>
+                {isAdmin && (
+                  <option value="">
+                    {translations?.countryPlaceholder || "Select Country"}
+                  </option>
+                )}
                 {countryOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}

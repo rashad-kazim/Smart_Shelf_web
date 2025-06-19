@@ -1,14 +1,13 @@
-// src/components/InstallationSteps/Step4.jsx
+// src/pages/Stores/StoreEditingStep2.jsx
 import React, { useRef } from "react";
-import { Bluetooth, ChevronDown, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, ChevronDown, Bluetooth } from "lucide-react";
 
-const Step4 = (props) => {
+const StoreEditingStep2 = (props) => {
   const {
     installedDevices,
     currentInstallingDevice,
     deviceForm,
     isDeviceFormActive,
-
     fontSizes,
     screenSizes,
     deviceFormErrors,
@@ -32,6 +31,7 @@ const Step4 = (props) => {
     handleBluetoothConnect,
     storeForm,
     esp32Token,
+    currentStoreDevices,
   } = props;
 
   const newDeviceFormSectionRef = useRef(null);
@@ -103,21 +103,23 @@ const Step4 = (props) => {
       <div className="mb-6">
         <h3
           className="text-lg font-semibold mb-4"
-          style={{ color: colors?.darkText }}>
-          {translations?.installedDevicesTitle || "Installed Devices"}
+          style={{ color: colors.darkText }}>
+          {translations.installedDevicesTitle || "Installed Devices"}
         </h3>
-        {installedDevices.length === 0 ? (
-          <p style={{ color: colors?.mediumGrayText }}>
-            {translations?.noDevicesYet || "No devices installed yet."}
+        {/* FIX: Added safety check with (currentStoreDevices || []) */}
+        {(currentStoreDevices || []).length === 0 ? (
+          <p style={{ color: colors.mediumGrayText }}>
+            {translations.noDevicesYet ||
+              "No devices installed for this store."}
           </p>
         ) : (
           <ul className="space-y-2">
-            {installedDevices.map((device) => (
+            {(currentStoreDevices || []).map((device) => (
               <li
                 key={device.id}
                 className="flex justify-between items-center p-3 rounded-md"
-                style={{ backgroundColor: colors?.lightGrayBg }}>
-                <span style={{ color: colors?.darkText }}>
+                style={{ backgroundColor: colors.lightGrayBg }}>
+                <span style={{ color: colors.darkText }}>
                   ID: {device.id} - Screen: {device.screenSize}
                 </span>
                 <div className="space-x-2">
@@ -126,7 +128,6 @@ const Step4 = (props) => {
                     className="p-1 text-blue-600 hover:text-blue-800">
                     <Edit size={18} />
                   </button>
-                  {/* REQUEST 8: Delete button added to the list */}
                   <button
                     onClick={() => handleDeleteDevice(device.id)}
                     className="p-1 text-red-600 hover:text-red-800">
@@ -514,4 +515,4 @@ const Step4 = (props) => {
   );
 };
 
-export default Step4;
+export default StoreEditingStep2;

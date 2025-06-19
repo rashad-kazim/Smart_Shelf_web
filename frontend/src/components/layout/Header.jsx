@@ -27,7 +27,7 @@ const Header = ({
     navigate("/login");
   };
 
-  // DÜZELTME: Dropdown linkleri için stil sınıfları güncellendi
+  // FIX: Style classes for dropdown links have been updated
   const dropdownLinkBaseStyle =
     "flex items-center w-full text-left px-4 py-2 text-sm transition-colors duration-150 rounded-md";
 
@@ -98,7 +98,7 @@ const Header = ({
               <Link
                 to="/profile-details"
                 onClick={() => setShowProfileDropdown(false)}
-                // DÜZELTME: Stiller isDarkMode durumuna göre koşullu olarak uygulanıyor
+                // FIX: Styles are conditionally applied according to isDarkMode
                 className={`
                                     ${dropdownLinkBaseStyle}
                                     ${
@@ -112,7 +112,7 @@ const Header = ({
               </Link>
               <button
                 onClick={handleLogout}
-                // DÜZELTME: Stiller isDarkMode durumuna göre koşullu olarak uygulanıyor
+                // FIX: Styles are conditionally applied according to isDarkMode
                 className={`
                                     ${dropdownLinkBaseStyle} w-full
                                     ${

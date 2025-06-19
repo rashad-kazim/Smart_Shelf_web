@@ -3,6 +3,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import { ROLES } from "../../config/roles";
 
 import Step1 from "../../components/InstallationSteps/Step1";
 import Step2 from "../../components/InstallationSteps/Step2";
@@ -22,6 +23,7 @@ const NewInstallationPage = () => {
     setDialogMessage,
     setDialogType,
     setDialogCallback,
+    profileUser,
   } = useAuth();
 
   const navigate = useNavigate();
@@ -35,8 +37,15 @@ const NewInstallationPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
 
+  const isAdmin = profileUser?.role === ROLES.ADMIN;
+  const isCountryChief = profileUser?.role === ROLES.COUNTRY_CHIEF;
+  const isEngineer = profileUser?.role === ROLES.ENGINEER;
+
   const [storeForm, setStoreForm] = useState({
-    country: "",
+    country:
+      (isCountryChief || isEngineer) && profileUser.country
+        ? profileUser.country
+        : "",
     city: "",
     storeName: "",
     addBranch: false,
@@ -51,13 +60,31 @@ const NewInstallationPage = () => {
     installerSurname: "",
   });
   const [citiesOptions, setCitiesOptions] = useState([]);
-  const [countryOptions] = useState([
-    { value: "Poland", label: "Poland" },
-    { value: "Azerbaijan", label: "Azerbaijan" },
-    { value: "USA", label: "USA" },
-    { value: "Turkey", label: "Turkey" },
-    { value: "Germany", label: "Germany" },
-  ]);
+
+  const fullCountryList = useMemo(
+    () => [
+      { value: "Poland", label: "Poland" },
+      { value: "Azerbaijan", label: "Azerbaijan" },
+      { value: "USA", label: "USA" },
+      { value: "Turkey", label: "Turkey" },
+      { value: "Germany", label: "Germany" },
+    ],
+    []
+  );
+
+  const isCountryFilterDisabled = !isAdmin;
+  // If the user is not an admin, filter the country selection
+  const countryOptions = useMemo(() => {
+    if (isAdmin) {
+      return fullCountryList;
+    }
+    if (isCountryChief || isEngineer) {
+      // Return an array containing only the user's country
+      return fullCountryList.filter((c) => c.value === profileUser.country);
+    }
+    return []; // Empty for other roles
+  }, [isAdmin, isCountryChief, isEngineer, profileUser, fullCountryList]);
+
   const [formErrors, setFormErrors] = useState({});
   const [serverToken, setServerToken] = useState("");
   const [serverConnectionStatus, setServerConnectionStatus] = useState("");
@@ -208,8 +235,7 @@ const NewInstallationPage = () => {
   );
 
   const handleSaveDevice = useCallback(() => {
-    // İSTEK 2: Bluetooth bağlantı kontrolü
-    // Eğer bu bir DÜZENLEME işlemi DEĞİLSE ve Bluetooth bağlı DEĞİLSE, hata ver.
+    // REQUEST 5: Bluetooth connection check
     if (!currentInstallingDevice && !bluetoothConnectedDevice) {
       setShowDialog(true);
       setDialogTitle(translations.errorTitle || "Error");
@@ -219,13 +245,13 @@ const NewInstallationPage = () => {
       );
       setDialogType("alert");
       setDialogCallback(() => () => setShowDialog(false));
-      return; // Fonksiyonu durdur
+      return; // Stop the function
     }
 
     const newErrors = {};
     let isValid = true;
 
-    // İSTEK 6: Zorunlu alan kontrolü
+    // REQUEST 6: Required field check
     if (!deviceForm.screenSize) {
       isValid = false;
       newErrors.screenSize =
@@ -242,7 +268,7 @@ const NewInstallationPage = () => {
       }
     }
 
-    // İSTEK 1: Tekrarlanan ID kontrolü
+    // REQUEST 1: Duplicate ID check
     const parsedId = parseInt(deviceForm.id);
     if (isNaN(parsedId) || String(deviceForm.id).trim() === "") {
       isValid = false;
@@ -252,7 +278,7 @@ const NewInstallationPage = () => {
         (d) => d.id === parsedId && d.id !== currentInstallingDevice?.id
       )
     ) {
-      // Eğer bu ID listede varsa VE şu an düzenlediğimiz cihazın ID'si değilse hata ver.
+      // If this ID is in the list AND it's not the device currently being edited, show error.
       isValid = false;
       newErrors.id =
         translations.deviceIdExists || "This ID is already in use.";
@@ -261,7 +287,7 @@ const NewInstallationPage = () => {
     setDeviceFormErrors(newErrors);
 
     if (!isValid) {
-      // İSTEK 6: Hata varsa ilk hatalı alana smooth scroll yap
+      // REQUEST 6: If there is an error, smooth scroll to the first erroneous field
       const firstErrorFieldId = Object.keys(newErrors)[0];
       if (firstErrorFieldId) {
         document
@@ -271,7 +297,7 @@ const NewInstallationPage = () => {
       return;
     }
 
-    // Doğrulama başarılıysa kaydetme işlemini yap
+    // If validation is successful, perform the save operation
     const deviceToSave = { ...deviceForm, id: parsedId };
     setInstalledDevices((prev) => {
       const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
@@ -363,6 +389,47 @@ const NewInstallationPage = () => {
     setDialogCallback,
   ]);
 
+  useEffect(() => {
+    if (storeForm.country) {
+      if (storeForm.country === "Poland") {
+        setCitiesOptions([
+          { value: "Warsaw", label: "Warsaw" },
+          { value: "Krakow", label: "Krakow" },
+          { value: "Gdansk", label: "Gdansk" },
+        ]);
+      } else if (storeForm.country === "Azerbaijan") {
+        setCitiesOptions([
+          { value: "Baku", label: "Baku" },
+          { value: "Ganja", label: "Ganja" },
+          { value: "Sumgait", label: "Sumgait" },
+        ]);
+      } else if (storeForm.country === "USA") {
+        setCitiesOptions([
+          { value: "New York", label: "New York" },
+          { value: "Los Angeles", label: "Los Angeles" },
+        ]);
+      } else if (storeForm.country === "Turkey") {
+        setCitiesOptions([
+          { value: "Istanbul", label: "Istanbul" },
+          { value: "Ankara", label: "Ankara" },
+          { value: "Izmir", label: "Izmir" },
+        ]);
+      } else if (storeForm.country === "Germany") {
+        setCitiesOptions([
+          { value: "Berlin", label: "Berlin" },
+          { value: "Munich", label: "Munich" },
+        ]);
+      } else {
+        setCitiesOptions([]);
+      }
+      // Reset city selection when country changes
+      setStoreForm((prev) => ({ ...prev, city: "" }));
+    } else {
+      // If no country is selected, clear the city list
+      setCitiesOptions([]);
+    }
+  }, [storeForm.country]); // This hook only runs when storeForm.country changes
+
   const steps = [
     { id: 1, component: Step1 },
     { id: 2, component: Step2 },
@@ -429,6 +496,7 @@ const NewInstallationPage = () => {
       citiesOptions,
       setCitiesOptions,
       countryOptions,
+      isCountryFilterDisabled,
       timeOptions,
       formErrors,
       setFormErrors,

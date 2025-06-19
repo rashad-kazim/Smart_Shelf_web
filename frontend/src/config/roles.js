@@ -23,7 +23,15 @@ export const PERMISSIONS = {
       "/firmware",
       "/users",
       "/profile-details",
+      "/delete-store",
+      "/edit-store-details",
+      "/edit-store-workflow",
+      "/view-logs",
+      "/store-log-details",
+      "/server-logs",
+      "/esp32-logs",
     ],
+    canAccessCompanyUsers: true, // Admin can access company users
   },
   [ROLES.COUNTRY_CHIEF]: {
     viewableRoutes: [
@@ -32,15 +40,44 @@ export const PERMISSIONS = {
       "/new-installation",
       "/users",
       "/profile-details",
+      "/delete-store",
+      "/edit-store-details",
+      "/edit-store-workflow",
+      "/view-logs",
+      "/store-log-details",
+      "/server-logs",
+      "/esp32-logs",
     ],
+    canAccessCompanyUsers: true, // Country Chief can access company users
   },
   [ROLES.ANALYST]: {
-    viewableRoutes: ["/", "/stores", "/users", "/profile-details"],
+    viewableRoutes: [
+      "/",
+      "/stores",
+      "/users",
+      "/profile-details",
+      "/view-logs",
+      "/store-log-details",
+      "/server-logs",
+      "/esp32-logs",
+      "users/supermarket",
+    ],
+    canAccessCompanyUsers: false,
   },
   [ROLES.ENGINEER]: {
-    viewableRoutes: ["/", "/new-installation", "/users", "/profile-details"],
+    viewableRoutes: [
+      "/",
+      "/new-installation",
+      "/users",
+      "/profile-details",
+      "/edit-store-details",
+      "/edit-store-workflow",
+    ],
+    canAccessCompanyUsers: false,
   },
+
   [ROLES.RUNNER]: {
-    // Runner role has no access to the web panel.
+    viewableRoutes: [],
+    canAccessCompanyUsers: false,
   },
 };

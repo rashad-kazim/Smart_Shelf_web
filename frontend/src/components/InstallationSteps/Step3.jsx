@@ -50,7 +50,7 @@ const Step3 = ({
         <div className="flex items-center space-x-2">
           <button
             onClick={handleGenerateEsp32Token}
-            // DÜZELTME: py-1.5 -> py-2 yapıldı ve whitespace-nowrap eklendi
+            // FIX: py-1.5 -> py-2 and whitespace-nowrap added
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md whitespace-nowrap">
             {translations?.generateTokenButton || "Generate Token"}
           </button>

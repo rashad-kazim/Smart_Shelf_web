@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 const CustomDialog = () => {
-  // Gerekli tüm state ve fonksiyonlar doğrudan context'ten alınıyor
+  // All necessary state and functions are taken directly from context
   const {
     showDialog,
     setShowDialog,
@@ -20,11 +20,11 @@ const CustomDialog = () => {
 
   const translations = appTranslations[language]?.users || {};
 
-  // Bu bileşene özel state'ler: kullanıcının girdiği metin ve hata durumu
+  // Component-specific states: user input and error state
   const [confirmInput, setConfirmInput] = useState("");
   const [confirmError, setConfirmError] = useState(false);
 
-  // Dialog her açıldığında input alanını ve hatayı temizle
+  // Clear input and error when dialog opens
   useEffect(() => {
     if (showDialog) {
       setConfirmInput("");
@@ -32,19 +32,19 @@ const CustomDialog = () => {
     }
   }, [showDialog]);
 
-  // Dialog kapalıysa hiçbir şey gösterme
+  // Show nothing if dialog is closed
   if (!showDialog) {
     return null;
   }
 
   const handleConfirm = () => {
-    // Eğer bu bir onay dialog'u ise ve onay metni gerekiyorsa
+    // If this is a confirmation dialog and confirmation text is required
     if (dialogType === "confirm" && dialogConfirmationText) {
       if (confirmInput.trim() === dialogConfirmationText) {
-        if (dialogCallback) dialogCallback(); // Asıl silme işlemini tetikle
-        handleClose(); // Dialog'u kapat
+        if (dialogCallback) dialogCallback(); // Trigger the actual delete operation
+        handleClose(); // Close the dialog
       } else {
-        setConfirmError(true); // Hata durumunu ayarla
+        setConfirmError(true); // Set error state
       }
     } else {
       if (dialogCallback) dialogCallback();
@@ -54,7 +54,7 @@ const CustomDialog = () => {
 
   const handleClose = () => {
     setShowDialog(false);
-    // State'leri bir sonraki kullanım için temizle
+    // Clear states for next use
     setConfirmInput("");
     setConfirmError(false);
     if (setDialogConfirmationText) {
@@ -62,7 +62,7 @@ const CustomDialog = () => {
     }
   };
 
-  // Onay metni doğru yazılmadıysa "Yes" butonunu pasif yap
+  // Disable "Yes" button if confirmation text is not entered correctly
   const isConfirmDisabled =
     dialogType === "confirm" &&
     dialogConfirmationText &&
@@ -82,7 +82,7 @@ const CustomDialog = () => {
           {dialogMessage}
         </p>
 
-        {/* DÜZELTME: Sadece onay metni istendiğinde bu input'u göster */}
+        {/* FIX: Show this input only when confirmation text is required */}
         {dialogType === "confirm" && dialogConfirmationText && (
           <div className="mb-4">
             <label

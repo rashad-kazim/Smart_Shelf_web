@@ -2,22 +2,23 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import { PERMISSIONS } from "./config/roles";
 
-// Layout & Common Components
-import MainLayout from "./layouts/MainLayout";
+// Importing components and pages
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import CustomDialog from "./components/common/CustomDialog";
-
-// Page Imports
+import MainLayout from "./layouts/MainLayout";
 import LoginPage from "./Auth/LoginPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import StoresPage from "./pages/Stores/StoresPage";
+import EditStoreDetailsPage from "./pages/Stores/StoreEditing/EditStoreDetailsPage";
+import StoreEditingWorkflow from "./pages/Stores/StoreEditing/StoreEditingWorkflow";
+import DeleteStorePage from "./pages/Stores/DeleteStorePage";
 import NewInstallationPage from "./pages/Stores/NewInstallationPage";
-import FirmwarePage from "./pages/Firmware/FirmwarePage";
-import ProfileDetailsPage from "./pages/Profile/ProfileDetailsPage";
-import NotFoundPage from "./pages/misc/NotFoundPage";
-
-// User Pages Imports
+import ViewLogsPage from "./pages/Stores/Logs/ViewLogsPage";
+import StoreLogDetailsPage from "./pages/Stores/Logs/StoreLogDetailsPage";
+import ServerLogsPage from "./pages/Stores/Logs/ServerLogsPage";
+import ESP32LogsPage from "./pages/Stores/Logs/ESP32LogsPage";
 import UsersAndRolesPage from "./pages/Users/UsersAndRolesPage";
 import SupermarketUsers from "./pages/Users/SupermarketUsers";
 import AddUserForm from "./pages/Users/AddUserForm";
@@ -25,6 +26,10 @@ import EditUserForm from "./pages/Users/EditUserForm";
 import CompanyUsers from "./pages/Users/CompanyUsers";
 import AddCompanyUserForm from "./pages/Users/AddCompanyUserForm";
 import EditCompanyUserForm from "./pages/Users/EditCompanyUserForm";
+import FirmwarePage from "./pages/Firmware/FirmwarePage";
+import ProfileDetailsPage from "./pages/Profile/ProfileDetailsPage";
+import NotFoundPage from "./pages/misc/NotFoundPage";
+import AccessDeniedPage from "./pages/misc/AccessDeniedPage";
 
 function App() {
   const {
@@ -38,18 +43,19 @@ function App() {
     currentColors,
     appTranslations,
     language,
+    profileUser,
   } = useAuth();
 
-  const translations = appTranslations[language] || appTranslations.en;
+  const dialogTranslations = appTranslations[language]?.stores || {};
+  const canViewCompanyUsers =
+    PERMISSIONS[profileUser?.role]?.canAccessCompanyUsers || false;
 
   return (
     <>
       <Routes>
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
-        />
+        <Route path="/login" element={<LoginPage />} />
 
+        {/* Routes visible to logged-in and authorized users */}
         <Route
           path="/"
           element={
@@ -63,6 +69,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Stores Routes */}
           <Route
             path="stores"
             element={
@@ -79,8 +87,66 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="edit-store-details"
+            element={
+              <ProtectedRoute>
+                <EditStoreDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="edit-store-workflow/:storeId"
+            element={
+              <ProtectedRoute>
+                <StoreEditingWorkflow />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="delete-store"
+            element={
+              <ProtectedRoute>
+                <DeleteStorePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="view-logs"
+            element={
+              <ProtectedRoute>
+                <ViewLogsPage />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* === KULLANICI YÖNETİMİ ALT ROTALARI (DÜZELTİLMİŞ) === */}
+          <Route
+            path="store-log-details/:storeId"
+            element={
+              <ProtectedRoute>
+                <StoreLogDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="server-logs/:storeId"
+            element={
+              <ProtectedRoute>
+                <ServerLogsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="esp32-logs/:storeId"
+            element={
+              <ProtectedRoute>
+                <ESP32LogsPage />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="users"
             element={
@@ -89,6 +155,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* All authorized roles can access supermarket users */}
           <Route
             path="users/supermarket"
             element={
@@ -113,11 +181,13 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Only users with permission can access company users */}
           <Route
             path="users/company"
             element={
               <ProtectedRoute>
-                <CompanyUsers />
+                {canViewCompanyUsers ? <CompanyUsers /> : <AccessDeniedPage />}
               </ProtectedRoute>
             }
           />
@@ -125,7 +195,11 @@ function App() {
             path="users/company/add"
             element={
               <ProtectedRoute>
-                <AddCompanyUserForm />
+                {canViewCompanyUsers ? (
+                  <AddCompanyUserForm />
+                ) : (
+                  <AccessDeniedPage />
+                )}
               </ProtectedRoute>
             }
           />
@@ -133,7 +207,11 @@ function App() {
             path="users/company/edit/:userId"
             element={
               <ProtectedRoute>
-                <EditCompanyUserForm />
+                {canViewCompanyUsers ? (
+                  <EditCompanyUserForm />
+                ) : (
+                  <AccessDeniedPage />
+                )}
               </ProtectedRoute>
             }
           />
@@ -156,7 +234,6 @@ function App() {
           />
         </Route>
 
-        {/* Eşleşmeyen tüm yollar için 404 Sayfası */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
@@ -168,7 +245,7 @@ function App() {
           onConfirm={dialogCallback}
           onCancel={() => setShowDialog(false)}
           colors={currentColors}
-          translations={translations.stores || {}}
+          translations={dialogTranslations}
         />
       )}
     </>

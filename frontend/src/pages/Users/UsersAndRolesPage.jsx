@@ -1,6 +1,4 @@
-// UsersAndRolesPage.js
-// Users/Roles main page
-// src/pages/Users/UsersAndRolesPage.js
+// src/pages/Users/UsersAndRolesPage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -53,8 +51,6 @@ const UsersAndRolesPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cardData.map((card, index) => {
-          if (!card.access) return null; // Do not render the card if there is no access
-
           return (
             <div
               key={index}

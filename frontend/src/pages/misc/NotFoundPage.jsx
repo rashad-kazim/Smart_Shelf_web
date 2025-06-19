@@ -6,8 +6,8 @@ import { Link } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 
 const NotFoundPage = () => {
-  // Bu sayfa genellikle ana layout dışında olduğu için
-  // temel renkleri burada tanımlayabiliriz.
+  // Since this page is usually outside the main layout,
+  // we can define the base colors here.
   const currentColors = {
     pureWhite: "#FFFFFF",
     darkText: "#1F2937",

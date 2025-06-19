@@ -3,10 +3,10 @@ import React from "react";
 import { useAuth } from "../../context/AuthContext";
 
 const DashboardPage = () => {
-  // DÜZELTME: İhtiyaç duyduğu her şeyi doğrudan context'ten alıyor
+  // FIX: Now gets everything it needs directly from context
   const { currentColors, appTranslations, language, profileUser } = useAuth();
 
-  // Hatanın olduğu yer burasıydı. appTranslations artık tanımsız değil.
+  // This was where the error was. appTranslations is no longer undefined.
   const translations = appTranslations[language]?.dashboard || {};
   const welcomeText = `${translations.welcomeText || "Welcome!"} ${
     profileUser?.name || "User"

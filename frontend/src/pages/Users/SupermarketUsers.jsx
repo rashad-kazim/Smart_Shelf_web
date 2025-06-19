@@ -8,6 +8,7 @@ import { mockStores } from "../../data/mockStores";
 
 const SupermarketUsers = () => {
   const {
+    isDarkMode,
     profileUser,
     currentColors: colors,
     appTranslations,
@@ -60,7 +61,7 @@ const SupermarketUsers = () => {
   };
 
   const handleDeleteUser = (userToDelete) => {
-    // Yetki kontrolü...
+    // Permission check...
 
     const confirmationFullName = `${userToDelete.name} ${userToDelete.surname}`;
 
@@ -71,15 +72,15 @@ const SupermarketUsers = () => {
         "Are you sure you want to delete"
       } '${confirmationFullName}'?`
     );
-    setDialogConfirmationText(confirmationFullName); // ONAY METNİNİ AYARLA
+    setDialogConfirmationText(confirmationFullName); // SET CONFIRMATION TEXT
     setDialogType("confirm");
 
     setDialogCallback(() => () => {
-      // "Yes" butonuna basıldığında çalışacak fonksiyon
+      // Function to run when "Yes" button is clicked
       setUsers((prevUsers) =>
         prevUsers.filter((user) => user.id !== userToDelete.id)
       );
-      // Başarılı silme mesajı da gösterilebilir.
+      // A successful deletion message can also be shown.
     });
 
     setShowDialog(true);
@@ -195,7 +196,7 @@ const SupermarketUsers = () => {
               borderColor: colors.mediumGrayText,
               backgroundColor: colors.lightGrayBg,
               color: colors.darkText,
-              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              outlineColor: colors.logoPrimaryBlue,
             }}>
             <option value="">{translations.allStores || "All Stores"}</option>
             {uniqueStores.map((storeName) => (
@@ -225,7 +226,7 @@ const SupermarketUsers = () => {
               borderColor: colors.mediumGrayText,
               backgroundColor: colors.lightGrayBg,
               color: colors.darkText,
-              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              outlineColor: colors.logoPrimaryBlue,
             }}>
             <option value="">
               {translations.allCountries || "All Countries"}
@@ -259,7 +260,7 @@ const SupermarketUsers = () => {
               borderColor: colors.mediumGrayText,
               backgroundColor: colors.lightGrayBg,
               color: colors.darkText,
-              outlineColor: colors.logoPrimaryBlue, // Noktalı virgül kaldırıldı
+              outlineColor: colors.logoPrimaryBlue,
             }}>
             <option value="">{translations.allCities || "All Cities"}</option>
             {uniqueCities.map((city) => (
@@ -316,7 +317,11 @@ const SupermarketUsers = () => {
               filteredUsers.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-t hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+                  className={`border-t transition-colors duration-150  ${
+                    isDarkMode
+                      ? "text-gray-100 hover:bg-gray-700"
+                      : "text-gray-700 hover:bg-gray-200 hover:text-black"
+                  }`}
                   style={{ borderColor: colors.lightGrayBg }}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.name} {user.surname}
