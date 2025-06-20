@@ -10,6 +10,7 @@ import { appTranslations } from "../config/translations";
 import { mockUsers } from "../data/mockUsers";
 import { mockCompanyUsers } from "../data/mockCompanyUsers";
 import { mockStores } from "../data/mockStores";
+import { mockDevices } from "../data/mockDevices";
 
 const AuthContext = createContext(null);
 
@@ -20,6 +21,9 @@ export const AppProvider = ({ children }) => {
   const [users, setUsers] = useState(mockUsers);
   const [companyUsers, setCompanyUsers] = useState(mockCompanyUsers);
   const [stores, setStores] = useState(mockStores);
+
+  const [installedDevices, setInstalledDevices] = useState(mockDevices);
+
   const [isDarkMode, setIsDarkMode] = useState(
     () => localStorage.getItem("isDarkMode") === "true"
   );
@@ -134,6 +138,8 @@ export const AppProvider = ({ children }) => {
     setDialogCallback,
     dialogConfirmationText,
     setDialogConfirmationText,
+    installedDevices,
+    setInstalledDevices,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

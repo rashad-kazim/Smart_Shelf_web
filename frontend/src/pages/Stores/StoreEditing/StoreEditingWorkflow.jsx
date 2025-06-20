@@ -178,8 +178,18 @@ const StoreEditingWorkflow = () => {
     });
 
     setFormErrors(newErrors);
-    if (isValid) setCurrentEditStep(2);
-  }, [editableStoreForm, translations]);
+    if (isValid) {
+      setCurrentEditStep(2);
+    } else {
+      // FIX: Find the ID of the first invalid field and scroll to it
+      const firstErrorFieldId = Object.keys(newErrors)[0];
+      if (firstErrorFieldId) {
+        document
+          .getElementById(firstErrorFieldId)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [editableStoreForm, translations, setFormErrors]);
 
   const handleDeviceFormChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
@@ -202,6 +212,13 @@ const StoreEditingWorkflow = () => {
       allDayWork: editableStoreForm.allDayOpen,
       awakeTime: editableStoreForm.openingHour,
       sleepTime: editableStoreForm.closingHour,
+      wifi_ssid: "",
+      wifi_password: "",
+      productNameFontSize: 14,
+      productPriceFontSizeBeforeDiscount: 14,
+      productPriceFontSizeAfterDiscount: 14,
+      productBarcodeFontSize: 14,
+      productBarcodeNumbersFontSize: 14,
     });
     setCurrentInstallingDevice(null);
     setIsDeviceFormActive(true);
@@ -214,16 +231,38 @@ const StoreEditingWorkflow = () => {
   }, []);
 
   const handleSaveDevice = useCallback(() => {
+    // 1. Bluetooth Connection Check (Only when adding a new device)
+    if (!currentInstallingDevice && !bluetoothConnectedDevice) {
+      setShowDialog(true);
+      setDialogTitle(translations.errorTitle || "Error");
+      setDialogMessage(
+        translations.bluetoothNoDeviceSelected ||
+          "Please connect to a device via Bluetooth first."
+      );
+      setDialogType("alert");
+      setDialogCallback(() => () => setShowDialog(false));
+      return;
+    }
+
     const newErrors = {};
     let isValid = true;
 
-    if (!deviceForm.screenSize) {
-      isValid = false;
-      newErrors.screenSize = translations.requiredFieldWarning;
+    // 2. Required Field Checks
+    const requiredFields = ["screenSize", "wifi_ssid", "wifi_password"];
+    if (!deviceForm.allDayWork) {
+      requiredFields.push("awakeTime", "sleepTime");
     }
+    requiredFields.forEach((field) => {
+      if (!deviceForm[field] || String(deviceForm[field]).trim() === "") {
+        isValid = false;
+        newErrors[field] =
+          translations.requiredFieldWarning || "This field is required.";
+      }
+    });
 
+    // 3. Duplicate ID Check
     const parsedId = parseInt(deviceForm.id);
-    if (isNaN(parsedId) || String(deviceForm.id).trim() === "") {
+    if (isNaN(parsedId)) {
       isValid = false;
       newErrors.id = translations.invalidID || "ID must be a number.";
     } else if (
@@ -233,29 +272,56 @@ const StoreEditingWorkflow = () => {
     ) {
       isValid = false;
       newErrors.id =
-        translations.deviceIdExists || "This ID is already in use.";
+        translations.deviceIdExists ||
+        "This ID is already in use for this store.";
     }
 
     setDeviceFormErrors(newErrors);
-    if (!isValid) return;
 
-    const finalDevice = { ...deviceForm, id: parsedId };
+    if (!isValid) {
+      const firstErrorFieldId = `device_${Object.keys(newErrors)[0]}`;
+      const element = document.getElementById(firstErrorFieldId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+    // 4. Device Form Save
     setCurrentStoreDevices((prev) => {
       const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
+      const finalDevice = { ...deviceForm, id: parsedId };
       return isEditing
         ? prev.map((d) =>
             d.id === currentInstallingDevice.id ? finalDevice : d
           )
         : [...prev, finalDevice];
     });
+
+    const deviceToSave = { ...deviceForm, id: parsedId };
+    setCurrentStoreDevices((prev) => {
+      const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
+      return isEditing
+        ? prev.map((d) =>
+            d.id === currentInstallingDevice.id ? deviceToSave : d
+          )
+        : [...prev, deviceToSave];
+    });
+
     setIsDeviceFormActive(false);
     setCurrentInstallingDevice(null);
+    setBluetoothConnectedDevice(null);
   }, [
     deviceForm,
     currentInstallingDevice,
     currentStoreDevices,
+    bluetoothConnectedDevice,
     translations,
     setDeviceFormErrors,
+    setShowDialog,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
   ]);
 
   const handleCancelDeviceForm = useCallback(() => {
@@ -270,17 +336,68 @@ const StoreEditingWorkflow = () => {
     );
   }, []);
 
-  const handleBluetoothConnect = useCallback(() => {
-    // In a real application, the Web Bluetooth API would be used here.
-    // For now, we simulate a connection with a mock device.
+  const handleBluetoothConnect = useCallback(async () => {
+    if (!navigator.bluetooth) {
+      setShowDialog(true);
+      setDialogTitle("Unsupported Browser");
+      setDialogMessage(
+        "Your browser does not support Web Bluetooth. Please use Chrome or Edge."
+      );
+      setDialogType("alert");
+      setDialogCallback(() => () => setShowDialog(false));
+      return;
+    }
+
     try {
-      console.log("Simulating Bluetooth connection...");
-      setBluetoothConnectedDevice({ name: "ESP32_Device_Mock" });
+      console.log(
+        "Requesting Bluetooth device with name filter 'ESP32_EILSENSE'..."
+      );
+
+      // FIX: We filter devices by name
+      const device = await navigator.bluetooth.requestDevice({
+        // filters: [
+        //   {
+        //     name: "ESP32_EILSENSE",
+        //   },
+        // ],
+        //Note: To use all devices you should remove the filters:
+        //Note: You can't use filters and acceptAllDevices at the same time.
+        acceptAllDevices: true,
+
+        // Note: Optionally, you can further secure filtering by adding specific service UUIDs
+        // that your ESP32 provides here.
+        // optionalServices: ['your_custom_service_uuid']
+      });
+
+      console.log("Connecting to GATT Server...");
+
+      await device.gatt.connect(); // <-- 'const server =' removed
+      console.log("Connected to device:", device.name);
+      setBluetoothConnectedDevice(device);
+
+      device.addEventListener("gattserverdisconnected", () => {
+        console.log("Device disconnected.");
+        setBluetoothConnectedDevice(null);
+      });
     } catch (error) {
       console.error("Bluetooth connection error:", error);
-      // In case of error, you can show a dialog to the user.
+      // This error is also triggered if the user cancels the window, you can separate this.
+      if (error.name !== "NotFoundError") {
+        setShowDialog(true);
+        setDialogTitle("Connection Error");
+        setDialogMessage(String(error));
+        setDialogType("alert");
+        setDialogCallback(() => () => setShowDialog(false));
+      }
     }
-  }, []);
+  }, [
+    setShowDialog,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
+    setBluetoothConnectedDevice,
+  ]);
 
   const handleSaveAllChanges = useCallback(() => {
     setShowDialog(true);
@@ -306,7 +423,6 @@ const StoreEditingWorkflow = () => {
         (d) => d.storeId !== storeToEdit.id
       );
       setInstalledDevices([...otherStoresDevices, ...currentStoreDevices]);
-
       setShowDialog(false);
       navigate("/edit-store-details");
     });
@@ -444,6 +560,8 @@ const StoreEditingWorkflow = () => {
           setDialogMessage={setDialogMessage}
           setDialogType={setDialogType}
           setDialogCallback={setDialogCallback}
+          installedDevices={installedDevices}
+          setInstalledDevices={setInstalledDevices}
         />
       )}
     </div>

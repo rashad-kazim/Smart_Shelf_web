@@ -4,7 +4,7 @@ import { Edit, Trash2, ChevronDown, Bluetooth } from "lucide-react";
 
 const StoreEditingStep2 = (props) => {
   const {
-    installedDevices,
+    currentStoreDevices,
     currentInstallingDevice,
     deviceForm,
     isDeviceFormActive,
@@ -14,7 +14,7 @@ const StoreEditingStep2 = (props) => {
     colors,
     translations,
     timeOptions,
-    onNext,
+    onSaveAll,
     onBack,
     handleAddNewDevice,
     handleEditDevice,
@@ -22,47 +22,13 @@ const StoreEditingStep2 = (props) => {
     handleDeleteDevice,
     handleCancelDeviceForm,
     handleDeviceFormChange,
-    setShowDialog,
-    setDialogTitle,
-    setDialogMessage,
-    setDialogType,
-    setDialogCallback,
     bluetoothConnectedDevice,
     handleBluetoothConnect,
     storeForm,
     esp32Token,
-    currentStoreDevices,
   } = props;
 
   const newDeviceFormSectionRef = useRef(null);
-
-  const handleNextClick = () => {
-    if (isDeviceFormActive) {
-      setShowDialog(true);
-      setDialogTitle(
-        translations.currentInstallationWarningTitle || "Action Required"
-      );
-      setDialogMessage(
-        translations.currentInstallationWarningMsg ||
-          "Please save or cancel the current device form."
-      );
-      setDialogType("alert");
-      setDialogCallback(() => () => setShowDialog(false));
-      return;
-    }
-    if (installedDevices.length === 0) {
-      setShowDialog(true);
-      setDialogTitle(translations.noDevicesProceedTitle || "Cannot Proceed");
-      setDialogMessage(
-        translations.noDevicesProceedMsg ||
-          "Please install at least one device before proceeding."
-      );
-      setDialogType("alert");
-      setDialogCallback(() => () => setShowDialog(false));
-      return;
-    }
-    onNext();
-  };
 
   const handleAddNewDeviceClick = () => {
     handleAddNewDevice();
@@ -187,7 +153,7 @@ const StoreEditingStep2 = (props) => {
                 </label>
                 <input
                   type="number"
-                  id="id"
+                  id={`device_${deviceForm.id}`}
                   name="id"
                   value={deviceForm.id}
                   onChange={handleDeviceFormChange}
@@ -231,6 +197,7 @@ const StoreEditingStep2 = (props) => {
                   style={readOnlyInputStyle}
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-bold mb-1">
                   {translations?.tokenLabel || "ESP32 Token"}
@@ -252,7 +219,7 @@ const StoreEditingStep2 = (props) => {
                   {translations?.screenSizeLabel || "Screen Size"}*
                 </label>
                 <select
-                  id="screenSize"
+                  id="device_screenSize"
                   name="screenSize"
                   value={deviceForm.screenSize}
                   onChange={handleDeviceFormChange}
@@ -377,6 +344,62 @@ const StoreEditingStep2 = (props) => {
                 {deviceFormErrors.sleepTime && (
                   <p className="text-red-500 text-xs mt-1">
                     {deviceFormErrors.sleepTime}
+                  </p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="wifi_ssid"
+                  className="block text-sm font-bold mb-1">
+                  {translations?.wifiSsidLabel || "WIFI SSID"}*
+                </label>
+                <input
+                  type="text"
+                  id="wifi_ssid"
+                  name="wifi_ssid"
+                  value={deviceForm.wifi_ssid || ""}
+                  onChange={handleDeviceFormChange}
+                  className={`w-full p-2 border rounded-md ${
+                    deviceFormErrors.wifi_ssid ? "border-red-500" : ""
+                  }`}
+                  style={{
+                    ...inputStyle,
+                    borderColor: deviceFormErrors.wifi_ssid
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }}
+                />
+                {deviceFormErrors.wifi_ssid && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {deviceFormErrors.wifi_ssid}
+                  </p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="wifi_password"
+                  className="block text-sm font-bold mb-1">
+                  {translations?.wifiPasswordLabel || "WIFI Password"}*
+                </label>
+                <input
+                  type="text"
+                  id="wifi_password"
+                  name="wifi_password"
+                  value={deviceForm.wifi_password || ""}
+                  onChange={handleDeviceFormChange}
+                  className={`w-full p-2 border rounded-md ${
+                    deviceFormErrors.wifi_password ? "border-red-500" : ""
+                  }`}
+                  style={{
+                    ...inputStyle,
+                    borderColor: deviceFormErrors.wifi_password
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }}
+                />
+                {deviceFormErrors.wifi_password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {deviceFormErrors.wifi_password}
                   </p>
                 )}
               </div>
@@ -506,9 +529,10 @@ const StoreEditingStep2 = (props) => {
           Previous
         </button>
         <button
-          onClick={handleNextClick}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md">
-          Next
+          onClick={onSaveAll}
+          className="px-6 py-3 rounded-md font-bold text-white text-lg"
+          style={{ backgroundColor: colors.logoPrimaryBlue }}>
+          {translations.saveChangesButton || "Save All Changes"}
         </button>
       </div>
     </div>
