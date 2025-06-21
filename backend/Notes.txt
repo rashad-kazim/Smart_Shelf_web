@@ -1,0 +1,3 @@
+# Bu endpoint'i 2. Katman Sunucu çağıracak, bu yüzden token ile korunmalı.
+# Ancak bu token, kullanıcı token'ı değil, mağazanın kendi server_token'ı olacak.
+# Şimdilik basit bir yetkilendirme yapacağız.
