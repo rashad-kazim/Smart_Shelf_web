@@ -1,0 +1,32 @@
+export const mockDevices = [
+  {
+    id: 101,
+    storeId: 1,
+    screenSize: "130cm",
+    allDayWork: true,
+    awakeTime: "09:00",
+    sleepTime: "21:00",
+    softwareVersion: "1.1.0",
+    batteryStatus: 85,
+  },
+  {
+    id: 102,
+    storeId: 1,
+    screenSize: "110cm",
+    allDayWork: false,
+    awakeTime: "08:00",
+    sleepTime: "20:00",
+    softwareVersion: "1.2.0",
+    batteryStatus: 92,
+  },
+  {
+    id: 201,
+    storeId: 2,
+    screenSize: "130cm",
+    allDayWork: true,
+    awakeTime: "00:00",
+    sleepTime: "00:00",
+    softwareVersion: "1.2.0",
+    batteryStatus: 77,
+  },
+];

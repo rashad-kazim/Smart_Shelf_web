@@ -1,56 +1,59 @@
+# app/main.py
+
+import os
+from pathlib import Path
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import stores
-from app.database.models import init_database
+from fastapi.staticfiles import StaticFiles
+from app.database import models
+from app.database.connection import engine
+from app.routes import auth_routes, user_routes, store_routes, operational_routes, firmware_routes, utility_routes
+
+# DÜZELTME: Gerekli tüm slowapi importları burada ve doğru yerdeler
+from app.core.limiter import limiter
+from slowapi.errors import RateLimitExceeded # Exception'ın doğru yolu 'errors'
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.extension import _rate_limit_exceeded_handler
+
+# Veritabanı tablolarını oluştur
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Supermarket Price Display API",
-    description="Digital price display system for supermarket shelves",
+    title="Smart Shelf Management API",
+    description="API for managing smart shelf devices, stores, and users.",
     version="1.0.0"
 )
 
-# CORS middleware
+# Limiter nesnesini ana uygulama state'ine ekliyoruz
+app.state.limiter = limiter
+# Hata handler'ını da ekliyoruz
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Hız limitlendirme middleware'ini ekliyoruz
+app.add_middleware(SlowAPIMiddleware)
+
+# Firmware dosyalarının sunulacağı static klasörü ayarla
+firmware_dir = Path("firmware_updates")
+firmware_dir.mkdir(exist_ok=True)
+app.mount("/firmware_updates", StaticFiles(directory=firmware_dir), name="firmware_updates")
+
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Routes
-app.include_router(stores.router)
-
-@app.on_event("startup")
-async def startup_event():
-    """Runs when the application starts"""
-    print("Starting application...")
-    if init_database():
-        print("Database initialized successfully")
-    else:
-        print("Database initialization error!")
+app.include_router(auth_routes.router)
+app.include_router(user_routes.router)
+app.include_router(store_routes.router)
+app.include_router(operational_routes.router)
+app.include_router(firmware_routes.router)
+app.include_router(utility_routes.router)
 
 @app.get("/")
-async def root():
-    return {"message": "Supermarket Price Display API"}
-
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={"detail": "Input validation error", "errors": exc.errors()}
-    )
-
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Server error"}
-    )
+def read_root():
+    return {"message": "Welcome to the Smart Shelf Management API!"}

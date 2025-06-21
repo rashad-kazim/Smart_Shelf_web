@@ -379,6 +379,62 @@ const Step4 = (props) => {
                   </p>
                 )}
               </div>
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="wifi_ssid"
+                  className="block text-sm font-bold mb-1">
+                  {translations?.wifiSsidLabel || "WIFI SSID"}*
+                </label>
+                <input
+                  type="text"
+                  id="wifi_ssid"
+                  name="wifi_ssid"
+                  value={deviceForm.wifi_ssid || ""}
+                  onChange={handleDeviceFormChange}
+                  className={`w-full p-2 border rounded-md ${
+                    deviceFormErrors.wifi_ssid ? "border-red-500" : ""
+                  }`}
+                  style={{
+                    ...inputStyle,
+                    borderColor: deviceFormErrors.wifi_ssid
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }}
+                />
+                {deviceFormErrors.wifi_ssid && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {deviceFormErrors.wifi_ssid}
+                  </p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="wifi_password"
+                  className="block text-sm font-bold mb-1">
+                  {translations?.wifiPasswordLabel || "WIFI Password"}*
+                </label>
+                <input
+                  type="text"
+                  id="wifi_password"
+                  name="wifi_password"
+                  value={deviceForm.wifi_password || ""}
+                  onChange={handleDeviceFormChange}
+                  className={`w-full p-2 border rounded-md ${
+                    deviceFormErrors.wifi_password ? "border-red-500" : ""
+                  }`}
+                  style={{
+                    ...inputStyle,
+                    borderColor: deviceFormErrors.wifi_password
+                      ? colors.errorRed
+                      : colors.mediumGrayText,
+                  }}
+                />
+                {deviceFormErrors.wifi_password && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {deviceFormErrors.wifi_password}
+                  </p>
+                )}
+              </div>
             </div>
             <div
               className="border-t pt-4 mt-4"

@@ -98,6 +98,7 @@ const NewInstallationPage = () => {
   const [fontSizes] = useState(Array.from({ length: 33 }, (_, i) => i + 8));
   const [screenSizes] = useState(["130cm", "110cm", "80cm"]);
   const [logs, setLogs] = useState([]);
+
   const [deviceForm, setDeviceForm] = useState({
     id: 1,
     country: "",
@@ -106,12 +107,14 @@ const NewInstallationPage = () => {
     allDayWork: false,
     awakeTime: "",
     sleepTime: "",
+    screenSize: "",
+    wifi_ssid: "",
+    wifi_password: "",
     productNameFontSize: 14,
     productPriceFontSizeBeforeDiscount: 14,
     productPriceFontSizeAfterDiscount: 14,
     productBarcodeFontSize: 14,
     productBarcodeNumbersFontSize: 14,
-    screenSize: "",
   });
 
   const initialDeviceForm = useMemo(
@@ -188,13 +191,68 @@ const NewInstallationPage = () => {
     }));
   }, []);
 
-  const handleBluetoothConnect = useCallback(() => {
+  const handleBluetoothConnect = useCallback(async () => {
+    if (!navigator.bluetooth) {
+      setShowDialog(true);
+      setDialogTitle("Unsupported Browser");
+      setDialogMessage(
+        "Your browser does not support Web Bluetooth. Please use Chrome or Edge."
+      );
+      setDialogType("alert");
+      setDialogCallback(() => () => setShowDialog(false));
+      return;
+    }
+
     try {
-      setBluetoothConnectedDevice({ name: "ESP32_Device_Mock" });
+      console.log(
+        "Requesting Bluetooth device with name filter 'ESP32_EILSENSE'..."
+      );
+
+      // DÜZELTME: Cihazları isme göre filtreliyoruz
+      const device = await navigator.bluetooth.requestDevice({
+        // filters: [
+        //   {
+        //     name: "ESP32_EILSENSE",
+        //   },
+        // ],
+        //Note: For to use all devices you should remove the filters:
+        //Note: You can't use filters and acceptAllDevices at the same time.
+        acceptAllDevices: true,
+
+        // Not: İsteğe bağlı olarak, ESP32'nizin sunduğu belirli servis UUID'lerini de
+        // buraya ekleyerek filtrelemeyi daha da güvenli hale getirebilirsiniz.
+        // optionalServices: ['your_custom_service_uuid']
+      });
+
+      console.log("Connecting to GATT Server...");
+
+      await device.gatt.connect(); // <-- 'const server =' kaldırıldı
+      console.log("Connected to device:", device.name);
+      setBluetoothConnectedDevice(device);
+
+      device.addEventListener("gattserverdisconnected", () => {
+        console.log("Device disconnected.");
+        setBluetoothConnectedDevice(null);
+      });
     } catch (error) {
       console.error("Bluetooth connection error:", error);
+      // Kullanıcı pencereyi iptal ederse de bu hata tetiklenir, bunu ayırabilirsiniz.
+      if (error.name !== "NotFoundError") {
+        setShowDialog(true);
+        setDialogTitle("Connection Error");
+        setDialogMessage(String(error));
+        setDialogType("alert");
+        setDialogCallback(() => () => setShowDialog(false));
+      }
     }
-  }, []);
+  }, [
+    setShowDialog,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
+    setBluetoothConnectedDevice,
+  ]);
 
   const handleAddNewDevice = useCallback(() => {
     setCurrentInstallingDevice(null);
@@ -235,7 +293,7 @@ const NewInstallationPage = () => {
   );
 
   const handleSaveDevice = useCallback(() => {
-    // REQUEST 5: Bluetooth connection check
+    // 1. Bluetooth Bağlantı Kontrolü (Sadece yeni cihaz eklerken)
     if (!currentInstallingDevice && !bluetoothConnectedDevice) {
       setShowDialog(true);
       setDialogTitle(translations.errorTitle || "Error");
@@ -245,30 +303,26 @@ const NewInstallationPage = () => {
       );
       setDialogType("alert");
       setDialogCallback(() => () => setShowDialog(false));
-      return; // Stop the function
+      return;
     }
 
     const newErrors = {};
     let isValid = true;
 
-    // REQUEST 6: Required field check
-    if (!deviceForm.screenSize) {
-      isValid = false;
-      newErrors.screenSize =
-        translations.requiredFieldWarning || "This field is required.";
-    }
+    // 2. Zorunlu Alan Kontrolleri
+    const requiredFields = ["screenSize", "wifi_ssid", "wifi_password"];
     if (!deviceForm.allDayWork) {
-      if (!deviceForm.awakeTime) {
-        isValid = false;
-        newErrors.awakeTime = translations.requiredFieldWarning;
-      }
-      if (!deviceForm.sleepTime) {
-        isValid = false;
-        newErrors.sleepTime = translations.requiredFieldWarning;
-      }
+      requiredFields.push("awakeTime", "sleepTime");
     }
+    requiredFields.forEach((field) => {
+      if (!deviceForm[field] || String(deviceForm[field]).trim() === "") {
+        isValid = false;
+        newErrors[field] =
+          translations.requiredFieldWarning || "This field is required.";
+      }
+    });
 
-    // REQUEST 1: Duplicate ID check
+    // 3. Tekrarlanan ID Kontrolü
     const parsedId = parseInt(deviceForm.id);
     if (isNaN(parsedId) || String(deviceForm.id).trim() === "") {
       isValid = false;
@@ -278,7 +332,6 @@ const NewInstallationPage = () => {
         (d) => d.id === parsedId && d.id !== currentInstallingDevice?.id
       )
     ) {
-      // If this ID is in the list AND it's not the device currently being edited, show error.
       isValid = false;
       newErrors.id =
         translations.deviceIdExists || "This ID is already in use.";
@@ -286,8 +339,8 @@ const NewInstallationPage = () => {
 
     setDeviceFormErrors(newErrors);
 
+    // 4. Doğrulama Başarısızsa İşlemi Durdur ve Hatalı Alana Kaydır
     if (!isValid) {
-      // REQUEST 6: If there is an error, smooth scroll to the first erroneous field
       const firstErrorFieldId = Object.keys(newErrors)[0];
       if (firstErrorFieldId) {
         document
@@ -297,7 +350,7 @@ const NewInstallationPage = () => {
       return;
     }
 
-    // If validation is successful, perform the save operation
+    // 5. Kaydetme İşlemi (Doğrulama başarılıysa)
     const deviceToSave = { ...deviceForm, id: parsedId };
     setInstalledDevices((prev) => {
       const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
@@ -308,25 +361,27 @@ const NewInstallationPage = () => {
         : [...prev, deviceToSave];
     });
 
+    // 6. Formu ve State'leri Temizle/Kapat
     setIsDeviceFormActive(false);
     setCurrentInstallingDevice(null);
-    setBluetoothConnectedDevice(null);
+    setBluetoothConnectedDevice(null); // Bluetooth bağlantısını da sıfırla
   }, [
+    // Bağımlılık dizisi de güncellendi
     deviceForm,
     currentInstallingDevice,
     bluetoothConnectedDevice,
     installedDevices,
     translations,
-    setShowDialog,
-    setDialogTitle,
-    setDialogMessage,
-    setDialogType,
-    setDialogCallback,
     setDeviceFormErrors,
     setInstalledDevices,
     setIsDeviceFormActive,
     setCurrentInstallingDevice,
     setBluetoothConnectedDevice,
+    setShowDialog,
+    setDialogTitle,
+    setDialogMessage,
+    setDialogType,
+    setDialogCallback,
   ]);
 
   const handleCancelDeviceForm = useCallback(() => {
