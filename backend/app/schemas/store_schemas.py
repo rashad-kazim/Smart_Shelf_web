@@ -19,6 +19,7 @@ class StoreCreate(StoreBase):
     ownerName: str
     ownerSurname: str
     working_hours: str
+    server_local_ip: Optional[str] = None
     devices: List[DeviceCreate]
 
 # StoreUpdate modelini oluştururken, güncellenebilir alanları belirtiyoruz.
@@ -42,6 +43,7 @@ class StoreResponse(BaseModel):
     address: Optional[str] = None
     server_token: Optional[str] = None
     esp32_token: Optional[str] = None
+    server_local_ip: Optional[str] = None
     created_at: datetime
     last_seen: Optional[datetime] = None
     owner_name: Optional[str]

@@ -31,6 +31,7 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     is_active: bool
+    profile_picture_url: Optional[str] = None
     preferred_theme: str
     preferred_language: str
     created_at: datetime

@@ -26,6 +26,15 @@ def get_users_by_country(db: Session, country: str, skip: int = 0, limit: int = 
     return db.query(models.User).filter(models.User.country == country).offset(skip).limit(limit).all()
 # --- EKLENEN FONKSİYONUN SONU ---
 
+def get_market_users_by_country(db: Session, country: str, skip: int = 0, limit: int = 100):
+    """Belirli bir ülkedeki sadece market çalışanlarını listeler."""
+    market_roles = [models.UserRole.Runner, models.UserRole.Supermarket_Admin]
+    return db.query(models.User).filter(
+        models.User.country == country,
+        models.User.role.in_(market_roles)
+    ).offset(skip).limit(limit).all()
+# --- BİTTİ ---
+
 def create_user(db: Session, user: user_schemas.UserCreate):
     """Yeni bir kullanıcı oluşturur."""
     hashed_password = security.get_password_hash(user.password)

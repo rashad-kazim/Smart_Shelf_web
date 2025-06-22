@@ -25,6 +25,7 @@ class User(Base):
     role = Column(Enum(UserRole), nullable=False)
     country = Column(String(100))
     is_active = Column(Boolean, default=True)
+    profile_picture_url = Column(String(512), nullable=True)
     
     preferred_theme = Column(String(50), default='light')
     preferred_language = Column(String(10), default='en')
@@ -44,7 +45,8 @@ class Store(Base):
     server_token = Column(String(255), unique=True)
     esp32_token = Column(String(255))
     installer_id = Column(Integer, ForeignKey("users.id"))
-    
+    server_local_ip = Column(String(50), nullable=True)
+
     # İstenen tüm yeni sütunlar
     owner_name = Column(String(100))
     owner_surname = Column(String(100))

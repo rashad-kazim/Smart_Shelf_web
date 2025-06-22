@@ -39,11 +39,18 @@ def create_new_store(
 
 @router.get("", response_model=List[store_schemas.StoreResponse])
 def read_stores(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
+    """Mağazaları role göre listeler."""
+    allowed_roles = [models.UserRole.Admin, models.UserRole.Country_Chief, models.UserRole.Engineer, models.UserRole.Analyst]
+    if current_user.role not in allowed_roles:
+        return []
+
+    if current_user.role == models.UserRole.Admin:
+        stores_from_db = store_crud.get_stores(db, skip=skip, limit=limit)
+    else:
+        stores_from_db = store_crud.get_stores_by_country(db, country=current_user.country, skip=skip, limit=limit)
+    
     """Tüm mağazaları listeler."""
     stores_from_db = store_crud.get_stores(db, skip=skip, limit=limit)
     response_stores = []
@@ -61,11 +68,21 @@ def read_store(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """ID'ye göre tek bir mağazayı getirir."""
+    """ID'ye göre tek bir mağazayı getirir ve yetki kontrolü yapar."""
     db_store = store_crud.get_store(db, store_id=store_id)
     if db_store is None:
         raise HTTPException(status_code=404, detail="Store not found")
+
+    # --- YETKİ KONTROLÜ ---
+    can_view = False
+    if current_user.role == models.UserRole.Admin:
+        can_view = True
+    elif current_user.role == models.UserRole.Country_Chief and current_user.country == db_store.country:
+        can_view = True
     
+    if not can_view:
+        raise HTTPException(status_code=403, detail="Not authorized to view this store")
+   
     store_data = db_store.__dict__
     if db_store.installer:
         store_data['installerName'] = db_store.installer.name
@@ -91,18 +108,22 @@ def update_store_details(
 
 @router.delete("/{store_id}", response_model=store_schemas.StoreResponse)
 def delete_store_by_id(
-    store_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    store_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """Bir mağazayı siler."""
-    if current_user.role != models.UserRole.Admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
-    deleted_store = store_crud.delete_store(db, store_id=store_id)
-    if not deleted_store:
+    db_store = store_crud.get_store(db, store_id=store_id)
+    if not db_store:
         raise HTTPException(status_code=404, detail="Store not found")
-    return deleted_store
+        
+    can_delete = False
+    if current_user.role in [models.UserRole.Admin, models.UserRole.Country_Chief]:
+        if db_store.country == current_user.country or current_user.role == models.UserRole.Admin:
+            can_delete = True
+
+    if not can_delete:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this store.")
+
+    return store_crud.delete_store(db, store_id=store_id)
 
 @router.post("/{store_id}/generate-server-token", response_model=store_schemas.StoreResponse)
 def generate_new_server_token(

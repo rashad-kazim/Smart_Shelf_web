@@ -1,12 +1,25 @@
+# app/routes/user_routes.py
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
 from sqlalchemy.orm import Session
+
+import shutil
+import uuid
+from pathlib import Path
+from fastapi import File, UploadFile
+from PIL import Image
 
 from app.database import models
 from app.database.connection import get_db
 from app.schemas import user_schemas
 from app.crud import user_crud
 from app.security.security import get_current_user
+
+# Yüklenecek fotoğraflar için bir klasör oluştur
+UPLOAD_DIR = Path("uploaded_files")
+PROFILE_PIC_DIR = UPLOAD_DIR / "profile_pics"
+PROFILE_PIC_DIR.mkdir(parents=True, exist_ok=True)
 
 router = APIRouter(
     prefix="/api/users",
@@ -24,43 +37,74 @@ def create_new_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Yeni bir kullanıcı oluşturur. Yetkilendirme hiyerarşiye göredir.
-    """
+    """Yeni bir kullanıcı oluşturur. Yetkilendirme hiyerarşiktir."""
     creator_role = current_user.role
     target_role = user.role
     can_create = False
 
-    # --- YENİ ve DETAYLI YETKİLENDİRME MANTIĞI ---
     if creator_role == models.UserRole.Admin:
         can_create = True
-        
-    elif creator_role == models.UserRole.Country_Chief:
-        allowed_roles = [models.UserRole.Engineer, models.UserRole.Analyst] + MARKET_ROLES
-        if target_role in allowed_roles and user.country == current_user.country:
-            can_create = True
-            
-    elif creator_role == models.UserRole.Analyst:
-        allowed_roles = [models.UserRole.Engineer] + MARKET_ROLES
-        if target_role in allowed_roles:
-            can_create = True
-            
-    elif creator_role == models.UserRole.Engineer:
-        if target_role in MARKET_ROLES:
-            can_create = True
+    else:
+        if user.country != current_user.country:
+            raise HTTPException(status_code=403, detail="You can only create users in your own country.")
+
+        if creator_role == models.UserRole.Country_Chief:
+            allowed_roles = [models.UserRole.Engineer, models.UserRole.Analyst] + MARKET_ROLES
+            if target_role in allowed_roles: can_create = True
+        elif creator_role == models.UserRole.Analyst:
+            allowed_roles = [models.UserRole.Engineer] + MARKET_ROLES
+            if target_role in allowed_roles: can_create = True
+        elif creator_role == models.UserRole.Engineer:
+            if target_role in MARKET_ROLES: can_create = True
 
     if not can_create:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to create a user with this role."
-        )
-    # --- YETKİLENDİRME SONU ---
+        raise HTTPException(status_code=403, detail="Not authorized to create a user with this role.")
 
-    db_user = user_crud.get_user_by_email(db, email=user.email)
-    if db_user:
+    if user_crud.get_user_by_email(db, email=user.email):
         raise HTTPException(status_code=400, detail="Email already registered")
     
     return user_crud.create_user(db=db, user=user)
+
+#   
+@router.post("/me/upload-picture", response_model=user_schemas.UserResponse)
+def upload_my_profile_picture(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Giriş yapmış kullanıcının kendi profil fotoğrafını yükler ve günceller."""
+    # 1. Güvenlik Kontrolü: Dosya Tipi ve Boyutu
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPG or PNG are allowed.")
+    
+    # 2MB limit (isteğe bağlı olarak değiştirilebilir)
+    if file.size > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File size exceeds the 2MB limit.")
+
+    try:
+        # 2. Güvenlik Kontrolü: Görüntüyü Yeniden İşleme
+        # Rastgele bir dosya adı oluştur
+        file_extension = Path(file.filename).suffix
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = PROFILE_PIC_DIR / unique_filename
+
+        # Gelen dosyayı Pillow ile aç ve temiz bir kopya olarak kaydet
+        with Image.open(file.file) as img:
+            # Görüntüyü yeniden boyutlandırma (isteğe bağlı)
+            img.thumbnail((400, 400)) 
+            img.save(file_path)
+            
+    except Exception:
+        raise HTTPException(status_code=500, detail="There was an error processing the image.")
+
+    # 3. Veritabanını Güncelle
+    # Dosyanın sunucudaki URL'sini oluştur
+    file_url = f"/files/profile_pics/{unique_filename}"
+    current_user.profile_picture_url = file_url
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
 
 # Bu endpoint, 30 günden eski logları silmek için bir arka plan görevi başlatır.
 @router.post("/cleanup/logs", status_code=status.HTTP_202_ACCEPTED)
@@ -78,30 +122,21 @@ def trigger_log_cleanup(
 @router.get("/", response_model=List[user_schemas.UserResponse], include_in_schema=False)
 @router.get("", response_model=List[user_schemas.UserResponse])
 def read_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Kullanıcıları rollerine göre listeler:
-    - Admin: Tüm kullanıcıları görür.
-    - Country Chief: Sadece kendi ülkesindeki kullanıcıları görür.
-    - Diğerleri: Sadece kendi bilgilerini görür.
-    """
-    # HATA DÜZELTMESİ: Karşılaştırmayı doğrudan Enum üyesi ile yapıyoruz.
-    if current_user.role is models.UserRole.Admin:
-        users = user_crud.get_users(db, skip=skip, limit=limit)
-    elif current_user.role is models.UserRole.Country_Chief:
-        users = user_crud.get_users_by_country(db, country=current_user.country, skip=skip, limit=limit)
-    else:
-        # Diğer roller (Engineer, Analyst vb.) sadece kendi bilgilerini görebilir.
-        users = [current_user]
-        
-    return users
-# --- DÜZELTME SONU ---
+    """Kullanıcıları rollerine göre listeler."""
+    if current_user.role == models.UserRole.Admin:
+        return user_crud.get_users(db, skip=skip, limit=limit)
+    if current_user.role == models.UserRole.Country_Chief:
+        return user_crud.get_users_by_country(db, country=current_user.country, skip=skip, limit=limit)
+    if current_user.role == models.UserRole.Analyst:
+        return user_crud.get_market_users_by_country(db, country=current_user.country, skip=skip, limit=limit)
+    
+    return [current_user]
 
 # Tek bir kullanıcıyı ID'sine göre getiririz.
+
+# --- GÜVENLİK DÜZELTMESİ (IDOR KORUMASI) ---
 @router.get("/{user_id}", response_model=user_schemas.UserResponse)
 def read_user(
     user_id: int, 
@@ -109,53 +144,55 @@ def read_user(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    ID'ye göre tek bir kullanıcıyı getirir.
+    ID'ye göre tek bir kullanıcıyı getirir ve yetki kontrolü yapar.
     """
     db_user = user_crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
+
+    can_view = False
+    if current_user.role == models.UserRole.Admin:
+        can_view = True
+    elif current_user.id == db_user.id:
+        can_view = True
+    elif current_user.role == models.UserRole.Country_Chief and current_user.country == db_user.country:
+        can_view = True
+
+    if not can_view:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view this user's profile."
+        )
+        
     return db_user
 
 # Yalnızca Admin rolündeki kullanıcıların güncelleme ve silme işlemlerine izin veriyoruz.
 @router.put("/{user_id}", response_model=user_schemas.UserResponse)
 def update_existing_user(
-    user_id: int,
-    user_in: user_schemas.UserUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    user_id: int, user_in: user_schemas.UserUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Bir kullanıcının bilgilerini günceller.
-    - Admin herkesi güncelleyebilir.
-    - Country Chief kendi ülkesindeki kendinden düşük rolleri güncelleyebilir.
-    - Diğerleri güncelleme yapamaz.
-    """
-    creator_role = current_user.role
-    can_update = False
-
+    """Bir kullanıcının bilgilerini günceller."""
     db_user_to_update = user_crud.get_user(db, user_id=user_id)
     if not db_user_to_update:
         raise HTTPException(status_code=404, detail="User not found")
-        
-    # KURAL: Analist rol değişikliği yapamaz. (ve diğerleri de)
-    if user_in.role is not None and creator_role not in [models.UserRole.Admin, models.UserRole.Country_Chief]:
-         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to change user roles."
-        )
 
-    if creator_role == models.UserRole.Admin:
+    can_update = False
+    is_role_change_attempt = user_in.role is not None
+
+    if current_user.role == models.UserRole.Admin:
         can_update = True
-    elif creator_role == models.UserRole.Country_Chief:
-        if db_user_to_update.country == current_user.country:
-            can_update = True
+    elif current_user.role == models.UserRole.Country_Chief:
+        if db_user_to_update.country == current_user.country: can_update = True
+    elif current_user.role == models.UserRole.Analyst:
+        if is_role_change_attempt: raise HTTPException(status_code=403, detail="Not authorized to change roles.")
+        if db_user_to_update.role in MARKET_ROLES and db_user_to_update.country == current_user.country: can_update = True
+    elif current_user.role == models.UserRole.Engineer:
+        if is_role_change_attempt: raise HTTPException(status_code=403, detail="Not authorized to change roles.")
+        if db_user_to_update.role in MARKET_ROLES: can_update = True
 
     if not can_update:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this user."
-        )
-    
+        raise HTTPException(status_code=403, detail="Not authorized to update this user.")
+        
     return user_crud.update_user(db=db, db_user=db_user_to_update, user_in=user_in)
 
 @router.put("/me/preferences", response_model=user_schemas.UserResponse)
@@ -170,27 +207,22 @@ def update_my_preferences(
 # Bu endpoint, bir kullanıcıyı siler. Sadece Admin rolündeki kullanıcılar bu işlemi yapabilir.
 @router.delete("/{user_id}", response_model=user_schemas.UserResponse)
 def delete_existing_user(
-    user_id: int, 
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
+    user_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Bir kullanıcıyı siler. Sadece Admin yapabilir.
-    """
-    if current_user.role != models.UserRole.Admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to delete user"
-        )
-    
-    if current_user.id == user_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Admin cannot delete itself"
-        )
-
-    deleted_user = user_crud.delete_user(db, user_id=user_id)
-    if not deleted_user:
+    """Bir kullanıcıyı siler."""
+    db_user_to_delete = user_crud.get_user(db, user_id=user_id)
+    if not db_user_to_delete:
         raise HTTPException(status_code=404, detail="User not found")
         
-    return deleted_user
+    can_delete = False
+    if current_user.role == models.UserRole.Admin:
+        if current_user.id != user_id: can_delete = True
+    elif current_user.role == models.UserRole.Country_Chief:
+        if db_user_to_delete.country == current_user.country: can_delete = True
+    elif current_user.role == models.UserRole.Analyst:
+        if db_user_to_delete.role in MARKET_ROLES and db_user_to_delete.country == current_user.country: can_delete = True
+
+    if not can_delete:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this user.")
+
+    return user_crud.delete_user(db, user_id=user_id)

@@ -19,7 +19,7 @@ from app.crud import user_crud
 from cryptography.fernet import Fernet
 
 # Şifreleme bağlamını oluşturuyoruz. "bcrypt" en yaygın ve güvenli algoritmalardan biridir.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # --- ŞİFRELEME FONKSİYONLARI BAŞLANGICI ---
 cipher_suite = Fernet(settings.ENCRYPTION_KEY.encode())

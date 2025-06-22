@@ -6,7 +6,11 @@ pydantic[email]
 pydantic-settings
 python-dotenv
 python-jose[cryptography]
-passlib[bcrypt]
 python-multipart
 slowapi
+Pillow
 countryinfo
+
+# bcrypt yerine argon2 kullanıyoruz. passlib hala gerekli.
+passlib
+argon2-cffi

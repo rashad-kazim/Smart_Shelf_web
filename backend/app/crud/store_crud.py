@@ -21,7 +21,7 @@ def get_stores(db: Session, skip: int = 0, limit: int = 100):
     ).offset(skip).limit(limit).all()
 
 # Store oluşturma işlemi
-def create_store(db: Session, store: store_schemas.StoreCreate, installer_id: int): # GÜNCELLEME: installer_id parametresi eklendi
+def create_store(db: Session, store: store_schemas.StoreCreate, installer_id: int):
     """
     Yeni bir mağaza ve ona bağlı cihazları tek seferde oluşturur.
     """
@@ -31,11 +31,13 @@ def create_store(db: Session, store: store_schemas.StoreCreate, installer_id: in
         city=store.city,
         branch=store.branch,
         address=store.address,
-        installer_id=installer_id, # GÜNCELLEME: installer_id doğrudan kullanılıyor
+        installer_id=installer_id,
         owner_name=store.ownerName,
         owner_surname=store.ownerSurname,
-        working_hours=store.working_hours
+        working_hours=store.working_hours,
+        server_local_ip=store.server_local_ip
     )
+
     db.add(db_store)
     db.commit()
     db.refresh(db_store)

@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 from app.database import models
 from app.database.connection import engine
 from app.routes import auth_routes, user_routes, store_routes, operational_routes, firmware_routes, utility_routes
@@ -31,6 +32,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Hız limitlendirme middleware'ini ekliyoruz
 app.add_middleware(SlowAPIMiddleware)
+
+app.mount("/files", StaticFiles(directory="uploaded_files"), name="files")
 
 # Firmware dosyalarının sunulacağı static klasörü ayarla
 firmware_dir = Path("firmware_updates")
