@@ -24,6 +24,7 @@ const NewInstallationPage = () => {
     setDialogType,
     setDialogCallback,
     profileUser,
+    setIsLoading,
   } = useAuth();
 
   const navigate = useNavigate();
@@ -56,8 +57,6 @@ const NewInstallationPage = () => {
     closingHour: "18:00",
     ownerName: "",
     ownerSurname: "",
-    installerName: "",
-    installerSurname: "",
   });
   const [citiesOptions, setCitiesOptions] = useState([]);
 
@@ -110,6 +109,7 @@ const NewInstallationPage = () => {
     screenSize: "",
     wifi_ssid: "",
     wifi_password: "",
+    server_ip: "",
     productNameFontSize: 14,
     productPriceFontSizeBeforeDiscount: 14,
     productPriceFontSizeAfterDiscount: 14,
@@ -350,6 +350,37 @@ const NewInstallationPage = () => {
       return;
     }
 
+    // Bluetooth Veri Yazma Mantığı
+    if (bluetoothConnectedDevice && !currentInstallingDevice) {
+      try {
+        setIsLoading(true);
+        // Gerçek Service ve Characteristic UUID'leriniz ile değiştirin
+        // const serviceUUID = "your-service-uuid";
+        // const characteristicUUID = "your-characteristic-uuid";
+        // const server = await bluetoothConnectedDevice.gatt.connect();
+        // const service = await server.getPrimaryService(serviceUUID);
+        // const characteristic = await service.getCharacteristic(characteristicUUID);
+        const dataToSend = JSON.stringify({
+          wifi_ssid: deviceForm.wifi_ssid,
+          wifi_password: deviceForm.wifi_password,
+          server_ip: deviceForm.server_ip,
+        });
+        // await characteristic.writeValue(new TextEncoder().encode(dataToSend));
+        console.log("Data sent to ESP32 (simulation):", dataToSend);
+      } catch (error) {
+        console.error("Failed to send data to ESP32:", error);
+        setShowDialog(true);
+        setDialogTitle("Transmission Error");
+        setDialogMessage(`Failed to send data: ${error.message}`);
+        setDialogType("alert");
+        setDialogCallback(() => () => setShowDialog(false));
+        setIsLoading(false);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     // 5. Kaydetme İşlemi (Doğrulama başarılıysa)
     const deviceToSave = { ...deviceForm, id: parsedId };
     setInstalledDevices((prev) => {
@@ -382,6 +413,7 @@ const NewInstallationPage = () => {
     setDialogMessage,
     setDialogType,
     setDialogCallback,
+    setIsLoading,
   ]);
 
   const handleCancelDeviceForm = useCallback(() => {

@@ -403,6 +403,24 @@ const StoreEditingStep2 = (props) => {
                   </p>
                 )}
               </div>
+
+              <div>
+                <label
+                  htmlFor="server_ip"
+                  className="block text-sm font-bold mb-1">
+                  {translations?.serverIpLabel || "Server IP Address"}*
+                </label>
+                <input
+                  type="text"
+                  id="server_ip"
+                  name="server_ip"
+                  value={props.deviceForm.server_ip || ""}
+                  onChange={props.handleDeviceFormChange}
+                  className={`w-full p-2 border rounded-md ${
+                    deviceFormErrors.wifi_password ? "border-red-500" : ""
+                  }`}
+                />
+              </div>
             </div>
             <div
               className="border-t pt-4 mt-4"

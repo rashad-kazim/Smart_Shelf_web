@@ -1,36 +1,34 @@
-// ProtectedRoute.js
-// Role-based route protection component
 // src/components/auth/ProtectedRoute.js
+
 import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { PERMISSIONS } from "../../config/roles";
 import AccessDeniedPage from "../../pages/misc/AccessDeniedPage";
+import GlobalLoader from "../common/GlobalLoader"; // GlobalLoader'ı import ediyoruz
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, profileUser } = useAuth();
-  const location = useLocation(); // To get the current page's path
+const ProtectedRoute = ({ allowedRoles }) => {
+  const { user, isAuthenticated, isAuthLoading } = useAuth();
 
-  // 1. If the user is not logged in, redirect to the login page.
-  if (!isAuthenticated) {
-    // Save the page the user wants to go to as state,
-    // so they can return there after logging in.
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // 1. KONTROL: Eğer ilk kimlik doğrulama kontrolü hala devam ediyorsa,
+  // hiçbir karar verme, sadece yükleme ekranı göster.
+  if (isAuthLoading) {
+    return <GlobalLoader />;
   }
 
-  // 2. Get the routes the user can access based on their role.
-  const allowedRoutes = PERMISSIONS[profileUser?.role]?.viewableRoutes || [];
+  // 2. KONTROL: Kontrol bitti ve kullanıcı giriş yapmamışsa, login sayfasına yönlendir.
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
-  // Find the main route being accessed (e.g., /users/add -> /users)
-  const mainRoute = `/${location.pathname.split("/")[1] || ""}`;
-
-  // 3. If the user does not have permission to access this main route, show the "Access Denied" page.
-  if (!allowedRoutes.includes(mainRoute)) {
+  // 3. KONTROL: Kullanıcı giriş yapmış, ama bu sayfayı görmeye rolü yetmiyorsa,
+  // "Erişim Reddedildi" sayfasını göster.
+  const hasPermission = allowedRoles ? allowedRoles.includes(user.role) : true;
+  if (!hasPermission) {
     return <AccessDeniedPage />;
   }
 
-  // 4. If all checks pass, show the requested page (children).
-  return children;
+  // 4. KONTROL: Eğer tüm kontrollerden geçtiyse, asıl sayfayı göster.
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

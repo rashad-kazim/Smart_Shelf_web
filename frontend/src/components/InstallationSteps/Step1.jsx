@@ -56,8 +56,6 @@ const Step1 = ({
       "address",
       "ownerName",
       "ownerSurname",
-      "installerName",
-      "installerSurname",
     ];
 
     if (!storeForm.allDayOpen) {
@@ -447,68 +445,6 @@ const Step1 = ({
             {formErrors.ownerSurname && (
               <p className="text-red-500 text-xs mt-1">
                 {formErrors.ownerSurname}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label
-              htmlFor="installerName"
-              className="block text-sm font-bold mb-2">
-              {translations?.installerNameLabel || "Installer Name"}{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="installerName"
-              name="installerName"
-              value={storeForm.installerName}
-              onChange={handleStoreFormChange}
-              className={`w-full p-2 border rounded-md ${
-                formErrors.installerName ? "border-red-500" : ""
-              }`}
-              style={{
-                backgroundColor: colors.pureWhite,
-                color: colors.darkText,
-                borderColor: formErrors.installerName
-                  ? colors.errorRed
-                  : colors.mediumGrayText,
-              }}
-            />
-            {formErrors.installerName && (
-              <p className="text-red-500 text-xs mt-1">
-                {formErrors.installerName}
-              </p>
-            )}
-          </div>
-          <div>
-            <label
-              htmlFor="installerSurname"
-              className="block text-sm font-bold mb-2">
-              {translations?.installerSurnameLabel || "Installer Surname"}{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="installerSurname"
-              name="installerSurname"
-              value={storeForm.installerSurname}
-              onChange={handleStoreFormChange}
-              className={`w-full p-2 border rounded-md ${
-                formErrors.installerSurname ? "border-red-500" : ""
-              }`}
-              style={{
-                backgroundColor: colors.pureWhite,
-                color: colors.darkText,
-                borderColor: formErrors.installerSurname
-                  ? colors.errorRed
-                  : colors.mediumGrayText,
-              }}
-            />
-            {formErrors.installerSurname && (
-              <p className="text-red-500 text-xs mt-1">
-                {formErrors.installerSurname}
               </p>
             )}
           </div>

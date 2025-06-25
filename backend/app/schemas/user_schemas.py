@@ -1,24 +1,21 @@
 # app/schemas/user_schemas.py
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 from app.database.models import UserRole 
 
 class UserBase(BaseModel):
     email: EmailStr
-    name: str = Field(..., max_length=100)
-    surname: str = Field(..., max_length=100)
+    name: str
+    surname: str
     role: UserRole
-    country: Optional[str] = Field(..., max_length=100)
+    country: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
 
-class UserPreferencesUpdate(BaseModel):
-    theme: Optional[str] = Field(None, pattern=r'^(light|dark)$')
-    language: Optional[str] = Field(None, pattern=r'^(en|tr|pl)$')
-
+# --- YENİ EKLENEN ŞEMA ---
 # Kullanıcı güncellerken alınacak veriler. Tüm alanlar opsiyoneldir.
 class UserUpdate(BaseModel):
     name: Optional[str] = None
@@ -31,9 +28,6 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     id: int
     is_active: bool
-    profile_picture_url: Optional[str] = None
-    preferred_theme: str
-    preferred_language: str
     created_at: datetime
 
     class Config:

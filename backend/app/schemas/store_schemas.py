@@ -6,6 +6,8 @@ from typing import Optional, List
 from datetime import datetime, timedelta 
 from .device_schemas import DeviceCreate, DeviceResponse
 
+from .user_schemas import UserResponse
+
 # StoreBase modelini oluştururken, mağaza ile ilgili temel alanları belirtiyoruz.
 class StoreBase(BaseModel):
     name: str
@@ -46,14 +48,27 @@ class StoreResponse(BaseModel):
     server_local_ip: Optional[str] = None
     created_at: datetime
     last_seen: Optional[datetime] = None
-    owner_name: Optional[str]
-    owner_surname: Optional[str]
-    working_hours: Optional[str]
+    owner_name: Optional[str] = None
+    owner_surname: Optional[str] = None
+    working_hours: Optional[str] = None
+
     
-    installerName: Optional[str] = None
-    installerSurname: Optional[str] = None
+    installer: Optional[UserResponse] = None
     devices: List[DeviceResponse] = []
+
     
+    @computed_field
+    @property
+    def installerName(self) -> Optional[str]:
+        # Artık self.installer'a erişebilir
+        return self.installer.name if self.installer else None
+
+    @computed_field
+    @property
+    def installerSurname(self) -> Optional[str]:
+        # Artık self.installer'a erişebilir
+        return self.installer.surname if self.installer else None
+
     @computed_field
     @property
     def status(self) -> str:
@@ -64,6 +79,7 @@ class StoreResponse(BaseModel):
     @computed_field
     @property
     def num_esp32_connected(self) -> int:
+        # Artık self.devices'a erişebilir
         return len(self.devices)
       
     class Config:

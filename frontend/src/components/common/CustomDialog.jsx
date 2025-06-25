@@ -1,72 +1,26 @@
 // src/components/common/CustomDialog.jsx
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 
-const CustomDialog = () => {
-  // All necessary state and functions are taken directly from context
-  const {
-    showDialog,
-    setShowDialog,
-    dialogTitle,
-    dialogMessage,
-    dialogType,
-    dialogCallback,
-    dialogConfirmationText,
-    setDialogConfirmationText,
-    appTranslations,
-    language,
-    currentColors: colors,
-  } = useAuth();
+const CustomDialog = ({
+  title,
+  message,
+  type,
+  onConfirm,
+  onCancel,
+  confirmationText,
+}) => {
+  const { currentColors: colors, appTranslations, language } = useAuth();
+  const translations = appTranslations[language]?.dialogs || {};
 
-  const translations = appTranslations[language]?.users || {};
-
-  // Component-specific states: user input and error state
   const [confirmInput, setConfirmInput] = useState("");
-  const [confirmError, setConfirmError] = useState(false);
-
-  // Clear input and error when dialog opens
-  useEffect(() => {
-    if (showDialog) {
-      setConfirmInput("");
-      setConfirmError(false);
-    }
-  }, [showDialog]);
-
-  // Show nothing if dialog is closed
-  if (!showDialog) {
-    return null;
-  }
-
-  const handleConfirm = () => {
-    // If this is a confirmation dialog and confirmation text is required
-    if (dialogType === "confirm" && dialogConfirmationText) {
-      if (confirmInput.trim() === dialogConfirmationText) {
-        if (dialogCallback) dialogCallback(); // Trigger the actual delete operation
-        handleClose(); // Close the dialog
-      } else {
-        setConfirmError(true); // Set error state
-      }
-    } else {
-      if (dialogCallback) dialogCallback();
-      handleClose();
-    }
-  };
-
-  const handleClose = () => {
-    setShowDialog(false);
-    // Clear states for next use
-    setConfirmInput("");
-    setConfirmError(false);
-    if (setDialogConfirmationText) {
-      setDialogConfirmationText("");
-    }
-  };
-
-  // Disable "Yes" button if confirmation text is not entered correctly
   const isConfirmDisabled =
-    dialogType === "confirm" &&
-    dialogConfirmationText &&
-    confirmInput.trim() !== dialogConfirmationText;
+    confirmationText && confirmInput.trim() !== confirmationText;
+
+  useEffect(() => {
+    setConfirmInput("");
+  }, [confirmationText]);
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -76,77 +30,65 @@ const CustomDialog = () => {
         <h3
           className="text-lg font-semibold mb-4"
           style={{ color: colors.darkText }}>
-          {dialogTitle}
+          {title}
         </h3>
-        <p className="mb-4" style={{ color: colors.mediumGrayText }}>
-          {dialogMessage}
+        <p className="mb-4 text-sm" style={{ color: colors.mediumGrayText }}>
+          {message}
         </p>
 
-        {/* FIX: Show this input only when confirmation text is required */}
-        {dialogType === "confirm" && dialogConfirmationText && (
+        {confirmationText && (
           <div className="mb-4">
             <label
               className="block text-sm mb-2"
               style={{ color: colors.darkText }}>
               {translations.deleteConfirmationPrompt ||
-                "Please type the following to confirm:"}{" "}
+                "Onaylamak için lütfen şunu yazın:"}{" "}
               <strong className="font-mono select-all">
-                {dialogConfirmationText}
+                {confirmationText}
               </strong>
             </label>
             <input
               type="text"
               value={confirmInput}
-              onChange={(e) => {
-                setConfirmInput(e.target.value);
-                setConfirmError(false);
-              }}
-              placeholder={
-                translations.deleteConfirmationPlaceholder ||
-                "Type full name here"
-              }
-              className={`w-full p-2 rounded-md border ${
-                confirmError ? "border-red-500" : ""
-              }`}
+              onChange={(e) => setConfirmInput(e.target.value)}
+              className="w-full p-2 rounded-md border"
               style={{
                 backgroundColor: colors.pureWhite,
                 color: colors.darkText,
-                borderColor: confirmError
-                  ? colors.errorRed
-                  : colors.mediumGrayText,
+                borderColor: colors.mediumGrayText,
               }}
             />
-            {confirmError && (
-              <p className="text-red-500 text-xs mt-1">
-                {translations.deleteConfirmationMismatch ||
-                  "The entered text does not match."}
-              </p>
-            )}
           </div>
         )}
 
-        <div className="flex justify-end space-x-4">
-          {dialogType === "confirm" && (
+        <div className="flex justify-end space-x-4 mt-6">
+          {type === "confirm" && (
             <button
-              onClick={handleClose}
+              onClick={onCancel}
               className="px-4 py-2 rounded-md font-bold"
               style={{
                 backgroundColor: colors.prevButtonBg,
                 color: colors.whiteText,
               }}>
-              {translations.noButton || "No"}
+              {translations.noButton || "Hayır"}
             </button>
           )}
           <button
-            onClick={handleConfirm}
+            onClick={onConfirm}
             disabled={isConfirmDisabled}
             className={`px-4 py-2 rounded-md font-bold text-white transition-opacity ${
               isConfirmDisabled
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-opacity-80"
             }`}
-            style={{ backgroundColor: colors.logoPrimaryBlue }}>
-            {dialogType === "confirm" ? translations.yesButton || "Yes" : "OK"}
+            style={{
+              backgroundColor: isConfirmDisabled
+                ? colors.mediumGrayText
+                : colors.logoPrimaryBlue,
+            }}>
+            {type === "confirm"
+              ? translations.yesButton || "Evet"
+              : translations.okButton || "Tamam"}
           </button>
         </div>
       </div>

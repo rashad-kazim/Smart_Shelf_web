@@ -20,21 +20,6 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     """Veritabanındaki tüm kullanıcıları listeler."""
     return db.query(models.User).offset(skip).limit(limit).all()
 
-# --- YENİ EKLENEN FONKSİYON ---
-def get_users_by_country(db: Session, country: str, skip: int = 0, limit: int = 100):
-    """Belirli bir ülkedeki kullanıcıları listeler."""
-    return db.query(models.User).filter(models.User.country == country).offset(skip).limit(limit).all()
-# --- EKLENEN FONKSİYONUN SONU ---
-
-def get_market_users_by_country(db: Session, country: str, skip: int = 0, limit: int = 100):
-    """Belirli bir ülkedeki sadece market çalışanlarını listeler."""
-    market_roles = [models.UserRole.Runner, models.UserRole.Supermarket_Admin]
-    return db.query(models.User).filter(
-        models.User.country == country,
-        models.User.role.in_(market_roles)
-    ).offset(skip).limit(limit).all()
-# --- BİTTİ ---
-
 def create_user(db: Session, user: user_schemas.UserCreate):
     """Yeni bir kullanıcı oluşturur."""
     hashed_password = security.get_password_hash(user.password)
@@ -62,17 +47,6 @@ def update_user(db: Session, db_user: models.User, user_in: user_schemas.UserUpd
     db.refresh(db_user)
     return db_user
 # -----------------------------
-
-def update_user_preferences(db: Session, db_user: models.User, prefs: user_schemas.UserPreferencesUpdate):
-    """Bir kullanıcının tema ve dil tercihlerini günceller."""
-    if prefs.theme is not None:
-        db_user.preferred_theme = prefs.theme
-    if prefs.language is not None:
-        db_user.preferred_language = prefs.language
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
 
 # --- YENİ EKLENEN FONKSİYON ---
 def delete_user(db: Session, user_id: int):

@@ -1,47 +1,42 @@
-// src/pages/misc/AccessDeniedPage.js
+// src/pages/misc/AccessDeniedPage.jsx
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { ShieldAlert } from "lucide-react";
 
 const AccessDeniedPage = () => {
+  const { currentColors: colors, appTranslations, language } = useAuth();
   const navigate = useNavigate();
-  // Now we get colors and translations from the centralized context!
-  const { currentColors, appTranslations, language } = useAuth();
-
-  const translations = appTranslations[language]?.users || {};
+  const translations = appTranslations[language]?.accessDenied || {};
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-gray-100"
-      style={{ backgroundColor: currentColors.lightGrayBg }}>
-      <div
-        className="p-8 rounded-lg shadow-md flex flex-col items-center justify-center text-center max-w-lg"
-        style={{
-          backgroundColor: currentColors.pureWhite,
-          color: currentColors.errorRed,
-        }}>
-        <X size={64} className="mb-4" />
-        <h1
-          className="text-3xl font-semibold mb-4"
-          style={{ color: currentColors.darkText }}>
-          {translations.accessDeniedTitle || "Access Denied"}
-        </h1>
-        <p
-          className="text-lg mb-6"
-          style={{ color: currentColors.mediumGrayText }}>
-          {translations.accessDeniedMessage ||
-            "You do not have permission to access this page."}
-        </p>
-        <button
-          onClick={() => navigate("/")}
-          className="mt-6 px-6 py-3 rounded-md font-medium transition-colors duration-200 cursor-pointer"
-          style={{
-            backgroundColor: currentColors.logoPrimaryBlue,
-            color: currentColors.whiteText,
-          }}>
-          {translations.goBackButton || "Go Back"}
-        </button>
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-sm mx-auto">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50">
+          <ShieldAlert
+            className="h-6 w-6 text-red-600 dark:text-red-400"
+            aria-hidden="true"
+          />
+        </div>
+        <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
+          {translations.title || "Access Denied"}
+        </h3>
+        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <p>
+            {translations.message ||
+              "You do not have permission to access this section."}
+          </p>
+        </div>
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => navigate(-1)} // Bir önceki sayfaya git
+            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white transition-colors"
+            style={{ backgroundColor: colors.logoPrimaryBlue }}>
+            {translations.goBackButton || "Go Back"}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,43 +1,122 @@
 // src/context/AuthContext.js
+
 import React, {
   createContext,
   useState,
-  useEffect,
-  useContext,
   useMemo,
+  useContext,
+  useCallback,
+  useEffect,
 } from "react";
 import { appTranslations } from "../config/translations";
-import { mockUsers } from "../data/mockUsers";
-import { mockCompanyUsers } from "../data/mockCompanyUsers";
-import { mockStores } from "../data/mockStores";
-import { mockDevices } from "../data/mockDevices";
+import axiosInstance from "../api/axiosInstance";
 
 const AuthContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
-  const [profileUser, setProfileUser] = useState(
-    () => JSON.parse(localStorage.getItem("profileUser")) || null
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(false);
+  const [profileUser, setProfileUser] = useState(null); // user -> profileUser
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [language, setLanguage] = useState("en");
+
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          const response = await axiosInstance.get("/api/users/me");
+          const userData = response.data;
+
+          setProfileUser(userData); // setUser -> setProfileUser
+          setIsAuthenticated(true);
+          setIsDarkMode(userData.preferred_theme === "dark");
+          setLanguage(userData.preferred_language || "en");
+        } catch (error) {
+          console.error("Token validation failed:", error);
+          localStorage.removeItem("authToken");
+        }
+      }
+      setIsAuthLoading(false);
+    };
+
+    validateToken();
+  }, []);
+
+  // API'ye bağlanan ana login fonksiyonu
+  const login = useCallback(async (email, password) => {
+    setIsGlobalLoading(true);
+    try {
+      const formData = new URLSearchParams();
+      formData.append("username", email);
+      formData.append("password", password);
+
+      const response = await axiosInstance.post("/api/auth/login", formData, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      const { user: userData, token } = response.data;
+
+      localStorage.setItem("authToken", token);
+
+      setProfileUser(userData); // setUser -> setProfileUser
+      setIsAuthenticated(true);
+      setIsDarkMode(userData.preferred_theme === "dark");
+      setLanguage(userData.preferred_language || "en");
+
+      return { success: true };
+    } catch (error) {
+      console.error(
+        "Login failed:",
+        error.response?.data?.detail || error.message
+      );
+      return {
+        success: false,
+        message: error.response?.data?.detail || "Bir hata oluştu.",
+      };
+    } finally {
+      setIsGlobalLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("authToken");
+    setProfileUser(null); // setUser -> setProfileUser
+    setIsAuthenticated(false);
+    setIsDarkMode(false);
+    setLanguage("en");
+  }, []);
+
+  const updateUserPreferences = useCallback(
+    async (preferences) => {
+      if (!isAuthenticated) return;
+      try {
+        await axiosInstance.put("/api/users/me/preferences", preferences);
+      } catch (error) {
+        console.error("Failed to update preferences:", error);
+      }
+    },
+    [isAuthenticated]
   );
-  const [users, setUsers] = useState(mockUsers);
-  const [companyUsers, setCompanyUsers] = useState(mockCompanyUsers);
-  const [stores, setStores] = useState(mockStores);
 
-  const [installedDevices, setInstalledDevices] = useState(mockDevices);
+  const toggleTheme = useCallback(() => {
+    setIsDarkMode((prevMode) => {
+      const newIsDarkMode = !prevMode;
+      updateUserPreferences({ theme: newIsDarkMode ? "dark" : "light" });
+      return newIsDarkMode;
+    });
+  }, [updateUserPreferences]);
 
-  const [isDarkMode, setIsDarkMode] = useState(
-    () => localStorage.getItem("isDarkMode") === "true"
+  const changeLanguage = useCallback(
+    (newLang) => {
+      setLanguage(newLang);
+      updateUserPreferences({ language: newLang });
+    },
+    [updateUserPreferences]
   );
-  const [language, setLanguage] = useState(
-    () => localStorage.getItem("language") || "en"
-  );
 
-  const [showDialog, setShowDialog] = useState(false);
-  const [dialogTitle, setDialogTitle] = useState("");
-  const [dialogMessage, setDialogMessage] = useState("");
-  const [dialogType, setDialogType] = useState("alert");
-  const [dialogCallback, setDialogCallback] = useState(() => () => {});
-
-  const [dialogConfirmationText, setDialogConfirmationText] = useState("");
   const lightColors = useMemo(
     () => ({
       headerSidebarBg: "#212B36",
@@ -86,68 +165,49 @@ export const AppProvider = ({ children }) => {
 
   const currentColors = useMemo(
     () => (isDarkMode ? darkColors : lightColors),
-    [isDarkMode, lightColors, darkColors]
+    [isDarkMode, darkColors, lightColors]
   );
 
-  const isAuthenticated = !!profileUser;
-  const toggleTheme = () => setIsDarkMode((prev) => !prev);
-  const login = (userData) => setProfileUser(userData);
-  const logout = () => {
-    setProfileUser(null); /* ... */
-  };
-
-  useEffect(() => {
-    if (profileUser)
-      localStorage.setItem("profileUser", JSON.stringify(profileUser));
-    else localStorage.removeItem("profileUser");
-  }, [profileUser]);
-  useEffect(() => {
-    localStorage.setItem("isDarkMode", isDarkMode);
-  }, [isDarkMode]);
-  useEffect(() => {
-    localStorage.setItem("language", language);
-  }, [language]);
-
-  const value = {
-    profileUser,
-    setProfileUser,
-    isAuthenticated,
-    login,
-    logout,
-    users,
-    setUsers,
-    companyUsers,
-    setCompanyUsers,
-    stores,
-    setStores,
-    isDarkMode,
-    toggleTheme,
-    currentColors,
-    language,
-    setLanguage,
-    appTranslations,
-    showDialog,
-    setShowDialog,
-    dialogTitle,
-    setDialogTitle,
-    dialogMessage,
-    setDialogMessage,
-    dialogType,
-    setDialogType,
-    dialogCallback,
-    setDialogCallback,
-    dialogConfirmationText,
-    setDialogConfirmationText,
-    installedDevices,
-    setInstalledDevices,
-  };
+  const value = useMemo(
+    () => ({
+      profileUser, // user -> profileUser
+      user: profileUser, // Backward compatibility için
+      isAuthenticated,
+      isAuthLoading,
+      login,
+      logout,
+      isGlobalLoading,
+      setIsGlobalLoading,
+      isTableLoading,
+      setIsTableLoading,
+      isDarkMode,
+      toggleTheme,
+      language,
+      changeLanguage,
+      currentColors,
+      appTranslations,
+    }),
+    [
+      profileUser, // user -> profileUser
+      isAuthenticated,
+      isAuthLoading,
+      login,
+      logout,
+      isGlobalLoading,
+      isTableLoading,
+      isDarkMode,
+      language,
+      currentColors,
+      toggleTheme,
+      changeLanguage,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined)
-    throw new Error("useAuth must be used within an AppProvider");
+  if (!context) throw new Error("useAuth must be used within an AppProvider");
   return context;
 };

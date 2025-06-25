@@ -1,20 +1,28 @@
 // src/App.js
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
-import { PERMISSIONS } from "./config/roles";
 
-// Importing components and pages
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import CustomDialog from "./components/common/CustomDialog";
+import React from "react";
+// DÜZELTME: BrowserRouter (Router olarak) importu buradan kaldırıldı.
+// Bu, projenin ana giriş dosyası olan index.js'te olmalıdır.
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AppProvider, useAuth } from "./context/AuthContext";
+import { ROLES } from "./config/roles";
+
+// Layout ve Yardımcı Bileşenler
 import MainLayout from "./layouts/MainLayout";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NotFoundPage from "./pages/misc/NotFoundPage";
+import AccessDeniedPage from "./pages/misc/AccessDeniedPage";
+
+// Sayfaların Import Edilmesi
 import LoginPage from "./Auth/LoginPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
+import FirmwarePage from "./pages/Firmware/FirmwarePage";
+import ProfileDetailsPage from "./pages/Profile/ProfileDetailsPage";
 import StoresPage from "./pages/Stores/StoresPage";
+import NewInstallationPage from "./pages/Stores/NewInstallationPage";
 import EditStoreDetailsPage from "./pages/Stores/StoreEditing/EditStoreDetailsPage";
 import StoreEditingWorkflow from "./pages/Stores/StoreEditing/StoreEditingWorkflow";
 import DeleteStorePage from "./pages/Stores/DeleteStorePage";
-import NewInstallationPage from "./pages/Stores/NewInstallationPage";
 import ViewLogsPage from "./pages/Stores/Logs/ViewLogsPage";
 import StoreLogDetailsPage from "./pages/Stores/Logs/StoreLogDetailsPage";
 import ServerLogsPage from "./pages/Stores/Logs/ServerLogsPage";
@@ -26,229 +34,149 @@ import EditUserForm from "./pages/Users/EditUserForm";
 import CompanyUsers from "./pages/Users/CompanyUsers";
 import AddCompanyUserForm from "./pages/Users/AddCompanyUserForm";
 import EditCompanyUserForm from "./pages/Users/EditCompanyUserForm";
-import FirmwarePage from "./pages/Firmware/FirmwarePage";
-import ProfileDetailsPage from "./pages/Profile/ProfileDetailsPage";
-import NotFoundPage from "./pages/misc/NotFoundPage";
-import AccessDeniedPage from "./pages/misc/AccessDeniedPage";
 
-function App() {
-  const {
-    isAuthenticated,
-    showDialog,
-    dialogTitle,
-    dialogMessage,
-    dialogType,
-    dialogCallback,
-    setShowDialog,
-    currentColors,
-    appTranslations,
-    language,
-    profileUser,
-  } = useAuth();
-
-  const dialogTranslations = appTranslations[language]?.stores || {};
-  const canViewCompanyUsers =
-    PERMISSIONS[profileUser?.role]?.canAccessCompanyUsers || false;
+// Rotaları yöneten ana bileşen
+const AppRoutes = () => {
+  const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
+    <Routes>
+      {/* Giriş yapmamış kullanıcılar sadece Login sayfasını görür. Giriş yapmışsa ana sayfaya yönlendirilir. */}
+      <Route
+        path="/login"
+        element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />}
+      />
 
-        {/* Routes visible to logged-in and authorized users */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? <MainLayout /> : <Navigate to="/login" replace />
-          }>
-          <Route
-            index
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+      {/* Diğer tüm sayfalar MainLayout ile sarılmıştır ve giriş yapmayı gerektirir */}
+      <Route path="/" element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          {/* --- YETKİLENDİRME KURALLARI UYGULANMIŞ ROTALAR --- */}
 
-          {/* Stores Routes */}
-          <Route
-            path="stores"
-            element={
-              <ProtectedRoute>
-                <StoresPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="new-installation"
-            element={
-              <ProtectedRoute>
-                <NewInstallationPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="edit-store-details"
-            element={
-              <ProtectedRoute>
-                <EditStoreDetailsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="edit-store-workflow/:storeId"
-            element={
-              <ProtectedRoute>
-                <StoreEditingWorkflow />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="delete-store"
-            element={
-              <ProtectedRoute>
-                <DeleteStorePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="view-logs"
-            element={
-              <ProtectedRoute>
-                <ViewLogsPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Dashboard: Tüm yetkili şirket çalışanları */}
+          <Route index element={<DashboardPage />} />
+
+          {/* Mağaza Yönetimi Rotaları */}
+          <Route path="stores" element={<StoresPage />} />
 
           <Route
-            path="store-log-details/:storeId"
             element={
-              <ProtectedRoute>
-                <StoreLogDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+              <ProtectedRoute
+                allowedRoles={[
+                  ROLES.ADMIN,
+                  ROLES.COUNTRY_CHIEF,
+                  ROLES.ENGINEER,
+                ]}
+              />
+            }>
+            <Route path="new-installation" element={<NewInstallationPage />} />
+          </Route>
 
           <Route
-            path="server-logs/:storeId"
             element={
-              <ProtectedRoute>
-                <ServerLogsPage />
-              </ProtectedRoute>
-            }
-          />
+              <ProtectedRoute
+                allowedRoles={[
+                  ROLES.ADMIN,
+                  ROLES.COUNTRY_CHIEF,
+                  ROLES.ENGINEER,
+                  ROLES.ANALYST,
+                ]}
+              />
+            }>
+            <Route
+              path="edit-store-details"
+              element={<EditStoreDetailsPage />}
+            />
+            <Route
+              path="edit-store-workflow/:storeId"
+              element={<StoreEditingWorkflow />}
+            />
+          </Route>
 
           <Route
-            path="esp32-logs/:storeId"
             element={
-              <ProtectedRoute>
-                <ESP32LogsPage />
-              </ProtectedRoute>
-            }
-          />
+              <ProtectedRoute
+                allowedRoles={[ROLES.ADMIN, ROLES.COUNTRY_CHIEF]}
+              />
+            }>
+            <Route path="delete-store" element={<DeleteStorePage />} />
+          </Route>
+
+          {/* Log Görüntüleme Rotaları */}
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={[ROLES.ADMIN, ROLES.COUNTRY_CHIEF, ROLES.ANALYST]}
+              />
+            }>
+            <Route path="view-logs" element={<ViewLogsPage />} />
+            <Route
+              path="store-log-details/:storeId"
+              element={<StoreLogDetailsPage />}
+            />
+            <Route path="server-logs/:storeId" element={<ServerLogsPage />} />
+            <Route path="esp32-logs/:storeId" element={<ESP32LogsPage />} />
+          </Route>
+
+          {/* Kullanıcı Yönetimi Rotaları */}
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={[ROLES.ADMIN, ROLES.COUNTRY_CHIEF, ROLES.ANALYST]}
+              />
+            }>
+            <Route path="users" element={<UsersAndRolesPage />} />
+            <Route path="users/company" element={<CompanyUsers />} />
+            <Route path="users/company/add" element={<AddCompanyUserForm />} />
+            <Route
+              path="users/company/edit/:userId"
+              element={<EditCompanyUserForm />}
+            />
+          </Route>
 
           <Route
-            path="users"
             element={
-              <ProtectedRoute>
-                <UsersAndRolesPage />
-              </ProtectedRoute>
-            }
-          />
+              <ProtectedRoute
+                allowedRoles={[
+                  ROLES.ADMIN,
+                  ROLES.COUNTRY_CHIEF,
+                  ROLES.ANALYST,
+                  ROLES.ENGINEER,
+                ]}
+              />
+            }>
+            <Route path="users/supermarket" element={<SupermarketUsers />} />
+            <Route path="users/supermarket/add" element={<AddUserForm />} />
+            <Route
+              path="users/supermarket/edit/:userId"
+              element={<EditUserForm />}
+            />
+          </Route>
 
-          {/* All authorized roles can access supermarket users */}
-          <Route
-            path="users/supermarket"
-            element={
-              <ProtectedRoute>
-                <SupermarketUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="users/supermarket/add"
-            element={
-              <ProtectedRoute>
-                <AddUserForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="users/supermarket/edit/:userId"
-            element={
-              <ProtectedRoute>
-                <EditUserForm />
-              </ProtectedRoute>
-            }
-          />
+          {/* Firmware Sayfası: Sadece Admin */}
+          <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
+            <Route path="firmware" element={<FirmwarePage />} />
+          </Route>
 
-          {/* Only users with permission can access company users */}
-          <Route
-            path="users/company"
-            element={
-              <ProtectedRoute>
-                {canViewCompanyUsers ? <CompanyUsers /> : <AccessDeniedPage />}
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="users/company/add"
-            element={
-              <ProtectedRoute>
-                {canViewCompanyUsers ? (
-                  <AddCompanyUserForm />
-                ) : (
-                  <AccessDeniedPage />
-                )}
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="users/company/edit/:userId"
-            element={
-              <ProtectedRoute>
-                {canViewCompanyUsers ? (
-                  <EditCompanyUserForm />
-                ) : (
-                  <AccessDeniedPage />
-                )}
-              </ProtectedRoute>
-            }
-          />
+          {/* Profil Sayfası: Giriş yapmış herkes görebilir */}
+          <Route path="profile-details" element={<ProfileDetailsPage />} />
 
-          <Route
-            path="firmware"
-            element={
-              <ProtectedRoute>
-                <FirmwarePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="profile-details"
-            element={
-              <ProtectedRoute>
-                <ProfileDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Yetkisiz Erişim Sayfası */}
+          <Route path="/access-denied" element={<AccessDeniedPage />} />
         </Route>
+      </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      {/* Eşleşmeyen tüm yollar 404 sayfasına yönlendirilir */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+};
 
-      {showDialog && (
-        <CustomDialog
-          title={dialogTitle}
-          message={dialogMessage}
-          type={dialogType}
-          onConfirm={dialogCallback}
-          onCancel={() => setShowDialog(false)}
-          colors={currentColors}
-          translations={dialogTranslations}
-        />
-      )}
-    </>
+// Ana App bileşeni
+function App() {
+  return (
+    <AppProvider>
+      <AppRoutes />
+    </AppProvider>
   );
 }
 

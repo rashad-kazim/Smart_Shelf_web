@@ -24,6 +24,7 @@ const StoreEditingWorkflow = () => {
     setDialogType,
     setDialogCallback,
     profileUser,
+    setIsLoading,
   } = useAuth();
 
   const translations = useMemo(
@@ -158,8 +159,9 @@ const StoreEditingWorkflow = () => {
       "address",
       "ownerName",
       "ownerSurname",
-      "installerName",
-      "installerSurname",
+      "wifi_ssid",
+      "wifi_password",
+      "server_ip",
     ];
     if (editableStoreForm.addBranch) requiredFields.push("branchName");
     if (!editableStoreForm.allDayOpen) {
@@ -230,8 +232,12 @@ const StoreEditingWorkflow = () => {
     setIsDeviceFormActive(true);
   }, []);
 
-  const handleSaveDevice = useCallback(() => {
-    // 1. Bluetooth Connection Check (Only when adding a new device)
+  const handleSaveDevice = useCallback(async () => {
+    // 1. Fonksiyonu 'async' yapıyoruz
+    // Önce hataları temizle
+    setDeviceFormErrors({});
+
+    // 2. Bluetooth Bağlantı Kontrolü (Sadece YENİ cihaz ekleniyorsa)
     if (!currentInstallingDevice && !bluetoothConnectedDevice) {
       setShowDialog(true);
       setDialogTitle(translations.errorTitle || "Error");
@@ -247,8 +253,13 @@ const StoreEditingWorkflow = () => {
     const newErrors = {};
     let isValid = true;
 
-    // 2. Required Field Checks
-    const requiredFields = ["screenSize", "wifi_ssid", "wifi_password"];
+    // 3. Zorunlu Alan Kontrolleri (WIFI ve Server IP dahil)
+    const requiredFields = [
+      "screenSize",
+      "wifi_ssid",
+      "wifi_password",
+      "server_ip",
+    ];
     if (!deviceForm.allDayWork) {
       requiredFields.push("awakeTime", "sleepTime");
     }
@@ -260,9 +271,9 @@ const StoreEditingWorkflow = () => {
       }
     });
 
-    // 3. Duplicate ID Check
+    // 4. Tekrarlanan ID Kontrolü
     const parsedId = parseInt(deviceForm.id);
-    if (isNaN(parsedId)) {
+    if (isNaN(parsedId) || String(deviceForm.id).trim() === "") {
       isValid = false;
       newErrors.id = translations.invalidID || "ID must be a number.";
     } else if (
@@ -276,27 +287,53 @@ const StoreEditingWorkflow = () => {
         "This ID is already in use for this store.";
     }
 
-    setDeviceFormErrors(newErrors);
-
     if (!isValid) {
+      setDeviceFormErrors(newErrors);
       const firstErrorFieldId = `device_${Object.keys(newErrors)[0]}`;
-      const element = document.getElementById(firstErrorFieldId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      document
+        .getElementById(firstErrorFieldId)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
-    // 4. Device Form Save
-    setCurrentStoreDevices((prev) => {
-      const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
-      const finalDevice = { ...deviceForm, id: parsedId };
-      return isEditing
-        ? prev.map((d) =>
-            d.id === currentInstallingDevice.id ? finalDevice : d
-          )
-        : [...prev, finalDevice];
-    });
 
+    // 5. YENİ: Bluetooth ile Veri Yazma (Sadece YENİ cihaz ekleniyorsa)
+    if (bluetoothConnectedDevice && !currentInstallingDevice) {
+      try {
+        setIsLoading(true); // Yükleme animasyonunu başlat
+
+        // Bu UUID'ler, ESP32 kodunuzda tanımladığınız gerçek değerler olmalıdır.
+        const serviceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+        const characteristicUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+        const server = await bluetoothConnectedDevice.gatt.connect();
+        const service = await server.getPrimaryService(serviceUUID);
+        const characteristic = await service.getCharacteristic(
+          characteristicUUID
+        );
+
+        const dataToSend = JSON.stringify({
+          wifi_ssid: deviceForm.wifi_ssid,
+          wifi_password: deviceForm.wifi_password,
+          server_ip: deviceForm.server_ip,
+        });
+
+        await characteristic.writeValue(new TextEncoder().encode(dataToSend));
+        console.log("Data successfully sent to ESP32:", dataToSend);
+      } catch (error) {
+        console.error("Failed to send data to ESP32:", error);
+        setShowDialog(true);
+        setDialogTitle("Transmission Error");
+        setDialogMessage(`Failed to send data to the device: ${error.message}`);
+        setDialogType("alert");
+        setDialogCallback(() => () => setShowDialog(false));
+        setIsLoading(false); // Yüklemeyi durdur
+        return; // Hata durumunda işlemi tamamen durdur
+      } finally {
+        setIsLoading(false); // İşlem başarılı da olsa hatalı da olsa yüklemeyi durdur
+      }
+    }
+
+    // 6. Kaydetme İşlemi (React state'ini güncelleme)
     const deviceToSave = { ...deviceForm, id: parsedId };
     setCurrentStoreDevices((prev) => {
       const isEditing = prev.some((d) => d.id === currentInstallingDevice?.id);
@@ -307,16 +344,22 @@ const StoreEditingWorkflow = () => {
         : [...prev, deviceToSave];
     });
 
+    // 7. Formu ve State'leri Temizle/Kapat
     setIsDeviceFormActive(false);
     setCurrentInstallingDevice(null);
     setBluetoothConnectedDevice(null);
   }, [
     deviceForm,
     currentInstallingDevice,
-    currentStoreDevices,
     bluetoothConnectedDevice,
+    currentStoreDevices,
     translations,
     setDeviceFormErrors,
+    setCurrentStoreDevices,
+    setIsDeviceFormActive,
+    setCurrentInstallingDevice,
+    setBluetoothConnectedDevice,
+    setIsLoading,
     setShowDialog,
     setDialogTitle,
     setDialogMessage,

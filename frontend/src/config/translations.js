@@ -10,6 +10,7 @@ export const appTranslations = {
       note: "Note: The logo in the header bar above is a representation of your EilSense.io name and logo's visual tones. Your actual logo (a transparent PNG/SVG file) will appear exactly as you want it when integrated here.",
     },
     stores: {
+      LoadingTitle: "Loading",
       title: "Stores & Branches",
       createStoreTitle: "Create New Store",
       createStoreDesc: "Add a new store or branch to the system.",
@@ -69,6 +70,7 @@ export const appTranslations = {
       editButton: "Edit",
       deleteButton: "Delete",
       saveButton: "Save",
+      serverIpLabel: "Server IP Address",
       currentInstallationWarningTitle: "Action Required",
       currentInstallationWarningMsg:
         "Please save or cancel the current device form.",
@@ -278,6 +280,7 @@ export const appTranslations = {
       note: "Not: Yukarıdaki başlık çubuğundaki logo, EilSense.io adınızın ve logonuzun görsel tonlarının bir temsilidir. Gerçek logonuz (şeffaf bir PNG/SVG dosyası) buraya entegre edildiğinde tam olarak istediğiniz gibi görünecektir.",
     },
     stores: {
+      LoadingTitle: "Yükleniyor",
       title: "Mağazalar ve Şubeler",
       createStoreTitle: "Yeni Mağaza Oluştur",
       createStoreDesc: "Sisteme yeni bir mağaza veya şube ekleyin.",
@@ -539,6 +542,7 @@ export const appTranslations = {
       note: "Qeyd: Yuxarıdakı başlıq zolağındakı loqo, EilSense.io adınızın və loqonuzun vizual tonlarının bir təmsilidir. Əsl loqonuz (şəffaf PNG/SVG faylı) buraya inteqrasiya edildikdə tam istədiyiniz kimi görünəcək.",
     },
     stores: {
+      LoadingTitle: "Yüklənir.",
       title: "Mağazalar və Filiallar",
       createStoreTitle: "Yeni Mağaza Yarat",
       createStoreDesc: "Sistemə yeni bir mağaza və ya filial əlavə edin.",
@@ -808,6 +812,7 @@ export const appTranslations = {
       note: "Примечание: Логотип в верхней панели является представлением визуальных тонов вашего имени и логотипа EilSense.io. Ваш фактический логотип (прозрачный файл PNG/SVG) будет отображаться именно так, как вы хотите, после интеграции.",
     },
     stores: {
+      LoadingTitle: "Загрузка",
       title: "Магазины и Филиалы",
       createStoreTitle: "Создать новый магазин",
       createStoreDesc: "Добавить новый магазин или филиал в систему.",
@@ -1078,6 +1083,7 @@ export const appTranslations = {
       note: "Uwaga: Logo w górnym pasku nagłówka jest reprezentacją tonów wizualnych Twojej nazwy i logo EilSense.io. Twoje rzeczywiste logo (przezroczysty plik PNG/SVG) pojawi się dokładnie tak, jak chcesz, gdy zostanie tutaj zintegrowane.",
     },
     stores: {
+      LoadingTitle: "Ładowanie",
       title: "Sklepy i Oddziały",
       createStoreTitle: "Utwórz nowy sklep",
       createStoreDesc: "Dodaj nowy sklep lub oddział do systemu.",
