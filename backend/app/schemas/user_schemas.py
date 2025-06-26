@@ -11,24 +11,38 @@ class UserBase(BaseModel):
     surname: str
     role: UserRole
     country: Optional[str] = None
+    city: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
+    assigned_store_id: Optional[int] = None # Market kullanıcısı için
+    profile_picture: Optional[str] = None # Profil resmi için Base64 data
 
-# --- YENİ EKLENEN ŞEMA ---
-# Kullanıcı güncellerken alınacak veriler. Tüm alanlar opsiyoneldir.
 class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
     name: Optional[str] = None
     surname: Optional[str] = None
     role: Optional[UserRole] = None
     country: Optional[str] = None
+    city: Optional[str] = None
     is_active: Optional[bool] = None
-# -------------------------
+    assigned_store_id: Optional[int] = None
+    profile_picture: Optional[str] = None
+    password: Optional[str] = None
 
 class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+    
+    # --- YENİ EKLENEN ALANLAR ---
+    profile_picture: Optional[str] = None
+    assigned_store_id: Optional[int] = None
+    assigned_store_name: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class UserPreferencesUpdate(BaseModel):
+    language: Optional[str] = None
+    theme: Optional[str] = None

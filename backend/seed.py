@@ -32,12 +32,12 @@ def seed_data(db: Session):
         admin_password = get_password_hash("Admin448.")
 
         users_to_create = [
-            User(name="Rasad", surname="Admin", email="kresad555@gmail.com", hashed_password=admin_password, role=UserRole.Admin, country="Poland"),
-            User(name="Jan", surname="Kowalski", email="chief.pl@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Poland"),
-            User(name="Ahmet", surname="Yılmaz", email="chief.tr@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Turkey"),
-            User(name="Piotr", surname="Nowak", email="engineer.pl@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Poland"),
-            User(name="Ayşe", surname="Kaya", email="engineer.tr@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Turkey"),
-        User(name="Ewa", surname="Wiśniewska", email="analyst.pl@example.com", hashed_password=common_password, role=UserRole.Analyst, country="Poland"),
+            User(name="Rasad", surname="Admin", email="kresad555@gmail.com", hashed_password=admin_password, role=UserRole.Admin, country="Poland", city="Warsaw"),
+            User(name="Jan", surname="Kowalski", email="chief.pl@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Poland", city="Krakow"),
+            User(name="Ahmet", surname="Yılmaz", email="chief.tr@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Turkey", city="Ankara"),
+            User(name="Piotr", surname="Nowak", email="engineer.pl@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Poland", city="Warsaw"),
+            User(name="Ayşe", surname="Kaya", email="engineer.tr@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Turkey", city="Istanbul"),
+            User(name="Ewa", surname="Wiśniewska", email="analyst.pl@example.com", hashed_password=common_password, role=UserRole.Analyst, country="Poland", city="Lodz"),
         ]
         db.add_all(users_to_create)
         

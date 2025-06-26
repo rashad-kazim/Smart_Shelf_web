@@ -29,8 +29,8 @@ import ServerLogsPage from "./pages/Stores/Logs/ServerLogsPage";
 import ESP32LogsPage from "./pages/Stores/Logs/ESP32LogsPage";
 import UsersAndRolesPage from "./pages/Users/UsersAndRolesPage";
 import SupermarketUsers from "./pages/Users/SupermarketUsers";
-import AddUserForm from "./pages/Users/AddUserForm";
-import EditUserForm from "./pages/Users/EditUserForm";
+import AddSupermarketUserForm from "./pages/Users/AddSupermarketUserForm";
+import EditSupermarketUserForm from "./pages/Users/EditSupermarketUserForm";
 import CompanyUsers from "./pages/Users/CompanyUsers";
 import AddCompanyUserForm from "./pages/Users/AddCompanyUserForm";
 import EditCompanyUserForm from "./pages/Users/EditCompanyUserForm";
@@ -145,10 +145,13 @@ const AppRoutes = () => {
               />
             }>
             <Route path="users/supermarket" element={<SupermarketUsers />} />
-            <Route path="users/supermarket/add" element={<AddUserForm />} />
+            <Route
+              path="users/supermarket/add"
+              element={<AddSupermarketUserForm />}
+            />
             <Route
               path="users/supermarket/edit/:userId"
-              element={<EditUserForm />}
+              element={<EditSupermarketUserForm />}
             />
           </Route>
 

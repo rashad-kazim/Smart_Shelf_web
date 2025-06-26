@@ -1,290 +1,178 @@
 // src/pages/Users/CompanyUsers.jsx
-import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useUserFilters } from "../../hooks/useUserFilters";
 import { ROLES } from "../../config/roles";
-import { PlusCircle, RotateCcw } from "lucide-react";
-import { mockStores } from "../../data/mockStores";
+import axiosInstance from "../../api/axiosInstance";
+import PageHeader from "../../components/common/PageHeader";
+import UsersTable from "../../components/users/UsersTable";
+import FilterControls from "../../components/common/FilterControls";
+import CustomDialog from "../../components/common/CustomDialog";
+import GlobalLoader from "../../components/common/GlobalLoader";
+import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const CompanyUsers = () => {
-  const {
-    isDarkMode,
-    profileUser,
-    currentColors: colors,
-    appTranslations,
-    language,
-    companyUsers,
-    setCompanyUsers,
-    // FIX: Dialog functions are taken from context
-    setShowDialog,
-    setDialogTitle,
-    setDialogMessage,
-    setDialogType,
-    setDialogCallback,
-    setDialogConfirmationText,
-  } = useAuth();
-
+  const { profileUser, isAuthLoading, appTranslations, language } = useAuth();
   const navigate = useNavigate();
-  const translations = useMemo(
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Silme onayı için diyalog penceresi state'leri
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState({});
+
+  // Merkezi filtreleme mantığını hook'tan alıyoruz
+  const {
+    filteredUsers,
+    countryOptions,
+    cityOptions,
+    selectedCountries,
+    selectedCities,
+    toggleCountry,
+    toggleCity,
+    resetFilters,
+  } = useUserFilters(users, profileUser);
+
+  // Çeviri metinlerini useMemo ile kararlı hale getiriyoruz
+  const pageTranslations = useMemo(
+    () => appTranslations[language]?.users?.companyUsersPage || {},
+    [appTranslations, language]
+  );
+  const userTranslations = useMemo(
     () => appTranslations[language]?.users || {},
     [appTranslations, language]
   );
 
-  const [filters, setFilters] = useState({ country: "", city: "" });
+  // Backend'den şirket kullanıcılarını çeken ana fonksiyon
+  const fetchCompanyUsers = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get("/api/users?user_type=company");
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Failed to fetch company users:", err);
+      setError("Failed to load users. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const isAdmin = profileUser?.role === ROLES.ADMIN;
-  const isCountryChief = profileUser?.role === ROLES.COUNTRY_CHIEF;
-
+  // Sayfa yüklendiğinde ve kimlik doğrulama bittiğinde kullanıcıları çek
   useEffect(() => {
-    if (!isAdmin && profileUser?.country) {
-      setFilters((prev) => ({ ...prev, country: profileUser.country }));
+    if (!isAuthLoading) {
+      fetchCompanyUsers();
     }
-  }, [profileUser, isAdmin]);
+  }, [fetchCompanyUsers, isAuthLoading]);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+  // Kullanıcıyı silen API isteğini gönderen fonksiyon
+  const performDelete = async (userId) => {
+    setIsLoading(true);
+    try {
+      await axiosInstance.delete(`/api/users/${userId}`);
+      fetchCompanyUsers(); // Başarılı silme sonrası listeyi yenile
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+      setError(
+        err.response?.data?.detail ||
+          "An error occurred while deleting the user."
+      );
+      setIsLoading(false);
+    }
   };
 
-  const handleClearFilters = () => {
-    if (isAdmin) {
-      setFilters({ country: "", city: "" });
-    } else {
-      setFilters((prev) => ({ ...prev, city: "" }));
-    }
+  const handleEdit = (user) => {
+    // Artık konsola yazdırmak yerine, kullanıcıyı düzenleme sayfasına yönlendiriyoruz
+    navigate(`/users/company/edit/${user.id}`);
   };
 
-  const uniqueCountries = useMemo(() => {
-    if (isAdmin) {
-      return [...new Set(mockStores.map((store) => store.country))].sort();
-    }
-    if (isCountryChief) {
-      return [profileUser?.country].filter(Boolean);
-    }
-    return [];
-  }, [profileUser, isAdmin, isCountryChief]);
-
-  const uniqueCities = useMemo(() => {
-    let relevantStores = mockStores;
-    if (filters.country) {
-      relevantStores = relevantStores.filter(
-        (store) => store.country === filters.country
-      );
-    }
-    return [...new Set(relevantStores.map((store) => store.city))]
-      .filter(Boolean)
-      .sort();
-  }, [filters.country]);
-
-  const filteredUsers = useMemo(() => {
-    let baseUsers = companyUsers;
-    if (isCountryChief) {
-      baseUsers = companyUsers.filter(
-        (user) => user.country === profileUser?.country
-      );
-    }
-    return baseUsers.filter((user) => {
-      const countryMatch =
-        filters.country === "" || user.country === filters.country;
-      const cityMatch =
-        filters.city === "" || !user.city || user.city === filters.city;
-      return countryMatch && cityMatch;
-    });
-  }, [companyUsers, filters, profileUser, isCountryChief]);
-
-  // FIX: Delete function updated to use confirmation mechanism
-  const handleDeleteUser = (userToDelete) => {
-    if (!isAdmin && !isCountryChief) return;
-
-    const confirmationFullName = `${userToDelete.name} ${userToDelete.surname}`;
-
-    setDialogTitle(
-      translations.confirmDeleteUserTitle || "Confirm User Deletion"
-    );
-    setDialogMessage(
-      `${
-        translations.confirmDeleteUserMessage ||
+  // Silme butonuna tıklandığında onay penceresini hazırlayan fonksiyon
+  const handleDelete = (user) => {
+    setDialogContent({
+      title: userTranslations.confirmDeleteTitle || "Confirm Deletion",
+      message: `${
+        userTranslations.confirmDeleteMessage ||
         "Are you sure you want to delete"
-      } '${confirmationFullName}'?`
-    );
-    setDialogConfirmationText(confirmationFullName); // Set user's full name for confirmation
-    setDialogType("confirm");
-
-    setDialogCallback(() => () => {
-      setCompanyUsers((prevUsers) =>
-        prevUsers.filter((user) => user.id !== userToDelete.id)
-      );
+      } '${user.name} ${user.surname}'?`,
+      type: "confirm",
+      confirmationText: `${user.name} ${user.surname}`,
+      onConfirm: () => {
+        setShowDialog(false);
+        performDelete(user.id);
+      },
+      onCancel: () => setShowDialog(false),
     });
-
     setShowDialog(true);
   };
 
-  const handleEditUser = (userId) => {
-    navigate(`/users/company/edit/${userId}`);
-  };
+  // Tablodaki her satır için aksiyon butonlarını oluşturan fonksiyon
+  const renderUserActions = (user) => (
+    <div className="flex items-center justify-end space-x-2">
+      <button
+        onClick={() => handleEdit(user)}
+        className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+        <Edit size={18} />
+      </button>
+      <button
+        onClick={() => handleDelete(user)}
+        className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+        <Trash2 size={18} />
+      </button>
+    </div>
+  );
 
-  const handleAddNewUser = () => {
-    navigate("/users/company/add");
-  };
+  // Kullanıcı bilgileri yüklenene kadar bekle
+  if (isAuthLoading || !profileUser) {
+    return <GlobalLoader />;
+  }
+
+  const isAdmin = profileUser.role === ROLES.ADMIN;
 
   return (
-    <div
-      className="p-8 rounded-lg shadow-md"
-      style={{ backgroundColor: colors.pureWhite, color: colors.darkText }}>
-      <h1 className="text-3xl font-semibold mb-6">
-        {translations.userForCompanyTitle || "Users For Company"}
-      </h1>
+    <>
+      {showDialog && <CustomDialog {...dialogContent} />}
+      <div className="p-4 sm:p-6">
+        <PageHeader
+          title={pageTranslations.title || "Company Users"}
+          subtitle={
+            pageTranslations.subtitle ||
+            "Manage administrators, country chiefs, and engineers"
+          }>
+          <Link
+            to="/users/company/add"
+            className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+            <PlusCircle size={20} className="mr-2" />
+            {pageTranslations.addUser || "Add User"}
+          </Link>
+        </PageHeader>
 
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={handleAddNewUser}
-          className="px-6 py-3 rounded-md font-medium flex items-center justify-center"
-          style={{
-            backgroundColor: colors.logoPrimaryBlue,
-            color: colors.whiteText,
-          }}>
-          <PlusCircle size={20} className="mr-2" />{" "}
-          {translations.addNewUserButton || "Add New User"}
-        </button>
-      </div>
+        <FilterControls
+          countryOptions={countryOptions}
+          cityOptions={cityOptions}
+          selectedCountries={selectedCountries}
+          selectedCities={selectedCities}
+          toggleCountry={toggleCountry}
+          toggleCity={toggleCity}
+          resetFilters={resetFilters}
+          isCountryDisabled={!isAdmin}
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label
-            htmlFor="filter-country"
-            className="block text-sm font-medium mb-1">
-            {translations.country || "Country"}
-          </label>
-          <select
-            id="filter-country"
-            name="country"
-            value={filters.country}
-            onChange={handleFilterChange}
-            disabled={!isAdmin}
-            className="w-full p-2 rounded-md border cursor-pointer"
-            style={{
-              borderColor: colors.mediumGrayText,
-              backgroundColor: colors.lightGrayBg,
-              color: colors.darkText,
-            }}>
-            <option value="">
-              {translations.allCountries || "All Countries"}
-            </option>
-            {uniqueCountries.map((country) => (
-              <option key={country} value={country}>
-                {country}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label
-            htmlFor="filter-city"
-            className="block text-sm font-medium mb-1">
-            {translations.city || "City"}
-          </label>
-          <select
-            id="filter-city"
-            name="city"
-            value={filters.city}
-            onChange={handleFilterChange}
-            disabled={!filters.country}
-            className="w-full p-2 rounded-md border cursor-pointer"
-            style={{
-              borderColor: colors.mediumGrayText,
-              backgroundColor: colors.lightGrayBg,
-              color: colors.darkText,
-            }}>
-            <option value="">{translations.allCities || "All Cities"}</option>
-            {uniqueCities.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+        {error && (
+          <div className="my-4 p-4 text-center text-red-700 bg-red-100 dark:bg-red-900/40 dark:text-red-300 rounded-lg">
+            {error}
+          </div>
+        )}
 
-      <div className="w-full text-right mb-4">
-        <button
-          onClick={handleClearFilters}
-          className="px-4 py-2 rounded-md font-medium flex items-center inline-flex"
-          style={{
-            backgroundColor: colors.logoPrimaryBlue,
-            color: colors.whiteText,
-          }}>
-          <RotateCcw size={18} className="mr-2" />{" "}
-          {translations.clearFilters || "Clear Filters"}
-        </button>
+        <UsersTable
+          users={filteredUsers}
+          isLoading={isLoading}
+          renderActions={renderUserActions}
+          type="company"
+        />
       </div>
-
-      <div
-        className="overflow-x-auto rounded-lg border"
-        style={{ borderColor: colors.mediumGrayText }}>
-        <table
-          className="min-w-full divide-y"
-          style={{ borderColor: colors.mediumGrayText }}>
-          <thead style={{ backgroundColor: colors.lightGrayBg }}>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                {translations.nameSurnameHeader || "Name"}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                {translations.countryHeader || "Country"}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                {translations.cityHeader || "City"}
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                {translations.roleHeader || "Role"}
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody style={{ backgroundColor: colors.pureWhite }}>
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className={`border-t transition-colors duration-150 ${
-                    isDarkMode
-                      ? "text-gray-100 hover:bg-gray-700"
-                      : "text-gray-700 hover:bg-gray-200 hover:text-black"
-                  }`}
-                  style={{ borderColor: colors.lightGrayBg }}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {user.name} {user.surname}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {user.country}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.city}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{user.role}</td>
-                  <td className="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                    <button
-                      onClick={() => handleEditUser(user.id)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-md">
-                      {translations.editButton || "Edit"}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(user)}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-md">
-                      {translations.deleteButton || "Delete"}
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center py-4">
-                  {translations.noUsersFound || "No users found."}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    </>
   );
 };
 

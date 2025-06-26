@@ -3,19 +3,15 @@ import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/common/PageHeader";
-import { ROLES, ROLES_LIST } from "../../config/roles";
-import AutocompleteInput from "../../components/common/AutocompleteInput";
+import { ROLES } from "../../config/roles";
 import { Camera, Eye, EyeOff } from "lucide-react";
 
-const AddCompanyUserForm = () => {
-  const { profileUser, isDarkMode, appTranslations, language } = useAuth();
+const AddSupermarketUserForm = () => {
+  const { isDarkMode, appTranslations, language } = useAuth();
   const navigate = useNavigate();
 
-  const capitalize = (s) =>
-    s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
-
   const translations = useMemo(
-    () => appTranslations[language]?.users?.addUserForm || {},
+    () => appTranslations[language]?.users?.addSupermarketUserForm || {},
     [appTranslations, language]
   );
   const commonTranslations = useMemo(
@@ -29,46 +25,30 @@ const AddCompanyUserForm = () => {
     email: "",
     password: "",
     repeatPassword: "",
-    role: "",
-    country:
-      profileUser?.role === ROLES.ADMIN
-        ? ""
-        : profileUser?.country
-        ? capitalize(profileUser.country)
-        : "",
-    city: "",
-    profile_picture: null, // Profil resmi için state
+    role: ROLES.RUNNER, // Rol varsayılan olarak 'Runner' olarak sabitlendi
+    assigned_store_id: "",
+    profile_picture: null,
   });
 
-  const [countryOptions, setCountryOptions] = useState([]);
-  const [cityOptions, setCityOptions] = useState([]);
+  const [stores, setStores] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Sayfa yüklendiğinde, atanabilecek mağazaların listesini API'den çek
   useEffect(() => {
-    if (profileUser?.role === ROLES.ADMIN) {
-      axiosInstance
-        .get("/api/utils/countries")
-        .then((res) => setCountryOptions((res.data || []).map(capitalize)))
-        .catch((err) => console.error("Failed to fetch countries", err));
-    } else if (profileUser?.country) {
-      setCountryOptions([capitalize(profileUser.country)]);
-    }
-  }, [profileUser]);
-
-  useEffect(() => {
-    if (formData.country) {
-      axiosInstance
-        .get(`/api/utils/cities?country=${formData.country.toLowerCase()}`)
-        .then((res) => setCityOptions((res.data || []).map(capitalize)))
-        .catch((err) => setCityOptions([]));
-    } else {
-      setCityOptions([]);
-    }
-  }, [formData.country]);
+    axiosInstance
+      .get("/api/stores")
+      .then((res) => {
+        setStores(res.data || []);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch stores", err);
+        setError(translations.fetchStoresError || "Failed to load stores.");
+      });
+  }, [translations.fetchStoresError]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -76,18 +56,13 @@ const AddCompanyUserForm = () => {
       const file = files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, profile_picture: reader.result })); // Base64 string
+        setFormData((prev) => ({ ...prev, profile_picture: reader.result }));
       };
       reader.readAsDataURL(file);
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
-  const handleCountryChange = (value) =>
-    setFormData((prev) => ({ ...prev, country: value || "", city: "" }));
-  const handleCityChange = (value) =>
-    setFormData((prev) => ({ ...prev, city: value || "" }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,39 +72,38 @@ const AddCompanyUserForm = () => {
       setError(translations.passwordMismatchError || "Passwords do not match.");
       return;
     }
-    if (!formData.role) {
-      setError(translations.roleRequiredError || "Please select a role.");
+    if (!formData.assigned_store_id) {
+      setError(
+        translations.storeRequiredError || "Please assign a store to the user."
+      );
       return;
     }
 
     setIsSubmitting(true);
     const { repeatPassword, ...userData } = formData;
+
     try {
       await axiosInstance.post("/api/users", userData);
-      navigate("/users/company");
+      navigate("/users/supermarket");
     } catch (err) {
+      let errorMessage = translations.genericError || "An error occurred.";
       const errorDetail = err.response?.data?.detail;
-      setError(
-        typeof errorDetail === "string"
-          ? errorDetail
-          : translations.genericError || "An error occurred."
-      );
+      if (typeof errorDetail === "string") {
+        errorMessage = errorDetail;
+      } else if (Array.isArray(errorDetail) && errorDetail.length > 0) {
+        errorMessage = errorDetail[0].msg;
+      }
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isAdmin = profileUser?.role === ROLES.ADMIN;
-  const companyRoles = ROLES_LIST.company || [];
-  const availableRoles = isAdmin
-    ? companyRoles
-    : companyRoles.filter((role) => role !== ROLES.ADMIN);
-
   const formContainerClass = isDarkMode
     ? "bg-gray-800 border border-gray-700"
     : "bg-white";
   const labelClass = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputClass = `mt-1 block w-full p-2 border rounded-md shadow-sm transition-colors ${
+  const inputClass = `w-full p-2 border rounded-md shadow-sm transition-colors ${
     isDarkMode
       ? "bg-gray-700 text-white border-gray-600 focus:ring-blue-500 focus:border-blue-500"
       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -138,10 +112,9 @@ const AddCompanyUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Add New Company User"}
+        title={translations.title || "Add New Supermarket User"}
         subtitle={
-          translations.subtitle ||
-          "Fill in the details to create a new user account."
+          translations.subtitle || "Create a new user assigned to a store"
         }
       />
       <div className="max-w-2xl mx-auto mt-6">
@@ -266,49 +239,25 @@ const AddCompanyUserForm = () => {
                 )}
               </span>
             </div>
-            <div>
+            <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.roleLabel || "Role"}
+                {translations.assignStoreLabel || "Assign to Store"}
               </label>
               <select
-                name="role"
-                value={formData.role}
+                name="assigned_store_id"
+                value={formData.assigned_store_id}
                 onChange={handleChange}
                 required
                 className={inputClass}>
                 <option value="" disabled>
-                  {translations.selectRole || "Select a role"}
+                  {translations.selectStore || "Select a store"}
                 </option>
-                {availableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                {stores.map((store) => (
+                  <option key={store.id} value={store.id}>
+                    {`${store.name} (${store.city}, ${store.country})`}
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.countryLabel || "Country"}
-              </label>
-              <AutocompleteInput
-                options={countryOptions}
-                selected={formData.country}
-                setSelected={handleCountryChange}
-                disabled={!isAdmin}
-                placeholder={translations.countryPlaceholder || "Search..."}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.cityLabel || "City"}
-              </label>
-              <AutocompleteInput
-                options={cityOptions}
-                selected={formData.city}
-                setSelected={handleCityChange}
-                disabled={!formData.country}
-                placeholder={translations.cityPlaceholder || "Search..."}
-              />
             </div>
           </div>
 
@@ -340,4 +289,4 @@ const AddCompanyUserForm = () => {
   );
 };
 
-export default AddCompanyUserForm;
+export default AddSupermarketUserForm;

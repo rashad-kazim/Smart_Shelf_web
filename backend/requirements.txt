@@ -10,6 +10,7 @@ python-multipart
 slowapi
 Pillow
 countryinfo
+geonamescache
 
 # bcrypt yerine argon2 kullanıyoruz. passlib hala gerekli.
 passlib

@@ -6,10 +6,16 @@
 // Instead of using strings like "Admin" throughout the code, we will use ROLES.ADMIN.
 export const ROLES = {
   ADMIN: "Admin",
-  COUNTRY_CHIEF: "Country Chief",
-  ANALYST: "Analyst",
+  COUNTRY_CHIEF: "Country_Chief",
   ENGINEER: "Engineer",
+  ANALYST: "Analyst",
   RUNNER: "Runner",
+};
+
+// Farklı kullanıcı tipleri için izin verilen rolleri gruplayan liste
+export const ROLES_LIST = {
+  company: [ROLES.COUNTRY_CHIEF, ROLES.ENGINEER, ROLES.ANALYST],
+  supermarket: [ROLES.RUNNER],
 };
 
 // Centralized permission object that determines which roles can access which main page groups.

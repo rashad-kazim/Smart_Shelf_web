@@ -8,35 +8,42 @@ from app.schemas import user_schemas
 from app.crud import user_crud
 from app.security.security import get_current_user
 
+from app.database.models import UserRole 
+
 router = APIRouter(
     prefix="/api/users",
     tags=["Users"]
 )
 
 # Not: Bu endpoint'in path'i "" olarak ayarlandı, prefix ile birleşince /api/users olur.
-@router.post("", response_model=user_schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=user_schemas.UserResponse)
 def create_new_user(
-    user: user_schemas.UserCreate, 
+    user: user_schemas.UserCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Yeni bir kullanıcı oluşturur. 
-    Sadece 'Admin' rolündeki kullanıcılar bu işlemi yapabilir.
-    """
-    if current_user.role != models.UserRole.Admin:
+    """Yeni bir kullanıcı oluşturur ve rol bazlı güvenlik kontrolü yapar."""
+    
+    # 1. GÜVENLİK KURALI: Sadece Admin, "Admin" rolünde birini oluşturabilir.
+    # Eğer yeni kullanıcının rolü "Admin" ise ve bu isteği yapan kişi Admin değilse,
+    # isteği reddet.
+    if user.role == models.UserRole.Admin and current_user.role != models.UserRole.Admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to create a user"
+            detail="You are not authorized to create an Admin user."
         )
+
+    # 2. GÜVENLİK KURALI: Country Chief, sadece kendi ülkesinde kullanıcı oluşturabilir.
+    if current_user.role == models.UserRole.Country_Chief:
+        # Gelen verideki ülke ne olursa olsun, onu mevcut şefin ülkesiyle üzerine yaz.
+        user.country = current_user.country
     
+
+    # Email'in zaten kayıtlı olup olmadığını kontrol et
     db_user = user_crud.get_user_by_email(db, email=user.email)
     if db_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-    
+        raise HTTPException(status_code=400, detail="Email already registered")
+        
     return user_crud.create_user(db=db, user=user)
 
 
@@ -45,15 +52,13 @@ def create_new_user(
 @router.get("/", response_model=List[user_schemas.UserResponse], include_in_schema=False)
 @router.get("", response_model=List[user_schemas.UserResponse])
 def read_users(
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(get_db),
+    user_type: str, 
+    db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Tüm kullanıcıları listeler. Sadece yetkili bir kullanıcı (geçerli token sahibi) erişebilir.
-    """
-    users = user_crud.get_users(db, skip=skip, limit=limit)
+    """Kullanıcıları tipine göre listeler."""
+    # CRUD fonksiyonuna artık mevcut kullanıcının ID'sini de gönderiyoruz.
+    users = user_crud.get_users(db, user_type=user_type, current_user_id=current_user.id)
     return users
 
 # --- DÜZELTME: /me endpoint'i, /{user_id}'den ÖNCE tanımlandı ---
@@ -130,3 +135,15 @@ def delete_existing_user(
         raise HTTPException(status_code=404, detail="User not found")
         
     return deleted_user
+
+@router.put("/me/preferences", response_model=user_schemas.UserResponse)
+def update_current_user_preferences(
+    preferences: user_schemas.UserPreferencesUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """O anki giriş yapmış kullanıcının tercihlerini günceller."""
+    updated_user = user_crud.update_user_preferences(
+        db=db, user=current_user, preferences=preferences
+    )
+    return updated_user

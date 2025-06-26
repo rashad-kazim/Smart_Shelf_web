@@ -1,21 +1,19 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../components/common/PageHeader";
-import { ROLES, ROLES_LIST } from "../../config/roles";
-import AutocompleteInput from "../../components/common/AutocompleteInput";
 import { Camera, Eye, EyeOff } from "lucide-react";
+import GlobalLoader from "../../components/common/GlobalLoader";
 
-const AddCompanyUserForm = () => {
-  const { profileUser, isDarkMode, appTranslations, language } = useAuth();
+const EditSupermarketUserForm = () => {
+  const { isDarkMode, appTranslations, language } = useAuth();
   const navigate = useNavigate();
+  const { userId } = useParams();
 
-  const capitalize = (s) =>
-    s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
-
+  // Çeviri nesneleri
   const translations = useMemo(
-    () => appTranslations[language]?.users?.addUserForm || {},
+    () => appTranslations[language]?.users?.editUserForm || {},
     [appTranslations, language]
   );
   const commonTranslations = useMemo(
@@ -23,52 +21,45 @@ const AddCompanyUserForm = () => {
     [appTranslations, language]
   );
 
-  const [formData, setFormData] = useState({
-    name: "",
-    surname: "",
-    email: "",
-    password: "",
-    repeatPassword: "",
-    role: "",
-    country:
-      profileUser?.role === ROLES.ADMIN
-        ? ""
-        : profileUser?.country
-        ? capitalize(profileUser.country)
-        : "",
-    city: "",
-    profile_picture: null, // Profil resmi için state
-  });
-
-  const [countryOptions, setCountryOptions] = useState([]);
-  const [cityOptions, setCityOptions] = useState([]);
+  // State'ler
+  const [formData, setFormData] = useState(null); // Başlangıçta null, veri çekilene kadar
+  const [stores, setStores] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Sayfa yüklendiğinde, hem kullanıcıyı hem de mağazaları çek
   useEffect(() => {
-    if (profileUser?.role === ROLES.ADMIN) {
-      axiosInstance
-        .get("/api/utils/countries")
-        .then((res) => setCountryOptions((res.data || []).map(capitalize)))
-        .catch((err) => console.error("Failed to fetch countries", err));
-    } else if (profileUser?.country) {
-      setCountryOptions([capitalize(profileUser.country)]);
-    }
-  }, [profileUser]);
+    const fetchInitialData = async () => {
+      try {
+        const userPromise = axiosInstance.get(`/api/users/${userId}`);
+        const storesPromise = axiosInstance.get("/api/stores");
 
-  useEffect(() => {
-    if (formData.country) {
-      axiosInstance
-        .get(`/api/utils/cities?country=${formData.country.toLowerCase()}`)
-        .then((res) => setCityOptions((res.data || []).map(capitalize)))
-        .catch((err) => setCityOptions([]));
-    } else {
-      setCityOptions([]);
-    }
-  }, [formData.country]);
+        const [userResponse, storesResponse] = await Promise.all([
+          userPromise,
+          storesPromise,
+        ]);
+
+        setFormData({
+          name: userResponse.data.name || "",
+          surname: userResponse.data.surname || "",
+          email: userResponse.data.email || "",
+          role: userResponse.data.role || "",
+          assigned_store_id: userResponse.data.assigned_store_id || "",
+          profile_picture: userResponse.data.profile_picture || null,
+          password: "", // Şifre alanları her zaman boş başlar
+          repeatPassword: "",
+        });
+        setStores(storesResponse.data || []);
+      } catch (err) {
+        console.error("Failed to fetch initial data:", err);
+        setError("Could not load user data or stores.");
+      }
+    };
+    fetchInitialData();
+  }, [userId]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -76,7 +67,7 @@ const AddCompanyUserForm = () => {
       const file = files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, profile_picture: reader.result })); // Base64 string
+        setFormData((prev) => ({ ...prev, profile_picture: reader.result }));
       };
       reader.readAsDataURL(file);
     } else {
@@ -84,52 +75,51 @@ const AddCompanyUserForm = () => {
     }
   };
 
-  const handleCountryChange = (value) =>
-    setFormData((prev) => ({ ...prev, country: value || "", city: "" }));
-  const handleCityChange = (value) =>
-    setFormData((prev) => ({ ...prev, city: value || "" }));
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    if (formData.password !== formData.repeatPassword) {
+    // Yeni şifre girilmişse, eşleşip eşleşmediklerini kontrol et
+    if (formData.password && formData.password !== formData.repeatPassword) {
       setError(translations.passwordMismatchError || "Passwords do not match.");
-      return;
-    }
-    if (!formData.role) {
-      setError(translations.roleRequiredError || "Please select a role.");
       return;
     }
 
     setIsSubmitting(true);
+
     const { repeatPassword, ...userData } = formData;
+    // Eğer şifre alanı boşsa, backend'e bu alanı hiç gönderme
+    if (!userData.password) {
+      delete userData.password;
+    }
+
     try {
-      await axiosInstance.post("/api/users", userData);
-      navigate("/users/company");
+      await axiosInstance.put(`/api/users/${userId}`, userData);
+      navigate("/users/supermarket");
     } catch (err) {
+      let errorMessage = translations.genericError || "An error occurred.";
       const errorDetail = err.response?.data?.detail;
-      setError(
-        typeof errorDetail === "string"
-          ? errorDetail
-          : translations.genericError || "An error occurred."
-      );
+      if (typeof errorDetail === "string") {
+        errorMessage = errorDetail;
+      } else if (Array.isArray(errorDetail) && errorDetail.length > 0) {
+        errorMessage = errorDetail[0].msg;
+      }
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isAdmin = profileUser?.role === ROLES.ADMIN;
-  const companyRoles = ROLES_LIST.company || [];
-  const availableRoles = isAdmin
-    ? companyRoles
-    : companyRoles.filter((role) => role !== ROLES.ADMIN);
+  // Veri yüklenene kadar loader göster
+  if (!formData) {
+    return <GlobalLoader />;
+  }
 
   const formContainerClass = isDarkMode
     ? "bg-gray-800 border border-gray-700"
     : "bg-white";
   const labelClass = isDarkMode ? "text-gray-300" : "text-gray-700";
-  const inputClass = `mt-1 block w-full p-2 border rounded-md shadow-sm transition-colors ${
+  const inputClass = `w-full p-2 border rounded-md shadow-sm transition-colors ${
     isDarkMode
       ? "bg-gray-700 text-white border-gray-600 focus:ring-blue-500 focus:border-blue-500"
       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -138,11 +128,10 @@ const AddCompanyUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Add New Company User"}
-        subtitle={
-          translations.subtitle ||
-          "Fill in the details to create a new user account."
-        }
+        title={translations.title || "Edit Supermarket User"}
+        subtitle={`${translations.subtitlePrefix || "Update details for"} ${
+          formData.name
+        } ${formData.surname}`}
       />
       <div className="max-w-2xl mx-auto mt-6">
         <form
@@ -222,20 +211,44 @@ const AddCompanyUserForm = () => {
                 className={inputClass}
               />
             </div>
+
+            <div className="md:col-span-2 my-4">
+              <div
+                className="w-full border-t"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.1)",
+                }}></div>
+            </div>
+
+            <h4
+              className={`md:col-span-2 text-lg font-semibold mb-0 -mt-4 ${labelClass}`}>
+              {translations.changePasswordTitle || "Change Password"}
+              <span
+                className={`block text-xs font-normal mt-1 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
+                (
+                {translations.changePasswordSubtitle ||
+                  "Leave blank to keep current password"}
+                )
+              </span>
+            </h4>
+
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.passwordLabel || "Password"}
+                {translations.newPasswordLabel || "New Password"}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                required
                 className={`${inputClass} pr-10`}
               />
               <span
-                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-6"
                 onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
                   <EyeOff size={18} className="text-gray-400" />
@@ -244,20 +257,19 @@ const AddCompanyUserForm = () => {
                 )}
               </span>
             </div>
-            <div className="relative">
+            <div className="relative ">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.repeatPasswordLabel || "Repeat Password"}
+                {translations.repeatPasswordLabel || "Repeat New Password"}
               </label>
               <input
                 type={showRepeatPassword ? "text" : "password"}
                 name="repeatPassword"
                 value={formData.repeatPassword}
                 onChange={handleChange}
-                required
                 className={`${inputClass} pr-10`}
               />
               <span
-                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-7"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer top-6"
                 onClick={() => setShowRepeatPassword(!showRepeatPassword)}>
                 {showRepeatPassword ? (
                   <EyeOff size={18} className="text-gray-400" />
@@ -266,49 +278,29 @@ const AddCompanyUserForm = () => {
                 )}
               </span>
             </div>
-            <div>
+
+            <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.roleLabel || "Role"}
+                {translations.assignStoreLabel || "Assign to Store"}
               </label>
               <select
-                name="role"
-                value={formData.role}
+                name="assigned_store_id"
+                value={formData.assigned_store_id}
                 onChange={handleChange}
                 required
-                className={inputClass}>
+                className={`${inputClass} cursor-pointer`}>
                 <option value="" disabled>
-                  {translations.selectRole || "Select a role"}
+                  {translations.selectStore || "Select a store"}
                 </option>
-                {availableRoles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
+                {stores.map((store) => (
+                  <option
+                    key={store.id}
+                    value={store.id}
+                    className={`cursor-pointer`}>
+                    {`${store.name} (${store.city}, ${store.country})`}
                   </option>
                 ))}
               </select>
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.countryLabel || "Country"}
-              </label>
-              <AutocompleteInput
-                options={countryOptions}
-                selected={formData.country}
-                setSelected={handleCountryChange}
-                disabled={!isAdmin}
-                placeholder={translations.countryPlaceholder || "Search..."}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.cityLabel || "City"}
-              </label>
-              <AutocompleteInput
-                options={cityOptions}
-                selected={formData.city}
-                setSelected={handleCityChange}
-                disabled={!formData.country}
-                placeholder={translations.cityPlaceholder || "Search..."}
-              />
             </div>
           </div>
 
@@ -331,7 +323,7 @@ const AddCompanyUserForm = () => {
               className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
               {isSubmitting
                 ? commonTranslations.saving || "Saving..."
-                : translations.saveButton || "Save User"}
+                : translations.saveButton || "Save Changes"}
             </button>
           </div>
         </form>
@@ -340,4 +332,4 @@ const AddCompanyUserForm = () => {
   );
 };
 
-export default AddCompanyUserForm;
+export default EditSupermarketUserForm;
