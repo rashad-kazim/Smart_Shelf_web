@@ -2,15 +2,88 @@
 
 export const appTranslations = {
   en: {
+    languages: {
+      en: "English",
+      az: "Azerbaijan",
+      tr: "Turkish",
+      pl: "Polish",
+      ru: "Russian",
+    },
+    languagesShort: {
+      en: "EN",
+      az: "AZ",
+      tr: "TR",
+      pl: "PL",
+      ru: "RU",
+    },
+    // =================================================================
+    // General Purpose & Common Components
+    // =================================================================
+    common: {
+      cancel: "Cancel",
+      saving: "Saving...",
+      notAvailable: "N/A",
+      genericError: "An unexpected error occurred. Please try again.",
+      couldNotLoadData: "Could not load data.",
+      updatingText: "Updating...",
+      actionsLabel: "Actions",
+      genericUser: "User",
+      selectOption: "Select an option",
+      typeToSearch: "Type to search...",
+      nothingFound: "Nothing found.",
+      searchPlaceholder: "Search...",
+    },
+
+    // =================================================================
+    // App-wide Systems (Menu, Loader, Dialogs, etc.)
+    // =================================================================
+    menu: {
+      dashboard: "Dashboard",
+      stores: "Stores & Branches",
+      newInstallation: "New Installation",
+      firmware: "Firmware",
+      users: "Users & Roles",
+    },
+
+    loader: {
+      loadingTitle: "Loading...",
+    },
+
+    dialogs: {
+      // General Dialogs
+      confirmTitle: "Confirm Action",
+      deleteConfirmationPrompt: "To confirm, please type:",
+      yesButton: "Yes",
+      noButton: "No",
+      okButton: "OK",
+      // Specific Prompts
+      unsavedChangesPrompt:
+        "You have unsaved changes. Are you sure you want to leave?",
+      // Bluetooth Errors
+      btNotConnected: "Not connected to any device.",
+      btConfigFailed: "Failed to send configuration to the device.",
+    },
+
+    // =================================================================
+    // Page & Feature Specific Translations
+    // =================================================================
     dashboard: {
       title: "Dashboard",
-      welcomeText: "Welcome to EilSense.io Management Panel!",
+      welcomeMessage: "Welcome!",
       instructionText:
-        "This area will summarize the overall status of your system, store performance, and critical notifications. Please select the relevant sections from the left menu to perform detailed operations.",
-      note: "Note: The logo in the header bar above is a representation of your EilSense.io name and logo's visual tones. Your actual logo (a transparent PNG/SVG file) will appear exactly as you want it when integrated here.",
+        "This area will summarize the overall status of your system...",
     },
+
     stores: {
+      // General
       title: "Stores & Branches",
+      loading: "Loading stores...",
+      noStoresFound: "No stores found.",
+      fetchError: "An error occurred while loading stores.",
+      couldNotLoadStoreData: "Could not load store data.",
+
+      storeNotFound: "Store not found.",
+      // Page Titles & Descriptions
       createStoreTitle: "Create New Store",
       createStoreDesc: "Add a new store or branch to the system.",
       editStoreTitle: "Edit Store Information",
@@ -19,237 +92,354 @@ export const appTranslations = {
       deleteStoreDesc: "Remove a store or branch from the system.",
       viewLogsTitle: "View Logs",
       viewLogsDesc: "Access logs related to store operations.",
-      storeListTitle: "Stores",
-      filterBy: "Filter by:",
-      city: "City",
-      cityPlaceholder: "Enter city",
-      country: "Country",
-      countryPlaceholder: "Enter country",
-      openingHour: "Opening Hour",
-      closingHour: "Closing Hour",
-      selectHour: "Select Hour",
-      allDayOpen: "All Day Open (24/7)",
-      resetFilters: "Reset Filters",
-      nameHeader: "Store Name",
-      countryHeader: "Country",
-      cityHeader: "City",
-      branchHeader: "Branch",
-      addressHeader: "Address",
-      statusHeader: "Status",
-      tokenHeader: "Server Token",
-      workingHoursHeader: "Working Hours",
-      createdAtHeader: "Created At",
-      noStoresFound: "No stores found matching your criteria.",
-      storeDetailsTitle: "Store Details",
-      dialogClose: "Close",
-      typeToFilter: "Type to filter or select",
-      noSuggestions: "No suggestions",
-      registrationSuccess: "Store registered successfully! Server Token: ",
-      registrationError: "Error registering store: ",
-      editStoreInfoTitle: "Edit Store Details",
-      editStoreDetailsStep1Title: "Store Information",
-      editStoreDetailsStep2Title: "Device Information",
+      logDetailsTitle: "Log Details",
+      backToLogsList: "Back to Logs List",
+      serverLogsTitle: "Server Logs",
+      serverLogsDesc: "View detailed server activity and status.",
+      esp32LogsTitle: "ESP32 Logs",
+      esp32LogsDesc: "View detailed logs from connected ESP32 devices.",
+      // Forms & Fields
+      storeNameLabel: "Store Name",
       countryLabel: "Country",
       cityLabel: "City",
-      storeNameLabel: "Store Name",
       addBranchLabel: "Add Branch",
       branchNameLabel: "Branch Name",
       storeBranchAddressLabel: "Store/Branch Address",
       allDayOpenLabel: "All Day Open (24/7)",
       openingHourLabel: "Opening Hour",
       closingHourLabel: "Closing Hour",
+      selectHour: "Select Hour",
       ownerNameLabel: "Owner Name",
       ownerSurnameLabel: "Owner Surname",
       installerNameLabel: "Installer Name",
-      installerSurnameLabel: "Installer Surname",
+      serverIpLabel: "Server IP Address",
+      requiredFieldWarning: "This field is required.",
+      // Table Headers
+      nameHeader: "Store Name",
+      location: "Location",
+      installer: "Installer",
+      devices: "Devices",
+      // Buttons & Actions
       nextButton: "Next",
       previousButton: "Previous",
-      requiredFieldWarning: "This field cannot be left blank.",
-      installedDevicesTitle: "Installed Devices",
+      saveButton: "Save",
+      saveChangesButton: "Save All Changes",
       editButton: "Edit",
       deleteButton: "Delete",
-      saveButton: "Save",
-      currentInstallationWarningTitle: "Action Required",
-      currentInstallationWarningMsg:
-        "Please save or cancel the current device form.",
-      noDevicesProceedTitle: "Cannot Proceed",
-      noDevicesProceedMsg:
-        "Please install at least one device before proceeding.",
-      newDeviceTitle: "New Device Installation",
-      editDeviceTitle: "Edit Device",
-      bluetoothConnectButton: "Connect via Bluetooth",
-      bluetoothNoDeviceSelected: "Please connect to an ESP32 device first.",
-      idLabel: "ID",
-      tokenLabel: "Token",
-      allDayWorkLabel: "All Day Work",
-      awakeTimeLabel: "Awake Time",
-      sleepTimeLabel: "Sleep Time",
-      productNameFontSizeLabel: "Product Name Font-Size",
-      productPriceFontSizeBeforeDiscountLabel:
-        "Price Font-Size (Before Discount)",
-      productPriceFontSizeAfterDiscountLabel:
-        "Price Font-Size (After Discount)",
-      productBarcodeFontSizeLabel: "Barcode Font-Size",
-      productBarcodeNumbersFontSizeLabel: "Barcode Numbers Font-Size",
-      screenSizeLabel: "Screen Size",
-      selectScreenSize: "Select Screen Size",
-      removeDeviceButton: "Remove This Device",
+      viewLogsButton: "View Logs",
       addNewDeviceButton: "Add New Device",
-      deviceIdExists:
-        "This ID is already assigned to another device. Please choose a different ID.",
-      invalidID: "ID must be a number.",
-      saveChangesButton: "Save All Changes",
-      backToStoreList: "Back to Store List",
-      confirmSaveTitle: "Confirm Save",
-      confirmSaveMessage: "Are you sure you want to save all changes?",
+      // Dialogs
       confirmDeleteTitle: "Confirm Deletion",
-      confirmDeleteMessage: "Are you sure you want to delete the store",
-      deleteSuccess: "deleted successfully!",
-      deleteConfirmationPrompt:
-        "Please type the store name to confirm deletion:",
-      deleteConfirmationPlaceholder: "Type store name here",
-      deleteConfirmationMismatch:
-        "The typed store name does not match. Deletion cancelled.",
-      logDetailsTitle: "Store Log Details",
-      backToLogsList: "Back to Store List",
-      noStoreSelectedForLogs:
-        "No store selected. Please select a store from the list.",
-      serverLogsTitle: "Server Logs",
-      serverLogsDesc: "View detailed server activity and status.",
-      esp32LogsTitle: "ESP32 Logs",
-      esp32LogsDesc: "View detailed logs from connected ESP32 devices.",
-      comingSoon: "Coming Soon",
-      backToStoreLogDetails: "Back to Log Details",
+      confirmDeleteMessage: "Are you sure you want to delete",
+      deleteProcessError: "An error occurred during the deletion process.",
+      // Server Logs Page
       serverSoftwareVersion: "Software Version",
       lastUpdateDate: "Last Update Date",
       connectedEsp32Count: "Number of Connected ESP32s",
       serverToken: "Server Token",
-      storeName: "Store Name",
       registeredByName: "Registered By",
-      notAvailable: "N/A",
-      esp32LogId: "ID",
-      dataRefreshRate: "Data Refresh Rate",
-      mosfetStatus: "Mosfet Status",
-      softwareVersion: "Software Version",
-      batteryStatus: "Battery Status",
-      noEsp32DevicesFound: "No ESP32 devices found for this store.",
-      logDate: "Log Date",
-      allVersions: "All Versions",
-      allBatteryLevels: "All Battery Levels",
-      batteryLessThan25: "<25%",
-      battery25To50: "25% - 50%",
-      batteryGreaterThan50: ">50%",
-      newInstallationTitle: "New Store Installation",
-      newInstallationPlaceholderText:
-        "This page is currently under construction. Please check back later for the full installation wizard.",
-      step1Title: "Create New Store",
-      step2Title: "Server Token Generation",
-      step3Title: "ESP32 Token Generation",
-      step4Title: "ESP32 Installation",
-      step5Title: "Complete Installation",
-      generateTokenButton: "Generate Token",
-      copyToClipboardButton: "Copy to Clipboard",
-      copiedMessage: "Copied to clipboard!",
-      checkConnectionButton: "Check Connection",
-      connectionSuccess: "Connection successful!",
-      connectionError: "Connection failed: ",
-      cannotProceed:
-        "Cannot proceed to the next step without a successful connection.",
-      yesButton: "Yes",
-      noButton: "No",
-      errorTitle: "Error",
-      cancelButton: "Cancel",
+      backToStoreLogDetails: "Back to Log Details",
     },
-    users: {
-      usersRolesTitle: "Users & Roles",
-      userForSupermarketTitle: "User For Supermarket",
-      userForSupermarketDesc:
-        "Manage users associated with supermarket branches.",
-      userForCompanyTitle: "User For Company",
-      userForCompanyDesc: "Manage users associated with the main company.",
-      addNewUserButton: "Add New User",
-      store: "Store",
-      allStores: "All Stores",
+
+    "stores.filterControls": {
       country: "Country",
       allCountries: "All Countries",
       city: "City",
       allCities: "All Cities",
-      clearFilters: "Clear Filters",
-      nameSurnameHeader: "Name Surname",
-      storeNameHeader: "Store Name",
-      branchHeader: "Branch",
+      resetButton: "Reset Filters",
+    },
+
+    "stores.deleteStore": {
+      pageTitle: "Delete a Store",
+      pageDescription:
+        "Select a store to permanently remove it from the system.",
+    },
+
+    "stores.editStore": {
+      pageTitle: "Edit Store Details",
+      pageDescription: "Select a store to edit its details.",
+      workflowTitle: "Edit Store",
+      step1Title: "Store Information",
+      step2Title: "Device Management",
+      successTitle: "Success",
+      storeUpdateSuccessMessage: "Store details updated successfully.",
+      updateFailedTitle: "Update Failed",
+    },
+
+    "stores.installationWizard": {
+      title: "New Store Installation",
+      description: "Follow the steps to register a new store and its devices.",
+      // Step Titles
+      step1Title: "Create Store",
+      step2Title: "Server Token",
+      step3Title: "ESP32 Token",
+      step4Title: "Device Setup",
+      step5Title: "Complete",
+      // Step-specific texts
+      step2Description:
+        "Generate a unique token for the store server to connect.",
+      step3Description:
+        "Generate a shared token for all ESP32 devices in this store.",
+      step5Description:
+        "Final status of your devices is shown below. Review and complete the installation.",
+      // Device Form
+      installedDevicesTitle: "Installed Devices",
+      editDeviceTitle: "Edit Device",
+      newDeviceTitle: "New Device Installation",
+      noDevicesYet: "No devices have been added yet.",
+      idLabel: "ID",
+      tokenLabel: "ESP32 Token",
+      allDayWorkLabel: "All Day Work",
+      awakeTimeLabel: "Awake Time",
+      sleepTimeLabel: "Sleep Time",
+      screenSizeLabel: "Screen Size",
+      selectScreenSize: "Select...",
+      wifiSsidLabel: "WIFI SSID",
+      wifiPasswordLabel: "WIFI Password",
+      fontSettingsLabel: "Font Settings",
+      productNameFontSizeLabel: "Product Name",
+      productPriceFontSizeBeforeDiscountLabel: "Price (Before)",
+      productPriceFontSizeAfterDiscountLabel: "Price (After)",
+      productBarcodeFontSizeLabel: "Barcode",
+      productBarcodeNumbersFontSizeLabel: "Barcode Numbers",
+      noSsid: "No SSID",
+      allDay: "All Day",
+      // Tokens & Connection
+      generateTokenButton: "Generate Token",
+      generating: "Generating...",
+      tokenPlaceholder: "Token will appear here...",
+      step3TokenPlaceholder: "Click 'Generate' to create a token...",
+      copyToClipboardButton: "Copy to Clipboard",
+      copiedMessage: "Copied!",
+      checkConnectionButton: "Check Connection",
+      checking: "Checking...",
+      connectionSuccess: "Connection successful!",
+      connectionError: "Connection failed:",
+      // Errors & Warnings
+      storeIdNotFoundError: "Store ID not found. Please go back to Step 1.",
+      tokenGenerationError: "Failed to generate token.",
+      generateTokenFirst: "Please generate a token first.",
+      cannotProceedTitle: "Cannot Proceed",
+      checkConnectionFirst:
+        "Please press 'Check Connection' and ensure it's successful.",
+      idRequired: "ID is required.",
+      idMustBePositive: "ID must be a positive integer.",
+      idInUse: "This ID is already in use.",
+      screenSizeRequired: "Screen size is required.",
+      wifiSsidRequired: "WIFI SSID is required.",
+      wifiPasswordRequired: "WIFI Password is required.",
+      passwordRequiredForNew: "Password is required for new devices.",
+      awakeTimeRequired: "Awake time is required.",
+      sleepTimeRequired: "Sleep time is required.",
+      unsavedChangesTitle: "Unsaved Changes",
+      unsavedChangesMessage: "Please save or cancel the open device form.",
+      validationErrorTitle: "Validation Error",
+      validationErrorMessage:
+        "A valid Server IP Address is required to proceed.",
+      warningTitle: "Warning",
+      noDevicesWarning: "Please add at least one device to proceed.",
+      exitConfirmation:
+        "Installation is in progress. Are you sure you want to leave this page? Your progress will be lost.",
+      beforeUnloadPrompt:
+        "You have unsaved changes. Are you sure you want to leave?",
+      // Final Step
+      loadingStatus: "Loading final status...",
+      installingText: "Installing...",
+      completeInstallationButton: "Complete Installation",
+      installationErrorTitle: "Installation Error",
+      installationTimeoutError:
+        "Installation request timed out. Please try again.",
+      deleteDeviceTooltip: "Delete Device",
+
+      installationSuccessTitle: "Installation Successful",
+      installationSuccessMessage:
+        "Installation completed successfully! Redirecting to the dashboard...",
+      installationFailedMessage:
+        "Failed to complete installation. Please try again.",
+      installationTimeoutMessage:
+        "Installation request timed out. Please try again.",
+
+      // NEW: Translations for Step 5 logs
+      error: "Error",
+      errorValidation: "Validation Error",
+      logSourceServer: "Store Server",
+      logSourceDevices: "Devices",
+      logStatusOnline: "Online",
+      logStatusReady: "Ready",
+      logStatusNotFound: "Not Found",
+      logDetailHeartbeat: "Heartbeat Received",
+      logDetailLastSeen: "Last Seen",
+      logDetailYes: "Yes",
+      logDetailBattery: "Battery Status",
+      logDetailRefreshRate: "Screen Refresh Rate",
+      logDetailLastSync: "Last Sync",
+      logDetailInfo: "Info",
+      logDevicePrefix: "Device ID:",
+      logNoDevices: "No devices were added in Step 4.",
+      logRefreshRateValue: "15 minutes",
+    },
+
+    "stores.esp32LogFilters": {
+      filterTitle: "Filters",
+      date: "Date",
+      selectDate: "Select date...",
+      logTime: "Log Time",
+      allTimes: "All Times",
+      opening: "Opening (06-10)",
+      midDay: "Mid-Day (11-15)",
+      closing: "Closing (17+)",
+      noDataSuffix: " - No data",
+      batteryLevel: "Battery Level",
+      allBatteries: "All Batteries",
+      highBattery: "High (>50%)",
+      mediumBattery: "Medium (20-50%)",
+      lowBattery: "Low (<20%)",
+      softwareVersion: "Software Version",
+      allVersions: "All Versions",
+      filterInfo:
+        "Showing logs from the last 30 days. Disabled options have no data for the selected date.",
+      resetFilters: "Reset Filters",
+    },
+
+    "stores.esp32LogTable": {
+      title: "ESP32 Logs -", // Store name is appended
+      headerTimestamp: "Timestamp",
+      headerDeviceId: "Device ID",
+      headerStore: "Store",
+      headerBranch: "Branch",
+      headerBattery: "Battery",
+      headerRefresh: "Refresh (ms)",
+      headerMosfet: "Mosfet",
+      headerVersion: "Version",
+      headerLogType: "Log Type",
+      noLogsFoundTitle: "No logs found",
+      noLogsFoundMessage:
+        "There are no logs matching your current filter criteria.",
+    },
+
+    users: {
+      // General
+      usersRolesTitle: "Users & Roles",
+      // Page Titles & Descriptions
+      userForSupermarketTitle: "Supermarket Users",
+      userForSupermarketDesc:
+        "Manage users associated with supermarket branches.",
+      userForCompanyTitle: "Company Users",
+      userForCompanyDesc: "Manage users associated with the main company.",
+      // Table Headers
+      fullNameHeader: "Full Name",
+      roleHeader: "Role",
       countryHeader: "Country",
       cityHeader: "City",
-      roleHeader: "Role",
-      editButton: "Edit",
-      deleteButton: "Delete",
-      noUsersFound: "No users found matching your criteria.",
-      confirmDeleteUserTitle: "Confirm User Deletion",
-      confirmDeleteUserMessage: "Are you sure you want to delete the user",
-      deleteUserSuccess: "deleted successfully!",
-      deleteConfirmationPrompt:
-        "Please type the user's full name to confirm deletion:",
-      deleteConfirmationPlaceholder: "Type full name here",
-      deleteConfirmationMismatch:
-        "The typed name does not match. Deletion cancelled.",
-      addNewUserTitle: "Add New User",
-      editUserTitle: "Edit User",
-      editCompanyUserTitle: "Edit Company User",
-      addCompanyUserTitle: "Add New Company User",
+      assignedStoreHeader: "Assigned Store",
+      // Status & Error Messages
+      noUsersFound: "No users found.",
+      userLoadError: "Could not load user data. The user may not exist.",
+      usersLoadError: "Failed to load users. Please try again later.",
+      userDeleteError: "An error occurred while deleting the user.",
+      userOrStoreLoadError: "Could not load user data or stores.",
+      // Dialogs
+      confirmDeleteTitle: "Confirm User Deletion",
+      confirmDeleteMessage: "Are you sure you want to delete", // Appends user name
+      // Misc
+      profilePreviewAlt: "Profile Preview",
+      userAvatarAlt: "Avatar for {userName}", // {userName} is a placeholder
+    },
 
-      employeeNameLabel: "Employee Name",
-      employeeSurnameLabel: "Employee Surname",
-      dobLabel: "Date of Birth",
-      countryLabel: "Country",
-      cityLabel: "City",
-      storeNameLabel: "Store Name",
-      addBranchLabel: "Add Branch",
-      branchLabel: "Branch",
-      roleLabel: "Role",
-      mailLabel: "Email",
+    "users.companyUsersPage": {
+      title: "Company Users",
+      subtitle: "Manage administrators, country chiefs, and engineers",
+      addUser: "Add User",
+    },
+
+    "users.supermarketUsersPage": {
+      title: "Supermarket Users",
+      subtitle: "Manage users assigned to specific supermarket branches",
+      addUser: "Add User",
+    },
+
+    "users.addUserForm": {
+      title: "Add New Company User",
+      subtitle: "Fill in the details to create a new user account.",
+      nameLabel: "Name",
+      surnameLabel: "Surname",
+      emailLabel: "Email",
       passwordLabel: "Password",
       repeatPasswordLabel: "Repeat Password",
-      removeProcessButton: "Cancel",
-      saveButton: "Save",
-      confirmSaveUserTitle: "Confirm Save",
-      confirmSaveUserMessage: "Are you sure you want to save this user?",
-      passwordMismatch: "Passwords do not match.",
-      invalidEmail: "Please enter a valid email address.",
-      selectCountry: "Select Country",
-      selectCity: "Select City",
-      selectStore: "Select Store",
-      selectRole: "Select Role",
-      discardButton: "Discard",
-      userNotFound: "User not found.",
-      backToUserList: "Back to User List",
+      roleLabel: "Role",
+      selectRole: "Select a role",
+      countryLabel: "Country",
+      cityLabel: "City",
+      saveButton: "Save User",
       profilePictureLabel: "Profile Picture",
-      profileDetailsTitle: "Profile Details",
-      discardChangesButton: "Discard Changes",
-      saveChangesButton: "Save Changes",
-      backToDashboard: "Back to Dashboard",
-      accessDeniedTitle: "Access Denied",
-      accessDeniedMessage: "You do not have permission to access this section.",
-      goBackButton: "Go Back",
+      passwordMismatchError: "Passwords do not match.",
+      roleRequiredError: "Please select a role for the user.",
     },
+
+    "users.addSupermarketUserForm": {
+      title: "Add New Supermarket User",
+      subtitle: "Create a new user assigned to a store",
+      fetchStoresError: "Failed to load stores.",
+      storeRequiredError: "Please assign a store to the user.",
+      assignStoreLabel: "Assign to Store",
+      selectStore: "Select a store",
+    },
+
+    "users.editUserForm": {
+      title: "Edit User",
+      titleSupermarket: "Edit Supermarket User",
+      subtitlePrefix: "Update the details for",
+      saveButton: "Save Changes",
+    },
+
+    roles: {
+      Admin: "Admin",
+      Country_Chief: "Country Chief",
+      Engineer: "Engineer",
+      Analyst: "Analyst",
+      Runner: "Runner",
+    },
+
     firmware: {
-      title: "Firmware Updates",
+      title: "Firmware",
       introText: "This section is where you manage firmware updates.",
       instructionText: "You can distribute new software to devices from here.",
       futureFeatures:
         "Upcoming: Features to view current firmware versions and distribute new versions will be added.",
     },
-    menu: {
-      dashboard: "Dashboard",
-      stores: "Stores & Branches",
-      newInstallation: "New Installation",
-      firmware: "Firmware Updates",
-      users: "Users / Roles",
-    },
+
     profile: {
-      userName: "John Doe",
-      profileDetails: "Profile Details",
+      // Profile Details Page
+      detailsTitle: "Profile Details",
+      profilePictureLabel: "Profile Picture",
+      nameLabel: "Name",
+      surnameLabel: "Surname",
+      emailLabel: "Email",
+      changePasswordTitle: "Change Password",
+      changePasswordSubtitle: "Leave blank to keep current password",
+      newPasswordLabel: "New Password",
+      repeatPasswordLabel: "Repeat New Password",
+      saveButton: "Save Changes",
+      updateSuccess: "Profile information updated successfully!",
+      // Header Dropdown
       logOut: "Log Out",
+      avatarAlt: "Profile",
+      // Errors
+      passwordMismatchError: "Passwords do not match.",
+      passwordLengthError: "Password must be at least 6 characters.",
+      nameRequired: "Name field is required.",
+      surnameRequired: "Surname field is required.",
+      emailRequired: "Email field is required.",
+      invalidEmail: "Please enter a valid email address.",
+      profilePictureSizeError: "Profile picture must be smaller than 15MB.",
+      profilePictureTypeError: "Please select a valid image file.",
+      updateError: "An error occurred during update.",
+      updateInvalidDataError:
+        "Submitted data is invalid. Please check all fields.",
+      sessionExpiredError: "Your session has expired. Please log in again.",
+      permissionError: "You do not have permission for this action.",
     },
+
     footer: {
       rights: "All Rights Reserved.",
       address: "Example St. No: 123, Example City, Country.",
@@ -258,6 +448,7 @@ export const appTranslations = {
       privacy: "Privacy Policy",
       terms: "Terms of Use",
     },
+
     login: {
       title: "Login",
       mailLabel: "Email",
@@ -265,260 +456,956 @@ export const appTranslations = {
       rememberMe: "Remember Me",
       loginButton: "Login",
       loginError: "Invalid email or password.",
-      mobileOnlyAccess:
-        "Your login is only valid for the Mobile Application. You do not have access to this website as you are not a company employee.",
+    },
+
+    accessDenied: {
+      title: "Access Denied",
+      message: "You do not have permission to access this section.",
+      goBackButton: "Go Back",
+    },
+
+    notFound: {
+      title: "404 - Page Not Found",
+      message: "The page you are looking for does not exist or has been moved.",
+      backToHomeButton: "Go to Homepage",
     },
   },
-  tr: {
-    dashboard: {
-      title: "Anasayfa",
-      welcomeText: "EilSense.io Yönetim Paneline Hoş Geldiniz!",
-      instructionText:
-        "Bu alan sisteminizin genel durumunu, mağaza performansını ve kritik bildirimleri özetleyecektir. Detaylı işlemler için lütfen sol menüden ilgili bölümleri seçin.",
-      note: "Not: Yukarıdaki başlık çubuğundaki logo, EilSense.io adınızın ve logonuzun görsel tonlarının bir temsilidir. Gerçek logonuz (şeffaf bir PNG/SVG dosyası) buraya entegre edildiğinde tam olarak istediğiniz gibi görünecektir.",
+
+  az: {
+    languages: {
+      en: "İngilis",
+      az: "Azərbaycan",
+      tr: "Türk",
+      pl: "Polyak",
+      ru: "Rus",
     },
+    languagesShort: {
+      en: "EN",
+      az: "AZ",
+      tr: "TR",
+      pl: "PL",
+      ru: "RU",
+    },
+    // =================================================================
+    // Ümumi Məqsədli və Ortaq Komponentlər
+    // =================================================================
+    common: {
+      cancel: "Ləğv et",
+      saving: "Yaddaşda saxlanılır...",
+      notAvailable: "Mövcud deyil",
+      genericError:
+        "Gözlənilməz bir xəta baş verdi. Zəhmət olmasa, yenidən cəhd edin.",
+      couldNotLoadData: "Məlumatlar yüklənə bilmədi.",
+      updatingText: "Yenilənir...",
+      actionsLabel: "Əməliyyatlar",
+      genericUser: "İstifadəçi",
+      selectOption: "Bir seçim edin",
+      typeToSearch: "Axtarmaq üçün yazın...",
+      nothingFound: "Heç bir nəticə tapılmadı.",
+      searchPlaceholder: "Axtar...",
+    },
+
+    // =================================================================
+    // Tətbiq Geneli Sistemlər (Menyu, Yükləyici, Dialoqlar və s.)
+    // =================================================================
+    menu: {
+      dashboard: "İdarəetmə Paneli",
+      stores: "Mağazalar və Filiallar",
+      newInstallation: "Yeni Quraşdırma",
+      firmware: "Proqram Təminatı",
+      users: "İstifadəçilər və Rollar",
+    },
+
+    loader: {
+      loadingTitle: "Yüklənir...",
+    },
+
+    dialogs: {
+      // Ümumi Dialoqlar
+      confirmTitle: "Əməliyyatı Təsdiqləyin",
+      deleteConfirmationPrompt: "Təsdiqləmək üçün, zəhmət olmasa, yazın:",
+      yesButton: "Bəli",
+      noButton: "Xeyr",
+      okButton: "OK",
+      // Xüsusi Sorğular
+      unsavedChangesPrompt:
+        "Yadda saxlanılmamış dəyişiklikləriniz var. Çıxmaq istədiyinizə əminsinizmi?",
+      // Bluetooth Xətaları
+      btNotConnected: "Heç bir cihaza qoşulmayıb.",
+      btConfigFailed: "Konfiqurasiya cihaza göndərilə bilmədi.",
+    },
+
+    // =================================================================
+    // Səhifə və Funksiyalara Xas Tərcümələr
+    // =================================================================
+    dashboard: {
+      title: "İdarəetmə Paneli",
+      welcomeMessage: "Xoş gəlmisiniz!",
+      instructionText:
+        "Bu sahə sisteminizin ümumi vəziyyətini xülasə edəcək...",
+    },
+
     stores: {
+      // Ümumi
+      title: "Mağazalar və Filiallar",
+      loading: "Mağazalar yüklənir...",
+      noStoresFound: "Heç bir mağaza tapılmadı.",
+      fetchError: "Mağazalar yüklənərkən bir xəta baş verdi.",
+      couldNotLoadStoreData: "Mağaza məlumatları yüklənə bilmədi.",
+      storeNotFound: "Mağaza tapılmadı.",
+      // Səhifə Başlıqları və Təsvirləri
+      createStoreTitle: "Yeni Mağaza Yarat",
+      createStoreDesc: "Sistemə yeni bir mağaza və ya filial əlavə edin.",
+      editStoreTitle: "Mağaza Məlumatlarını Redaktə Et",
+      editStoreDesc: "Mövcud mağaza və ya filialların detallarını yeniləyin.",
+      deleteStoreTitle: "Mağazanı Sil",
+      deleteStoreDesc: "Sistemdən bir mağaza və ya filialı silin.",
+      viewLogsTitle: "Qeydlərə Bax",
+      viewLogsDesc: "Mağaza əməliyyatları ilə bağlı qeydlərə daxil olun.",
+      logDetailsTitle: "Qeyd Detalları",
+      backToLogsList: "Qeyd Siyahısına Geri Dön",
+      serverLogsTitle: "Server Qeydləri",
+      serverLogsDesc: "Ətraflı server fəaliyyətinə və statusuna baxın.",
+      esp32LogsTitle: "ESP32 Qeydləri",
+      esp32LogsDesc:
+        "Qoşulmuş ESP32 cihazlarından gələn ətraflı qeydlərə baxın.",
+      // Formalar və Sahələr
+      storeNameLabel: "Mağaza Adı",
+      countryLabel: "Ölkə",
+      cityLabel: "Şəhər",
+      addBranchLabel: "Filial Əlavə Et",
+      branchNameLabel: "Filial Adı",
+      storeBranchAddressLabel: "Mağaza/Filial Ünvanı",
+      allDayOpenLabel: "Bütün Gün Açıq (24/7)",
+      openingHourLabel: "Açılış Saatı",
+      closingHourLabel: "Bağlanış Saatı",
+      selectHour: "Saat Seçin",
+      ownerNameLabel: "Sahibinin Adı",
+      ownerSurnameLabel: "Sahibinin Soyadı",
+      installerNameLabel: "Quraşdıran Şəxs",
+      serverIpLabel: "Server IP Ünvanı",
+      requiredFieldWarning: "Bu sahə məcburidir.",
+      // Cədvəl Başlıqları
+      nameHeader: "Mağaza Adı",
+      location: "Məkan",
+      installer: "Quraşdıran",
+      devices: "Cihazlar",
+      // Düymələr və Əməliyyatlar
+      nextButton: "Növbəti",
+      previousButton: "Əvvəlki",
+      saveButton: "Yadda Saxla",
+      saveChangesButton: "Bütün Dəyişiklikləri Yadda Saxla",
+      editButton: "Redaktə Et",
+      deleteButton: "Sil",
+      viewLogsButton: "Qeydlərə Bax",
+      addNewDeviceButton: "Yeni Cihaz Əlavə Et",
+      // Dialoqlar
+      confirmDeleteTitle: "Silmə Əməliyyatını Təsdiqləyin",
+      confirmDeleteMessage: "Silmək istədiyinizə əminsinizmi?",
+      deleteProcessError: "Silmə prosesi zamanı bir xəta baş verdi.",
+      // Server Qeydləri Səhifəsi
+      serverSoftwareVersion: "Proqram Versiyası",
+      lastUpdateDate: "Son Yenilənmə Tarixi",
+      connectedEsp32Count: "Qoşulmuş ESP32 Sayı",
+      serverToken: "Server Tokeni",
+      registeredByName: "Qeydiyyatdan Keçirən",
+      backToStoreLogDetails: "Qeyd Detallarına Geri Dön",
+    },
+
+    "stores.filterControls": {
+      country: "Ölkə",
+      allCountries: "Bütün Ölkələr",
+      city: "Şəhər",
+      allCities: "Bütün Şəhərlər",
+      resetButton: "Filterləri Sıfırla",
+    },
+
+    "stores.deleteStore": {
+      pageTitle: "Mağazanı Sil",
+      pageDescription: "Sistemdən daimi olaraq silmək üçün bir mağaza seçin.",
+    },
+
+    "stores.editStore": {
+      pageTitle: "Mağaza Detallarını Redaktə Et",
+      pageDescription: "Məlumatlarını redaktə etmək üçün bir mağaza seçin.",
+      workflowTitle: "Mağazanı Redaktə Et",
+      step1Title: "Mağaza Məlumatları",
+      step2Title: "Cihaz İdarəetməsi",
+      successTitle: "Uğurlu",
+      storeUpdateSuccessMessage: "Mağaza detalları uğurla yeniləndi.",
+      updateFailedTitle: "Yeniləmə Uğursuz Oldu",
+    },
+
+    "stores.installationWizard": {
+      title: "Yeni Mağaza Quraşdırılması",
+      description:
+        "Yeni bir mağaza və onun cihazlarını qeydiyyatdan keçirmək üçün addımları izləyin.",
+      // Addım Başlıqları
+      step1Title: "Mağaza Yarat",
+      step2Title: "Server Tokeni",
+      step3Title: "ESP32 Tokeni",
+      step4Title: "Cihaz Ayarları",
+      step5Title: "Tamamla",
+      // Addıma Xas Mətnlər
+      step2Description:
+        "Mağaza serverinin qoşulması üçün unikal bir token yaradın.",
+      step3Description:
+        "Bu mağazadakı bütün ESP32 cihazları üçün ortaq bir token yaradın.",
+      step5Description:
+        "Cihazlarınızın son vəziyyəti aşağıda göstərilir. Yoxlayıb quraşdırmanı tamamlayın.",
+      // Cihaz Forması
+      installedDevicesTitle: "Quraşdırılmış Cihazlar",
+      editDeviceTitle: "Cihazı Redaktə Et",
+      newDeviceTitle: "Yeni Cihaz Quraşdırılması",
+      noDevicesYet: "Hələ heç bir cihaz əlavə edilməyib.",
+      idLabel: "ID",
+      tokenLabel: "ESP32 Tokeni",
+      allDayWorkLabel: "Bütün Gün İşləmə",
+      awakeTimeLabel: "Oyanma Vaxtı",
+      sleepTimeLabel: "Yuxu Vaxtı",
+      screenSizeLabel: "Ekran Ölçüsü",
+      selectScreenSize: "Seçin...",
+      wifiSsidLabel: "WIFI SSID",
+      wifiPasswordLabel: "WIFI Şifrəsi",
+      fontSettingsLabel: "Şrift Ayarları",
+      productNameFontSizeLabel: "Məhsul Adı",
+      productPriceFontSizeBeforeDiscountLabel: "Qiymət (Endirimsiz)",
+      productPriceFontSizeAfterDiscountLabel: "Qiymət (Endirimli)",
+      productBarcodeFontSizeLabel: "Barkod",
+      productBarcodeNumbersFontSizeLabel: "Barkod Nömrələri",
+      noSsid: "SSID Yoxdur",
+      allDay: "Bütün Gün",
+      // Tokenlər və Qoşulma
+      generateTokenButton: "Token Yarat",
+      generating: "Yaradılır...",
+      tokenPlaceholder: "Token burada görünəcək...",
+      step3TokenPlaceholder: "Token yaratmaq üçün 'Yarat' düyməsinə basın...",
+      copyToClipboardButton: "Panoya Kopyala",
+      copiedMessage: "Kopyalandı!",
+      checkConnectionButton: "Qoşulmanı Yoxla",
+      checking: "Yoxlanılır...",
+      connectionSuccess: "Qoşulma uğurludur!",
+      connectionError: "Qoşulma uğursuz oldu:",
+      // Xətalar və Xəbərdarlıqlar
+      storeIdNotFoundError:
+        "Mağaza ID-si tapılmadı. Zəhmət olmasa, 1-ci Addıma geri dönün.",
+      tokenGenerationError: "Token yaradıla bilmədi.",
+      generateTokenFirst: "Zəhmət olmasa, əvvəlcə bir token yaradın.",
+      cannotProceedTitle: "Davam Etmək Mümkün Deyil",
+      checkConnectionFirst:
+        "Zəhmət olmasa, 'Qoşulmanı Yoxla' düyməsinə basın və uğurlu olduğundan əmin olun.",
+      idRequired: "ID sahəsi məcburidir.",
+      idMustBePositive: "ID müsbət bir tam ədəd olmalıdır.",
+      idInUse: "Bu ID artıq istifadə olunur.",
+      screenSizeRequired: "Ekran ölçüsü məcburidir.",
+      wifiSsidRequired: "WIFI SSID məcburidir.",
+      wifiPasswordRequired: "WIFI Şifrəsi məcburidir.",
+      passwordRequiredForNew: "Yeni cihazlar üçün şifrə məcburidir.",
+      awakeTimeRequired: "Oyanma vaxtı məcburidir.",
+      sleepTimeRequired: "Yuxu vaxtı məcburidir.",
+      unsavedChangesTitle: "Yadda Saxlanılmamış Dəyişikliklər",
+      unsavedChangesMessage:
+        "Zəhmət olmasa, açıq olan cihaz formasını yadda saxlayın və ya ləğv edin.",
+      validationErrorTitle: "Doğrulama Xətası",
+      validationErrorMessage:
+        "Davam etmək üçün etibarlı bir Server IP Ünvanı tələb olunur.",
+      warningTitle: "Xəbərdarlıq",
+      noDevicesWarning:
+        "Davam etmək üçün zəhmət olmasa, ən azı bir cihaz əlavə edin.",
+      exitConfirmation:
+        "Quraşdırma davam edir. Bu səhifədən çıxmaq istədiyinizə əminsinizmi? Tərəqqiniz itiriləcək.",
+      beforeUnloadPrompt:
+        "Yadda saxlanılmamış dəyişiklikləriniz var. Çıxmaq istədiyinizə əminsinizmi?",
+      // Son Addım
+      loadingStatus: "Son vəziyyət yüklənir...",
+      installingText: "Quraşdırılır...",
+      completeInstallationButton: "Quraşdırmanı Tamamla",
+      installationErrorTitle: "Quraşdırma Xətası",
+      installationTimeoutError:
+        "Quraşdırma sorğusunun vaxtı bitdi. Zəhmət olmasa, yenidən cəhd edin.",
+      deleteDeviceTooltip: "Cihazı Sil",
+
+      installationSuccessTitle: "Quraşdırma Uğurlu Oldu",
+      installationSuccessMessage:
+        "Quraşdırma uğurla tamamlandı! İdarəetmə panelinə yönləndirilirsiniz...",
+      installationFailedMessage:
+        "Quraşdırma tamamlanmadı. Zəhmət olmasa, yenidən cəhd edin.",
+      installationTimeoutMessage:
+        "Quraşdırma sorğusunun vaxtı bitdi. Zəhmət olmasa, yenidən cəhd edin.",
+
+      // Addım 5 qeydləri üçün tərcümələr
+      error: "Xəta",
+      errorValidation: "Doğrulama Xətası",
+      logSourceServer: "Mağaza Serveri",
+      logSourceDevices: "Cihazlar",
+      logStatusOnline: "Onlayn",
+      logStatusReady: "Hazır",
+      logStatusNotFound: "Tapılmadı",
+      logDetailHeartbeat: "Həyat Siqnalı Alındı",
+      logDetailLastSeen: "Son Görülmə",
+      logDetailYes: "Bəli",
+      logDetailBattery: "Batareya Vəziyyəti",
+      logDetailRefreshRate: "Ekran Yeniləmə Tezliyi",
+      logDetailLastSync: "Son Sinxronizasiya",
+      logDetailInfo: "Məlumat",
+      logDevicePrefix: "Cihaz ID:",
+      logNoDevices: "Addım 4-də heç bir cihaz əlavə edilməyib.",
+      logRefreshRateValue: "15 dəqiqə",
+    },
+
+    "stores.esp32LogFilters": {
+      filterTitle: "Filterlər",
+      date: "Tarix",
+      selectDate: "Tarix seçin...",
+      logTime: "Qeyd Vaxtı",
+      allTimes: "Bütün Vaxtlar",
+      opening: "Açılış (06-10)",
+      midDay: "Günorta (11-15)",
+      closing: "Bağlanış (17+)",
+      noDataSuffix: " - Məlumat yoxdur",
+      batteryLevel: "Batareya Səviyyəsi",
+      allBatteries: "Bütün Batareyalar",
+      highBattery: "Yüksək (>50%)",
+      mediumBattery: "Orta (20-50%)",
+      lowBattery: "Aşağı (<20%)",
+      softwareVersion: "Proqram Versiyası",
+      allVersions: "Bütün Versiyalar",
+      filterInfo:
+        "Son 30 günün qeydləri göstərilir. Qeyri-aktiv seçimlərdə seçilmiş tarix üçün məlumat yoxdur.",
+      resetFilters: "Filterləri Sıfırla",
+    },
+
+    "stores.esp32LogTable": {
+      title: "ESP32 Qeydləri -", // Mağaza adı əlavə ediləcək
+      headerTimestamp: "Zaman Damğası",
+      headerDeviceId: "Cihaz ID",
+      headerStore: "Mağaza",
+      headerBranch: "Filial",
+      headerBattery: "Batareya",
+      headerRefresh: "Yeniləmə (ms)",
+      headerMosfet: "Mosfet",
+      headerVersion: "Versiya",
+      headerLogType: "Qeyd Növü",
+      noLogsFoundTitle: "Qeyd tapılmadı",
+      noLogsFoundMessage:
+        "Mövcud filtr meyarlarınıza uyğun heç bir qeyd tapılmadı.",
+    },
+
+    users: {
+      // Ümumi
+      usersRolesTitle: "İstifadəçilər və Rollar",
+      // Səhifə Başlıqları və Təsvirləri
+      userForSupermarketTitle: "Supermarket İstifadəçiləri",
+      userForSupermarketDesc:
+        "Supermarket filialları ilə əlaqəli istifadəçiləri idarə edin.",
+      userForCompanyTitle: "Şirkət İstifadəçiləri",
+      userForCompanyDesc: "Ana şirkətlə əlaqəli istifadəçiləri idarə edin.",
+      // Cədvəl Başlıqları
+      fullNameHeader: "Ad Soyad",
+      roleHeader: "Rol",
+      countryHeader: "Ölkə",
+      cityHeader: "Şəhər",
+      assignedStoreHeader: "Təyin Edilmiş Mağaza",
+      // Status və Xəta Mesajları
+      noUsersFound: "Heç bir istifadəçi tapılmadı.",
+      userLoadError:
+        "İstifadəçi məlumatları yüklənə bilmədi. İstifadəçi mövcud olmaya bilər.",
+      usersLoadError:
+        "İstifadəçilər yüklənə bilmədi. Zəhmət olmasa, daha sonra yenidən cəhd edin.",
+      userDeleteError: "İstifadəçi silinərkən bir xəta baş verdi.",
+      userOrStoreLoadError:
+        "İstifadəçi məlumatları və ya mağazalar yüklənə bilmədi.",
+      // Dialoqlar
+      confirmDeleteTitle: "İstifadəçi Silmə Təsdiqi",
+      confirmDeleteMessage: "Silmək istədiyinizə əminsinizmi:", // İstifadəçi adı əlavə ediləcək
+      // Digər
+      profilePreviewAlt: "Profil Baxışı",
+      userAvatarAlt: "{userName} üçün avatar", // {userName} yer tutucudur
+    },
+
+    "users.companyUsersPage": {
+      title: "Şirkət İstifadəçiləri",
+      subtitle: "İdarəçiləri, ölkə rəhbərlərini və mühəndisləri idarə edin",
+      addUser: "İstifadəçi Əlavə Et",
+    },
+
+    "users.supermarketUsersPage": {
+      title: "Supermarket İstifadəçiləri",
+      subtitle:
+        "Xüsusi supermarket filiallarına təyin edilmiş istifadəçiləri idarə edin",
+      addUser: "İstifadəçi Əlavə Et",
+    },
+
+    "users.addUserForm": {
+      title: "Yeni Şirkət İstifadəçisi Əlavə Et",
+      subtitle: "Yeni bir istifadəçi hesabı yaratmaq üçün detalları doldurun.",
+      nameLabel: "Ad",
+      surnameLabel: "Soyad",
+      emailLabel: "E-poçt",
+      passwordLabel: "Şifrə",
+      repeatPasswordLabel: "Şifrə Təkrar",
+      roleLabel: "Rol",
+      selectRole: "Bir rol seçin",
+      countryLabel: "Ölkə",
+      cityLabel: "Şəhər",
+      saveButton: "İstifadəçini Yadda Saxla",
+      profilePictureLabel: "Profil Şəkli",
+      passwordMismatchError: "Şifrələr uyğun gəlmir.",
+      roleRequiredError: "Zəhmət olmasa, istifadəçi üçün bir rol seçin.",
+    },
+
+    "users.addSupermarketUserForm": {
+      title: "Yeni Supermarket İstifadəçisi Əlavə Et",
+      subtitle: "Bir mağazaya təyin edilmiş yeni bir istifadəçi yaradın",
+      fetchStoresError: "Mağazalar yüklənə bilmədi.",
+      storeRequiredError:
+        "Zəhmət olmasa, istifadəçini bir mağazaya təyin edin.",
+      assignStoreLabel: "Mağazaya Təyin Et",
+      selectStore: "Bir mağaza seçin",
+    },
+
+    "users.editUserForm": {
+      title: "İstifadəçini Redaktə Et",
+      titleSupermarket: "Supermarket İstifadəçisini Redaktə Et",
+      subtitlePrefix: "üçün detalları yeniləyin:",
+      saveButton: "Dəyişiklikləri Yadda Saxla",
+    },
+
+    roles: {
+      Admin: "İdarəçi",
+      Country_Chief: "Ölkə Rəhbəri",
+      Engineer: "Mühəndis",
+      Analyst: "Analitik",
+      Runner: "Səhra İşçisi",
+    },
+
+    firmware: {
+      title: "Proqram Təminatı",
+      introText:
+        "Bu bölmə, proqram təminatı yeniləmələrini idarə etdiyiniz yerdir.",
+      instructionText:
+        "Cihazlara yeni proqram təminatlarını buradan paylaya bilərsiniz.",
+      futureFeatures:
+        "Tezliklə: Mövcud proqram versiyalarına baxmaq və yeni versiyaları paylamaq üçün funksiyalar əlavə ediləcək.",
+    },
+
+    profile: {
+      // Profil Detalları Səhifəsi
+      detailsTitle: "Profil Detalları",
+      profilePictureLabel: "Profil Şəkli",
+      nameLabel: "Ad",
+      surnameLabel: "Soyad",
+      emailLabel: "E-poçt",
+      changePasswordTitle: "Şifrəni Dəyişdir",
+      changePasswordSubtitle: "Mövcud şifrəni saxlamaq üçün boş buraxın",
+      newPasswordLabel: "Yeni Şifrə",
+      repeatPasswordLabel: "Yeni Şifrə Təkrar",
+      saveButton: "Dəyişiklikləri Yadda Saxla",
+      updateSuccess: "Profil məlumatları uğurla yeniləndi!",
+      // Başlıq Açılan Menyu
+      logOut: "Çıxış Et",
+      avatarAlt: "Profil",
+      // Xətalar
+      passwordMismatchError: "Şifrələr uyğun gəlmir.",
+      passwordLengthError: "Şifrə ən az 6 simvol olmalıdır.",
+      nameRequired: "Ad sahəsi məcburidir.",
+      surnameRequired: "Soyad sahəsi məcburidir.",
+      emailRequired: "E-poçt sahəsi məcburidir.",
+      invalidEmail: "Zəhmət olmasa, etibarlı bir e-poçt ünvanı daxil edin.",
+      profilePictureSizeError: "Profil şəkli 15MB-dən kiçik olmalıdır.",
+      profilePictureTypeError: "Zəhmət olmasa, etibarlı bir şəkil faylı seçin.",
+      updateError: "Yeniləmə zamanı bir xəta baş verdi.",
+      updateInvalidDataError:
+        "Təqdim edilən məlumatlar etibarsızdır. Zəhmət olmasa, bütün sahələri yoxlayın.",
+      sessionExpiredError:
+        "Sessiyanızın vaxtı bitdi. Zəhmət olmasa, yenidən daxil olun.",
+      permissionError: "Bu əməliyyat üçün icazəniz yoxdur.",
+    },
+
+    footer: {
+      rights: "Bütün Hüquqlar Qorunur.",
+      address: "Nümunə Küç. No: 123, Nümunə Şəhər, Ölkə.",
+      email: "E-poçt:",
+      phone: "Telefon:",
+      privacy: "Məxfilik Siyasəti",
+      terms: "İstifadə Şərtləri",
+    },
+
+    login: {
+      title: "Daxil Ol",
+      mailLabel: "E-poçt",
+      passwordLabel: "Şifrə",
+      rememberMe: "Məni Xatırla",
+      loginButton: "Daxil Ol",
+      loginError: "Etibarsız e-poçt və ya şifrə.",
+    },
+
+    accessDenied: {
+      title: "Giriş Qadağandır",
+      message: "Bu bölməyə daxil olmaq üçün icazəniz yoxdur.",
+      goBackButton: "Geri Dön",
+    },
+
+    notFound: {
+      title: "404 - Səhifə Tapılmadı",
+      message: "Axtardığınız səhifə mövcud deyil və ya yeri dəyişdirilib.",
+      backToHomeButton: "Ana Səhifəyə Get",
+    },
+  },
+
+  tr: {
+    languages: {
+      en: "İngilizce",
+      az: "Azerbaycanca",
+      tr: "Türkçe",
+      pl: "Lehçe",
+      ru: "Rusca",
+    },
+    languagesShort: {
+      en: "EN",
+      az: "AZ",
+      tr: "TR",
+      pl: "PL",
+      ru: "RU",
+    },
+    // =================================================================
+    // Genel Amaçlı ve Ortak Bileşenler
+    // =================================================================
+    common: {
+      cancel: "İptal",
+      saving: "Kaydediliyor...",
+      notAvailable: "Mevcut Değil",
+      genericError: "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.",
+      couldNotLoadData: "Veriler yüklenemedi.",
+      updatingText: "Güncelleniyor...",
+      actionsLabel: "İşlemler",
+      genericUser: "Kullanıcı",
+      selectOption: "Bir seçenek belirleyin",
+      typeToSearch: "Aramak için yazın...",
+      nothingFound: "Hiçbir sonuç bulunamadı.",
+      searchPlaceholder: "Ara...",
+    },
+
+    // =================================================================
+    // Uygulama Geneli Sistemler (Menü, Yükleyici, Dialoglar vb.)
+    // =================================================================
+    menu: {
+      dashboard: "Gösterge Paneli",
+      stores: "Mağazalar ve Şubeler",
+      newInstallation: "Yeni Kurulum",
+      firmware: "Yazılım",
+      users: "Kullanıcılar ve Roller",
+    },
+
+    loader: {
+      loadingTitle: "Yükleniyor...",
+    },
+
+    dialogs: {
+      // Genel Dialoglar
+      confirmTitle: "İşlemi Onayla",
+      deleteConfirmationPrompt: "Onaylamak için lütfen şunu yazın:",
+      yesButton: "Evet",
+      noButton: "Hayır",
+      okButton: "Tamam",
+      // Özel İstemler
+      unsavedChangesPrompt:
+        "Kaydedilmemiş değişiklikleriniz var. Ayrılmak istediğinizden emin misiniz?",
+      // Bluetooth Hataları
+      btNotConnected: "Herhangi bir cihaza bağlı değil.",
+      btConfigFailed: "Yapılandırma cihaza gönderilemedi.",
+    },
+
+    // =================================================================
+    // Sayfa ve Özelliklere Özel Çeviriler
+    // =================================================================
+    dashboard: {
+      title: "Gösterge Paneli",
+      welcomeMessage: "Hoş geldiniz!",
+      instructionText: "Bu alan, sisteminizin genel durumunu özetleyecektir...",
+    },
+
+    stores: {
+      // Genel
       title: "Mağazalar ve Şubeler",
+      loading: "Mağazalar yükleniyor...",
+      noStoresFound: "Hiç mağaza bulunamadı.",
+      fetchError: "Mağazalar yüklenirken bir hata oluştu.",
+      couldNotLoadStoreData: "Mağaza verileri yüklenemedi.",
+      storeNotFound: "Mağaza bulunamadı.",
+      // Sayfa Başlıkları ve Açıklamaları
       createStoreTitle: "Yeni Mağaza Oluştur",
       createStoreDesc: "Sisteme yeni bir mağaza veya şube ekleyin.",
       editStoreTitle: "Mağaza Bilgilerini Düzenle",
-      editStoreDesc:
-        "Mevcut mağazaların veya şubelerin detaylarını güncelleyin.",
-      deleteStoreTitle: "Mağaza Sil",
+      editStoreDesc: "Mevcut mağaza veya şubelerin detaylarını güncelleyin.",
+      deleteStoreTitle: "Mağazayı Sil",
       deleteStoreDesc: "Sistemden bir mağazayı veya şubeyi kaldırın.",
-      viewLogsTitle: "Logları Görüntüle",
-      viewLogsDesc: "Mağaza işlemleriyle ilgili loglara erişin.",
-      storeListTitle: "Mağazalar",
-      filterBy: "Filtrele:",
-      city: "Şehir",
-      cityPlaceholder: "Şehir girin",
-      country: "Ülke",
-      countryPlaceholder: "Ülke girin",
-      openingHour: "Açılış Saati",
-      closingHour: "Kapanış Saati",
-      selectHour: "Saat Seçin",
-      allDayOpen: "Tüm Gün Açık (7/24)",
-      resetFilters: "Filtreleri Sıfırla",
-      nameHeader: "Mağaza Adı",
-      countryHeader: "Ülke",
-      cityHeader: "Şehir",
-      branchHeader: "Şube",
-      addressHeader: "Adres",
-      statusHeader: "Durum",
-      tokenHeader: "Sunucu Token",
-      workingHoursHeader: "Çalışma Saatleri",
-      createdAtHeader: "Oluşturulma Tarihi",
-      noStoresFound: "Kriterlerinize uygun mağaza bulunamadı.",
-      storeDetailsTitle: "Mağaza Detayları",
-      dialogClose: "Kapat",
-      typeToFilter: "Filtrelemek için yazın veya seçin",
-      noSuggestions: "Öneri yok",
-      registrationSuccess: "Mağaza başarıyla kaydedildi! Sunucu Token: ",
-      registrationError: "Mağaza kaydedilirken hata oluştu: ",
-      editStoreInfoTitle: "Mağaza Detaylarını Düzenle",
-      editStoreDetailsStep1Title: "Mağaza Bilgileri",
-      editStoreDetailsStep2Title: "Cihaz Bilgileri",
+      viewLogsTitle: "Kayıtları Görüntüle",
+      viewLogsDesc: "Mağaza işlemleriyle ilgili kayıtlara erişin.",
+      logDetailsTitle: "Kayıt Detayları",
+      backToLogsList: "Kayıt Listesine Geri Dön",
+      serverLogsTitle: "Sunucu Kayıtları",
+      serverLogsDesc: "Detaylı sunucu aktivitesini ve durumunu görüntüleyin.",
+      esp32LogsTitle: "ESP32 Kayıtları",
+      esp32LogsDesc:
+        "Bağlı ESP32 cihazlarından gelen detaylı kayıtları görüntüleyin.",
+      // Formlar ve Alanlar
+      storeNameLabel: "Mağaza Adı",
       countryLabel: "Ülke",
       cityLabel: "Şehir",
-      storeNameLabel: "Mağaza Adı",
       addBranchLabel: "Şube Ekle",
       branchNameLabel: "Şube Adı",
       storeBranchAddressLabel: "Mağaza/Şube Adresi",
       allDayOpenLabel: "Tüm Gün Açık (7/24)",
       openingHourLabel: "Açılış Saati",
       closingHourLabel: "Kapanış Saati",
-      ownerNameLabel: "Sahip Adı",
-      ownerSurnameLabel: "Sahip Soyadı",
-      installerNameLabel: "Kurulumcu Adı",
-      installerSurnameLabel: "Kurulumcu Soyadı",
+      selectHour: "Saat Seçin",
+      ownerNameLabel: "Sahibinin Adı",
+      ownerSurnameLabel: "Sahibinin Soyadı",
+      installerNameLabel: "Kurulumu Yapan Kişi",
+      serverIpLabel: "Sunucu IP Adresi",
+      requiredFieldWarning: "Bu alan zorunludur.",
+      // Tablo Başlıkları
+      nameHeader: "Mağaza Adı",
+      location: "Konum",
+      installer: "Kurulumu Yapan",
+      devices: "Cihazlar",
+      // Butonlar ve İşlemler
       nextButton: "İleri",
       previousButton: "Geri",
-      requiredFieldWarning: "Bu alan boş bırakılamaz.",
-      installedDevicesTitle: "Kurulu Cihazlar",
+      saveButton: "Kaydet",
+      saveChangesButton: "Tüm Değişiklikleri Kaydet",
       editButton: "Düzenle",
       deleteButton: "Sil",
-      saveButton: "Kaydet",
-      currentInstallationWarningTitle: "Eylem Gerekli",
-      currentInstallationWarningMsg:
-        "Lütfen mevcut cihaz formunu kaydedin veya iptal edin.",
-      noDevicesProceedTitle: "İlerleme Mümkün Değil",
-      noDevicesProceedMsg: "Lütfen devam etmeden önce en az bir cihaz kurun.",
-      newDeviceTitle: "Yeni Cihaz Kurulumu",
-      editDeviceTitle: "Cihazı Düzenle",
-      bluetoothConnectButton: "Bluetooth ile Bağlan",
-      bluetoothNoDeviceSelected: "Lütfen önce bir ESP32 cihazına bağlanın.",
-      idLabel: "ID",
-      tokenLabel: "Token",
-      allDayWorkLabel: "Tüm Gün Çalışma",
-      awakeTimeLabel: "Uyanma Zamanı",
-      sleepTimeLabel: "Uyku Zamanı",
-      productNameFontSizeLabel: "Ürün Adı Yazı Tipi Boyutu",
-      productPriceFontSizeBeforeDiscountLabel:
-        "Fiyat Yazı Tipi Boyutu (İndirimsiz)",
-      productPriceFontSizeAfterDiscountLabel:
-        "Fiyat Yazı Tipi Boyutu (İndirimli)",
-      productBarcodeFontSizeLabel: "Barkod Yazı Tipi Boyutu",
-      productBarcodeNumbersFontSizeLabel: "Barkod Numaraları Yazı Tipi Boyutu",
-      screenSizeLabel: "Ekran Boyutu",
-      selectScreenSize: "Ekran Boyutu Seçin",
-      removeDeviceButton: "Bu Cihazı Kaldır",
+      viewLogsButton: "Kayıtları Görüntüle",
       addNewDeviceButton: "Yeni Cihaz Ekle",
-      deviceIdExists:
-        "Bu ID zaten başka bir cihaza atanmış. Lütfen farklı bir ID seçin.",
-      invalidID: "ID bir sayı olmalıdır.",
-      saveChangesButton: "Tüm Değişiklikleri Kaydet",
-      backToStoreList: "Mağaza Listesine Geri Dön",
-      confirmSaveTitle: "Kaydetmeyi Onayla",
-      confirmSaveMessage:
-        "Tüm değişiklikleri kaydetmek istediğinizden emin misiniz?",
-      confirmDeleteTitle: "Silmeyi Onayla",
-      confirmDeleteMessage: "Mağazayı silmek istediğinizden emin misiniz",
-      deleteSuccess: "başarıyla silindi!",
-      deleteConfirmationPrompt:
-        "Silme işlemini onaylamak için lütfen mağaza adını yazın:",
-      deleteConfirmationPlaceholder: "Mağaza adını buraya yazın",
-      deleteConfirmationMismatch:
-        "Yazılan mağaza adı eşleşmiyor. Silme iptal edildi.",
-      logDetailsTitle: "Mağaza Log Detayları",
-      backToLogsList: "Mağaza Listesine Geri Dön",
-      noStoreSelectedForLogs:
-        "Mağaza seçilmedi. Lütfen listeden bir mağaza seçin.",
-      serverLogsTitle: "Sunucu Logları",
-      serverLogsDesc: "Detaylı sunucu aktivitesini ve durumunu görüntüleyin.",
-      esp32LogsTitle: "ESP32 Logları",
-      esp32LogsDesc: "Bağlı ESP32 cihazlarından detaylı logları görüntüleyin.",
-      comingSoon: "Yakında Gelecek",
-      backToStoreLogDetails: "Log Detaylarına Geri Dön",
-      serverSoftwareVersion: "Yazılım Versiyonu",
+      // Dialoglar
+      confirmDeleteTitle: "Silme İşlemini Onayla",
+      confirmDeleteMessage: "Silmek istediğinizden emin misiniz:",
+      deleteProcessError: "Silme işlemi sırasında bir hata oluştu.",
+      // Sunucu Kayıtları Sayfası
+      serverSoftwareVersion: "Yazılım Sürümü",
       lastUpdateDate: "Son Güncelleme Tarihi",
       connectedEsp32Count: "Bağlı ESP32 Sayısı",
-      serverToken: "Sunucu Token",
-      storeName: "Mağaza Adı",
-      registeredByName: "Kaydeden",
-      notAvailable: "Mevcut Değil",
-      esp32LogId: "ID",
-      dataRefreshRate: "Veri Yenileme Hızı",
-      mosfetStatus: "Mosfet Durumu",
-      softwareVersion: "Yazılım Versiyonu",
-      batteryStatus: "Pil Durumu",
-      noEsp32DevicesFound: "Bu mağaza için ESP32 cihazı bulunamadı.",
-      logDate: "Log Tarihi",
-      allVersions: "Tüm Versiyonlar",
-      allBatteryLevels: "Tüm Pil Seviyeleri",
-      batteryLessThan25: "<25%",
-      battery25To50: "25% - 50%",
-      batteryGreaterThan50: ">50%",
-      newInstallationTitle: "Yeni Mağaza Kurulumu",
-      step1Title: "Yeni Mağaza Oluştur",
-      step2Title: "Sunucu Token Üretimi",
-      step3Title: "ESP32 Token Üretimi",
-      step4Title: "ESP32 Kurulumu",
-      step5Title: "Kurulumu Tamamla",
-      copiedMessage: "Panoya kopyalandı!",
-      yesButton: "Evet",
-      noButton: "Hayır",
-      errorTitle: "Hata",
-      cancelButton: "İptal",
-      viewButton: "Görüntüle",
+      serverToken: "Sunucu Token'ı",
+      registeredByName: "Kaydı Yapan",
+      backToStoreLogDetails: "Kayıt Detaylarına Geri Dön",
     },
-    users: {
-      usersRolesTitle: "Kullanıcılar ve Roller",
-      userForSupermarketTitle: "Market Kullanıcısı",
-      userForSupermarketDesc: "Market şubeleri için kullanıcıları yönetin.",
-      userForCompanyTitle: "Şirket Çalışanı",
-      userForCompanyDesc: "Ana şirket için kullanıcıları yönetin.",
-      addNewUserButton: "Yeni Kullanıcı Ekle",
-      store: "Mağaza",
-      allStores: "Tüm Mağazalar",
+
+    "stores.filterControls": {
       country: "Ülke",
       allCountries: "Tüm Ülkeler",
       city: "Şehir",
       allCities: "Tüm Şehirler",
-      clearFilters: "Filtreleri Temizle",
-      nameSurnameHeader: "Ad Soyad",
-      storeNameHeader: "Mağaza Adı",
-      branchHeader: "Şube",
+      resetButton: "Filtreleri Sıfırla",
+    },
+
+    "stores.deleteStore": {
+      pageTitle: "Mağaza Sil",
+      pageDescription:
+        "Sistemden kalıcı olarak kaldırmak için bir mağaza seçin.",
+    },
+
+    "stores.editStore": {
+      pageTitle: "Mağaza Detaylarını Düzenle",
+      pageDescription: "Bilgilerini düzenlemek için bir mağaza seçin.",
+      workflowTitle: "Mağazayı Düzenle",
+      step1Title: "Mağaza Bilgileri",
+      step2Title: "Cihaz Yönetimi",
+      successTitle: "Başarılı",
+      storeUpdateSuccessMessage: "Mağaza detayları başarıyla güncellendi.",
+      updateFailedTitle: "Güncelleme Başarısız",
+    },
+
+    "stores.installationWizard": {
+      title: "Yeni Mağaza Kurulumu",
+      description:
+        "Yeni bir mağaza ve cihazlarını kaydetmek için adımları izleyin.",
+      // Adım Başlıkları
+      step1Title: "Mağaza Oluştur",
+      step2Title: "Sunucu Token'ı",
+      step3Title: "ESP32 Token'ı",
+      step4Title: "Cihaz Ayarları",
+      step5Title: "Tamamla",
+      // Adıma Özel Metinler
+      step2Description:
+        "Mağaza sunucusunun bağlanması için benzersiz bir token oluşturun.",
+      step3Description:
+        "Bu mağazadaki tüm ESP32 cihazları için ortak bir token oluşturun.",
+      step5Description:
+        "Cihazlarınızın son durumu aşağıda gösterilmektedir. Gözden geçirip kurulumu tamamlayın.",
+      // Cihaz Formu
+      installedDevicesTitle: "Kurulu Cihazlar",
+      editDeviceTitle: "Cihazı Düzenle",
+      newDeviceTitle: "Yeni Cihaz Kurulumu",
+      noDevicesYet: "Henüz hiç cihaz eklenmedi.",
+      idLabel: "ID",
+      tokenLabel: "ESP32 Token",
+      allDayWorkLabel: "Tüm Gün Çalışma",
+      awakeTimeLabel: "Uyanma Zamanı",
+      sleepTimeLabel: "Uyku Zamanı",
+      screenSizeLabel: "Ekran Boyutu",
+      selectScreenSize: "Seçiniz...",
+      wifiSsidLabel: "WIFI SSID",
+      wifiPasswordLabel: "WIFI Şifresi",
+      fontSettingsLabel: "Yazı Tipi Ayarları",
+      productNameFontSizeLabel: "Ürün Adı",
+      productPriceFontSizeBeforeDiscountLabel: "Fiyat (İndirimsiz)",
+      productPriceFontSizeAfterDiscountLabel: "Fiyat (İndirimli)",
+      productBarcodeFontSizeLabel: "Barkod",
+      productBarcodeNumbersFontSizeLabel: "Barkod Numaraları",
+      noSsid: "SSID Yok",
+      allDay: "Tüm Gün",
+      // Token'lar ve Bağlantı
+      generateTokenButton: "Token Oluştur",
+      generating: "Oluşturuluyor...",
+      tokenPlaceholder: "Token burada görünecek...",
+      step3TokenPlaceholder: "Bir token oluşturmak için 'Oluştur'a tıklayın...",
+      copyToClipboardButton: "Panoya Kopyala",
+      copiedMessage: "Kopyalandı!",
+      checkConnectionButton: "Bağlantıyı Kontrol Et",
+      checking: "Kontrol ediliyor...",
+      connectionSuccess: "Bağlantı başarılı!",
+      connectionError: "Bağlantı başarısız:",
+      // Hatalar ve Uyarılar
+      storeIdNotFoundError:
+        "Mağaza ID'si bulunamadı. Lütfen 1. Adıma geri dönün.",
+      tokenGenerationError: "Token oluşturulamadı.",
+      generateTokenFirst: "Lütfen önce bir token oluşturun.",
+      cannotProceedTitle: "Devam Edilemiyor",
+      checkConnectionFirst:
+        "Lütfen 'Bağlantıyı Kontrol Et'e basın ve başarılı olduğundan emin olun.",
+      idRequired: "ID alanı zorunludur.",
+      idMustBePositive: "ID pozitif bir tam sayı olmalıdır.",
+      idInUse: "Bu ID zaten kullanılıyor.",
+      screenSizeRequired: "Ekran boyutu zorunludur.",
+      wifiSsidRequired: "WIFI SSID zorunludur.",
+      wifiPasswordRequired: "WIFI Şifresi zorunludur.",
+      passwordRequiredForNew: "Yeni cihazlar için şifre zorunludur.",
+      awakeTimeRequired: "Uyanma zamanı zorunludur.",
+      sleepTimeRequired: "Uyku zamanı zorunludur.",
+      unsavedChangesTitle: "Kaydedilmemiş Değişiklikler",
+      unsavedChangesMessage:
+        "Lütfen açık olan cihaz formunu kaydedin veya iptal edin.",
+      validationErrorTitle: "Doğrulama Hatası",
+      validationErrorMessage:
+        "Devam etmek için geçerli bir Sunucu IP Adresi gereklidir.",
+      warningTitle: "Uyarı",
+      noDevicesWarning: "Devam etmek için lütfen en az bir cihaz ekleyin.",
+      exitConfirmation:
+        "Kurulum devam ediyor. Bu sayfadan ayrılmak istediğinizden emin misiniz? İlerlemeniz kaybolacaktır.",
+      beforeUnloadPrompt:
+        "Kaydedilmemiş değişiklikleriniz var. Ayrılmak istediğinizden emin misiniz?",
+      // Son Adım
+      loadingStatus: "Son durum yükleniyor...",
+      installingText: "Kuruluyor...",
+      completeInstallationButton: "Kurulumu Tamamla",
+      installationErrorTitle: "Kurulum Hatası",
+      installationTimeoutError:
+        "Kurulum isteği zaman aşımına uğradı. Lütfen tekrar deneyin.",
+      deleteDeviceTooltip: "Cihazı Sil",
+
+      installationSuccessTitle: "Kurulum Başarılı",
+      installationSuccessMessage:
+        "Kurulum başarıyla tamamlandı! Ana sayfaya yönlendiriliyorsunuz...",
+      installationFailedMessage:
+        "Kurulum tamamlanamadı. Lütfen tekrar deneyin.",
+      installationTimeoutMessage:
+        "Kurulum isteği zaman aşımına uğradı. Lütfen tekrar deneyin.",
+
+      // Adım 5 logları için çeviriler
+      error: "Hata",
+      errorValidation: "Doğrulama Hatası",
+      logSourceServer: "Mağaza Sunucusu",
+      logSourceDevices: "Cihazlar",
+      logStatusOnline: "Çevrimiçi",
+      logStatusReady: "Hazır",
+      logStatusNotFound: "Bulunamadı",
+      logDetailHeartbeat: "Yaşam Sinyali Alındı",
+      logDetailLastSeen: "Son Görülme",
+      logDetailYes: "Evet",
+      logDetailBattery: "Pil Durumu",
+      logDetailRefreshRate: "Ekran Yenileme Hızı",
+      logDetailLastSync: "Son Senkronizasyon",
+      logDetailInfo: "Bilgi",
+      logDevicePrefix: "Cihaz ID:",
+      logNoDevices: "Adım 4'te hiç cihaz eklenmedi.",
+      logRefreshRateValue: "15 dakika",
+    },
+
+    "stores.esp32LogFilters": {
+      filterTitle: "Filtreler",
+      date: "Tarih",
+      selectDate: "Tarih seçin...",
+      logTime: "Kayıt Zamanı",
+      allTimes: "Tüm Zamanlar",
+      opening: "Açılış (06-10)",
+      midDay: "Öğlen (11-15)",
+      closing: "Kapanış (17+)",
+      noDataSuffix: " - Veri yok",
+      batteryLevel: "Pil Seviyesi",
+      allBatteries: "Tüm Piller",
+      highBattery: "Yüksek (>%50)",
+      mediumBattery: "Orta (%20-50)",
+      lowBattery: "Düşük (<%20)",
+      softwareVersion: "Yazılım Sürümü",
+      allVersions: "Tüm Sürümler",
+      filterInfo:
+        "Son 30 günün kayıtları gösterilmektedir. Pasif seçeneklerde seçili tarih için veri yoktur.",
+      resetFilters: "Filtreleri Sıfırla",
+    },
+
+    "stores.esp32LogTable": {
+      title: "ESP32 Kayıtları -", // Mağaza adı eklenecek
+      headerTimestamp: "Zaman Damgası",
+      headerDeviceId: "Cihaz ID",
+      headerStore: "Mağaza",
+      headerBranch: "Şube",
+      headerBattery: "Pil",
+      headerRefresh: "Yenileme (ms)",
+      headerMosfet: "Mosfet",
+      headerVersion: "Sürüm",
+      headerLogType: "Kayıt Türü",
+      noLogsFoundTitle: "Kayıt bulunamadı",
+      noLogsFoundMessage:
+        "Mevcut filtre kriterlerinize uyan hiçbir kayıt bulunamadı.",
+    },
+
+    users: {
+      // Genel
+      usersRolesTitle: "Kullanıcılar ve Roller",
+      // Sayfa Başlıkları ve Açıklamaları
+      userForSupermarketTitle: "Süpermarket Kullanıcıları",
+      userForSupermarketDesc:
+        "Süpermarket şubeleriyle ilişkili kullanıcıları yönetin.",
+      userForCompanyTitle: "Şirket Kullanıcıları",
+      userForCompanyDesc: "Ana şirketle ilişkili kullanıcıları yönetin.",
+      // Tablo Başlıkları
+      fullNameHeader: "Ad Soyad",
+      roleHeader: "Rol",
       countryHeader: "Ülke",
       cityHeader: "Şehir",
-      roleHeader: "Rol",
-      editButton: "Düzenle",
-      deleteButton: "Sil",
-      noUsersFound: "Kriterlerinize uygun kullanıcı bulunamadı.",
-      confirmDeleteUserTitle: "Kullanıcı Silmeyi Onayla",
-      confirmDeleteUserMessage:
-        "Kullanıcıyı silmek istediğinizden emin misiniz",
-      deleteUserSuccess: "başarıyla silindi!",
-      deleteConfirmationPrompt:
-        "Silme işlemini onaylamak için lütfen kullanıcının tam adını yazın:",
-      deleteConfirmationPlaceholder: "Tam adı buraya yazın",
-      deleteConfirmationMismatch:
-        "Yazılan isim eşleşmiyor. Silme iptal edildi.",
-      addNewUserTitle: "Yeni Kullanıcı Ekle",
-      editUserTitle: "Kullanıcıyı Düzenle",
-      editCompanyUserTitle: "Şirket Çalışanını Düzenle",
-      addCompanyUserTitle: "Yeni Şirket Çalışanı Ekle",
-      employeeNameLabel: "Çalışan Adı",
-      employeeSurnameLabel: "Çalışan Soyadı",
-      dobLabel: "Doğum Tarihi",
-      countryLabel: "Ülke",
-      cityLabel: "Şehir",
-      storeNameLabel: "Mağaza Adı",
-      addBranchLabel: "Şube Ekle",
-      branchLabel: "Şube Adı",
-      roleLabel: "Rol",
-      mailLabel: "E-posta",
+      assignedStoreHeader: "Atanmış Mağaza",
+      // Durum ve Hata Mesajları
+      noUsersFound: "Hiç kullanıcı bulunamadı.",
+      userLoadError:
+        "Kullanıcı verileri yüklenemedi. Kullanıcı mevcut olmayabilir.",
+      usersLoadError:
+        "Kullanıcılar yüklenemedi. Lütfen daha sonra tekrar deneyin.",
+      userDeleteError: "Kullanıcı silinirken bir hata oluştu.",
+      userOrStoreLoadError: "Kullanıcı verileri veya mağazalar yüklenemedi.",
+      // Dialoglar
+      confirmDeleteTitle: "Kullanıcı Silme Onayı",
+      confirmDeleteMessage: "Silmek istediğinizden emin misiniz:", // Kullanıcı adı eklenecek
+      // Diğer
+      profilePreviewAlt: "Profil Önizlemesi",
+      userAvatarAlt: "{userName} için avatar", // {userName} bir yer tutucudur
+    },
+
+    "users.companyUsersPage": {
+      title: "Şirket Kullanıcıları",
+      subtitle: "Yöneticileri, ülke sorumlularını ve mühendisleri yönetin",
+      addUser: "Kullanıcı Ekle",
+    },
+
+    "users.supermarketUsersPage": {
+      title: "Süpermarket Kullanıcıları",
+      subtitle: "Belirli süpermarket şubelerine atanmış kullanıcıları yönetin",
+      addUser: "Kullanıcı Ekle",
+    },
+
+    "users.addUserForm": {
+      title: "Yeni Şirket Kullanıcısı Ekle",
+      subtitle: "Yeni bir kullanıcı hesabı oluşturmak için detayları doldurun.",
+      nameLabel: "Ad",
+      surnameLabel: "Soyad",
+      emailLabel: "E-posta",
       passwordLabel: "Şifre",
       repeatPasswordLabel: "Şifre Tekrar",
-      removeProcessButton: "İptal Et",
-      saveButton: "Kaydet",
-      confirmSaveUserTitle: "Kaydetmeyi Onayla",
-      confirmSaveUserMessage:
-        "Bu kullanıcıyı kaydetmek istediğinizden emin misiniz?",
-      passwordMismatch: "Şifreler eşleşmiyor.",
-      invalidEmail: "Lütfen geçerli bir e-posta adresi girin.",
-      selectCountry: "Ülke Seçin",
-      selectCity: "Şehir Seçin",
-      selectStore: "Mağaza Seçin",
-      selectRole: "Rol Seçin",
-      discardButton: "Vazgeç",
-      userNotFound: "Kullanıcı bulunamadı.",
-      backToUserList: "Kullanıcı Listesine Geri Dön",
+      roleLabel: "Rol",
+      selectRole: "Bir rol seçin",
+      countryLabel: "Ülke",
+      cityLabel: "Şehir",
+      saveButton: "Kullanıcıyı Kaydet",
       profilePictureLabel: "Profil Resmi",
-      profileDetailsTitle: "Profil Detayları",
-      discardChangesButton: "Değişikliklerden Vazgeç",
-      saveChangesButton: "Değişiklikleri Kaydet",
-      backToDashboard: "Anasayfaya Geri Dön",
-      accessDeniedTitle: "Erişim Reddedildi",
-      accessDeniedMessage: "Bu sayfaya erişim yetkiniz bulunmamaktadır.",
-      goBackButton: "Geri Dön",
+      passwordMismatchError: "Şifreler uyuşmuyor.",
+      roleRequiredError: "Lütfen kullanıcı için bir rol seçin.",
     },
+
+    "users.addSupermarketUserForm": {
+      title: "Yeni Süpermarket Kullanıcısı Ekle",
+      subtitle: "Bir mağazaya atanmış yeni bir kullanıcı oluşturun",
+      fetchStoresError: "Mağazalar yüklenemedi.",
+      storeRequiredError: "Lütfen kullanıcıyı bir mağazaya atayın.",
+      assignStoreLabel: "Mağazaya Ata",
+      selectStore: "Bir mağaza seçin",
+    },
+
+    "users.editUserForm": {
+      title: "Kullanıcıyı Düzenle",
+      titleSupermarket: "Süpermarket Kullanıcısını Düzenle",
+      subtitlePrefix: "için detayları güncelleyin:",
+      saveButton: "Değişiklikleri Kaydet",
+    },
+
+    roles: {
+      Admin: "Yönetici",
+      Country_Chief: "Ülke Sorumlusu",
+      Engineer: "Mühendis",
+      Analyst: "Analist",
+      Runner: "Saha Personeli",
+    },
+
     firmware: {
-      title: "Yazılım Güncellemeleri",
+      title: "Yazılım",
       introText: "Bu bölüm, yazılım güncellemelerini yönettiğiniz yerdir.",
       instructionText: "Cihazlara yeni yazılımları buradan dağıtabilirsiniz.",
       futureFeatures:
         "Yakında: Mevcut yazılım sürümlerini görüntüleme ve yeni sürümleri dağıtma özellikleri eklenecektir.",
     },
-    menu: {
-      dashboard: "Anasayfa",
-      stores: "Mağazalar ve Şubeler",
-      newInstallation: "Yeni Kurulum",
-      firmware: "Yazılım Güncellemeleri",
-      users: "Kullanıcılar / Roller",
-    },
+
     profile: {
-      userName: "John Doe",
-      profileDetails: "Profil Detayları",
+      // Profil Detayları Sayfası
+      detailsTitle: "Profil Detayları",
+      profilePictureLabel: "Profil Resmi",
+      nameLabel: "Ad",
+      surnameLabel: "Soyad",
+      emailLabel: "E-posta",
+      changePasswordTitle: "Şifreyi Değiştir",
+      changePasswordSubtitle: "Mevcut şifreyi korumak için boş bırakın",
+      newPasswordLabel: "Yeni Şifre",
+      repeatPasswordLabel: "Yeni Şifre Tekrar",
+      saveButton: "Değişiklikleri Kaydet",
+      updateSuccess: "Profil bilgileri başarıyla güncellendi!",
+      // Header Açılır Menü
       logOut: "Çıkış Yap",
+      avatarAlt: "Profil",
+      // Hatalar
+      passwordMismatchError: "Şifreler uyuşmuyor.",
+      passwordLengthError: "Şifre en az 6 karakter olmalıdır.",
+      nameRequired: "Ad alanı zorunludur.",
+      surnameRequired: "Soyad alanı zorunludur.",
+      emailRequired: "E-posta alanı zorunludur.",
+      invalidEmail: "Lütfen geçerli bir e-posta adresi girin.",
+      profilePictureSizeError: "Profil resmi 15MB'den küçük olmalıdır.",
+      profilePictureTypeError: "Lütfen geçerli bir resim dosyası seçin.",
+      updateError: "Güncelleme sırasında bir hata oluştu.",
+      updateInvalidDataError:
+        "Gönderilen veriler geçersiz. Lütfen tüm alanları kontrol edin.",
+      sessionExpiredError:
+        "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+      permissionError: "Bu işlem için yetkiniz bulunmamaktadır.",
     },
+
     footer: {
       rights: "Tüm Hakları Saklıdır.",
-      address: "Örnek Sk. No: 123, Örnek Şehir, Ülke.",
+      address: "Örnek Mah. No: 123, Örnek Şehir, Ülke.",
       email: "E-posta:",
       phone: "Telefon:",
       privacy: "Gizlilik Politikası",
       terms: "Kullanım Koşulları",
     },
+
     login: {
       title: "Giriş Yap",
       mailLabel: "E-posta",
@@ -526,817 +1413,981 @@ export const appTranslations = {
       rememberMe: "Beni Hatırla",
       loginButton: "Giriş Yap",
       loginError: "Geçersiz e-posta veya şifre.",
-      mobileOnlyAccess:
-        "Girişiniz sadece Mobil Uygulama için geçerlidir. Şirket çalışanı olmadığınız için bu web sitesine erişiminiz yoktur.",
+    },
+
+    accessDenied: {
+      title: "Erişim Engellendi",
+      message: "Bu bölüme erişim yetkiniz bulunmamaktadır.",
+      goBackButton: "Geri Dön",
+    },
+
+    notFound: {
+      title: "404 - Sayfa Bulunamadı",
+      message: "Aradığınız sayfa mevcut değil veya taşınmış.",
+      backToHomeButton: "Anasayfaya Git",
     },
   },
-  az: {
-    dashboard: {
-      title: "İdarə Paneli",
-      welcomeText: "EilSense.io İdarəetmə Panelinə Xoş Gəlmisiniz!",
-      instructionText:
-        "Bu sahə sisteminizin ümumi vəziyyətini, mağaza performansını və vacib bildirişləri xülasə edəcək. Detallı əməliyyatlar üçün zəhmət olmasa sol menyudan müvafiq bölmələri seçin.",
-      note: "Qeyd: Yuxarıdakı başlıq zolağındakı loqo, EilSense.io adınızın və loqonuzun vizual tonlarının bir təmsilidir. Əsl loqonuz (şəffaf PNG/SVG faylı) buraya inteqrasiya edildikdə tam istədiyiniz kimi görünəcək.",
-    },
-    stores: {
-      title: "Mağazalar və Filiallar",
-      createStoreTitle: "Yeni Mağaza Yarat",
-      createStoreDesc: "Sistemə yeni bir mağaza və ya filial əlavə edin.",
-      editStoreTitle: "Mağaza Məlumatlarını Dəyiş",
-      editStoreDesc: "Mövcud mağaza və ya filialların detallarını yeniləyin.",
-      deleteStoreTitle: "Mağazanı Sil",
-      deleteStoreDesc: "Sistemdən bir mağaza və ya filialı silin.",
-      viewLogsTitle: "Loglara Bax",
-      viewLogsDesc: "Mağaza əməliyyatları ilə bağlı loglara daxil olun.",
-      storeListTitle: "Mağazalar",
-      filterBy: "Görə filtrlə:",
-      city: "Şəhər",
-      cityPlaceholder: "Şəhər daxil edin",
-      country: "Ölkə",
-      countryPlaceholder: "Ölkə daxil edin",
-      openingHour: "Açılış Saatı",
-      closingHour: "Bağlanış Saatı",
-      selectHour: "Saat Seçin",
-      allDayOpen: "Bütün Gün Açıq (7/24)",
-      resetFilters: "Filtri Sıfırla",
-      nameHeader: "Mağaza Adı",
-      countryHeader: "Ölkə",
-      cityHeader: "Şəhər",
-      branchHeader: "Filial",
-      addressHeader: "Ünvan",
-      statusHeader: "Status",
-      tokenHeader: "Server Tokeni",
-      workingHoursHeader: "İş Saatları",
-      createdAtHeader: "Yaradılma Tarixi",
-      noStoresFound: "Kriterlərinizə uyğun mağaza tapılmadı.",
-      storeDetailsTitle: "Mağaza Detalları",
-      dialogClose: "Bağla",
-      typeToFilter: "Filtrləmək üçün yazın və ya seçin",
-      noSuggestions: "Təklif yoxdur",
-      registrationSuccess: "Mağaza uğurla qeydiyyatdan keçdi! Server Tokeni: ",
-      registrationError: "Mağaza qeydiyyatı zamanı xəta baş verdi: ",
-      editStoreInfoTitle: "Mağaza Məlumatlarını Dəyiş",
-      editStoreDetailsStep1Title: "Mağaza Məlumatı",
-      editStoreDetailsStep2Title: "Cihaz Məlumatı",
-      countryLabel: "Ölkə",
-      cityLabel: "Şəhər",
-      storeNameLabel: "Mağaza Adı",
-      addBranchLabel: "Filial Əlavə Et",
-      branchNameLabel: "Filial Adı",
-      storeBranchAddressLabel: "Mağaza/Filial Ünvanı",
-      allDayOpenLabel: "Bütün Gün Açıq (7/24)",
-      openingHourLabel: "Açılış Saatı",
-      closingHourLabel: "Bağlanış Saatı",
-      ownerNameLabel: "Sahibkar Adı",
-      ownerSurnameLabel: "Sahibkar Soyadı",
-      installerNameLabel: "Quraşdırıcı Adı",
-      installerSurnameLabel: "Quraşdırıcı Soyadı",
-      nextButton: "Növbəti",
-      previousButton: "Əvvəlki",
-      requiredFieldWarning: "Bu sahə boş buraxıla bilməz.",
-      installedDevicesTitle: "Quraşdırılmış Cihazlar",
-      editButton: "Dəyiş",
-      deleteButton: "Sil",
-      saveButton: "Yadda Saxla",
-      currentInstallationWarningTitle: "Tədbir Tələb Olunur",
-      currentInstallationWarningMsg:
-        "Zəhmət olmasa, mövcud cihaz formasını yadda saxlayın və ya ləğv edin.",
-      noDevicesProceedTitle: "Davam Etmək Mümkün Deyil",
-      noDevicesProceedMsg:
-        "Zəhmət olmasa, davam etməzdən əvvəl ən az bir cihaz quraşdırın.",
-      newDeviceTitle: "Yeni Cihaz Quraşdırılması",
-      editDeviceTitle: "Cihazı Dəyiş",
-      bluetoothConnectButton: "Bluetooth ilə Qoşul",
-      bluetoothNoDeviceSelected:
-        "Zəhmət olmasa, əvvəlcə bir ESP32 cihazına qoşulun.",
-      idLabel: "ID",
-      tokenLabel: "Token",
-      allDayWorkLabel: "Bütün Gün İş",
-      awakeTimeLabel: "Oyanma Vaxtı",
-      sleepTimeLabel: "Yatma Vaxtı",
-      productNameFontSizeLabel: "Məhsul Adı Şrift Ölçüsü",
-      productPriceFontSizeBeforeDiscountLabel:
-        "Qiymət Şrift Ölçüsü (Endirimsiz)",
-      productPriceFontSizeAfterDiscountLabel: "Qiymət Şrift Ölçüsü (Endirimli)",
-      productBarcodeFontSizeLabel: "Barkod Şrift Ölçüsü",
-      productBarcodeNumbersFontSizeLabel: "Barkod Nömrələri Şrift Ölçüsü",
-      screenSizeLabel: "Ekran Ölçüsü",
-      selectScreenSize: "Ekran Ölçüsü Seçin",
-      removeDeviceButton: "Bu Cihazı Sil",
-      addNewDeviceButton: "Yeni Cihaz Əlavə Et",
-      deviceIdExists:
-        "Bu ID artıq başqa bir cihaza təyin edilib. Zəhmət olmasa, fərqli bir ID seçin.",
-      invalidID: "ID rəqəm olmalıdır.",
-      saveChangesButton: "Bütün Dəyişiklikləri Yadda Saxla",
-      backToStoreList: "Mağaza Siyahısına Qayıt",
-      confirmSaveTitle: "Yadda Saxlamağı Təsdiq Et",
-      confirmSaveMessage:
-        "Bütün dəyişiklikləri yadda saxlamaq istədiyinizə əminsinizmi?",
-      confirmDeleteTitle: "Silməyi Təsdiq Et",
-      confirmDeleteMessage: "Mağazanı silmək istədiyinizə əminsinizmi",
-      deleteSuccess: "uğurla silindi!",
-      deleteConfirmationPrompt:
-        "Silməyi təsdiqləmək üçün zəhmət olmasa mağaza adını yazın:",
-      deleteConfirmationPlaceholder: "Mağaza adını bura yazın",
-      deleteConfirmationMismatch:
-        "Daxil edilən mağaza adı uyğun gəlmir. Silmə ləğv edildi.",
-      logDetailsTitle: "Mağaza Log Detalları",
-      backToLogsList: "Mağaza Siyahısına Qayıt",
-      noStoreSelectedForLogs:
-        "Mağaza seçilməyib. Zəhmət olmasa, siyahıdan bir mağaza seçin.",
-      serverLogsTitle: "Server Logları",
-      serverLogsDesc: "Ətraflı server fəaliyyətinə və statusuna baxın.",
-      esp32LogsTitle: "ESP32 Logları",
-      esp32LogsDesc: "Qoşulmuş ESP32 cihazlarından ətraflı loglara baxın.",
-      comingSoon: "Tezliklə",
-      backToStoreLogDetails: "Log Detallarına Qayıt",
-      serverSoftwareVersion: "Proqram Versiyası",
-      lastUpdateDate: "Son Yenilənmə Tarixi",
-      connectedEsp32Count: "Qoşulmuş ESP32 Sayı",
-      serverToken: "Server Tokeni",
-      storeName: "Mağaza Adı",
-      registeredByName: "Qeydiyyatdan Keçirən",
-      notAvailable: "Mövcud Deyil",
-      esp32LogId: "ID",
-      dataRefreshRate: "Məlumat Yeniləmə Tezliyi",
-      mosfetStatus: "Mosfet Vəziyyəti",
-      softwareVersion: "Proqram Versiyası",
-      batteryStatus: "Batareya Vəziyyəti",
-      noEsp32DevicesFound: "Bu mağaza üçün ESP32 cihazı tapılmadı.",
-      logDate: "Log Tarixi",
-      allVersions: "Bütün Versiyalar",
-      allBatteryLevels: "Bütün Batareya Səviyyələri",
-      batteryLessThan25: "<25%",
-      battery25To50: "25% - 50%",
-      batteryGreaterThan50: ">50%",
-      newInstallationTitle: "Yeni Mağaza Quraşdırılması",
-      step1Title: "Yeni Mağaza Yarat",
-      step2Title: "Server Tokeni Yaratma",
-      step3Title: "ESP32 Tokeni Yaratma",
-      step4Title: "ESP32 Quraşdırılması",
-      step5Title: "Quraşdırmanı Tamamla",
-      generateTokenButton: "Token Yarat",
-      copyToClipboardButton: "Kopyala",
-      copiedMessage: "Panoya kopyalandı!",
-      checkConnectionButton: "Əlaqəni Yoxla",
-      connectionSuccess: "Əlaqə uğurludur!",
-      connectionError: "Əlaqə baş tutmadı: ",
-      cannotProceed: "Uğurlu bir əlaqə olmadan növbəti addıma keçmək olmaz.",
-      yesButton: "Bəli",
-      noButton: "Xeyr",
-      errorTitle: "Xəta",
-      cancelButton: "Ləğv Et",
-      viewButton: "Bax",
-    },
-    users: {
-      usersRolesTitle: "İstifadəçilər və Rollar",
-      userForSupermarketTitle: "Market İşçisi",
-      userForSupermarketDesc:
-        "Market filialları üçün istifadəçiləri idarə edin.",
-      userForCompanyTitle: "Şirkət İşçisi",
-      userForCompanyDesc: "Ana şirkət üçün istifadəçiləri idarə edin.",
-      addNewUserButton: "Yeni İstifadəçi Əlavə Et",
-      store: "Mağaza",
-      allStores: "Bütün Mağazalar",
-      country: "Ölkə",
-      allCountries: "Bütün Ölkələr",
-      city: "Şəhər",
-      allCities: "Bütün Şəhərlər",
-      clearFilters: "Filtri Təmizlə",
-      nameSurnameHeader: "Ad Soyad",
-      storeNameHeader: "Mağaza Adı",
-      branchHeader: "Filial",
-      countryHeader: "Ölkə",
-      cityHeader: "Şəhər",
-      roleHeader: "Rol",
-      editButton: "Dəyiş",
-      deleteButton: "Sil",
-      noUsersFound: "Kriterlərinizə uyğun istifadəçi tapılmadı.",
-      confirmDeleteUserTitle: "İstifadəçi Silməyi Təsdiq Et",
-      confirmDeleteUserMessage: "İstifadəçini silmək istədiyinizə əminsinizmi",
-      deleteUserSuccess: "uğurla silindi!",
-      deleteConfirmationPrompt:
-        "Silməyi təsdiqləmək üçün zəhmət olmasa istifadəçinin tam adını yazın:",
-      deleteConfirmationPlaceholder: "Tam adı bura yazın",
-      deleteConfirmationMismatch:
-        "Daxil edilən ad uyğun gəlmir. Silmə ləğv edildi.",
-      addNewUserTitle: "Yeni İstifadəçi Əlavə Et",
-      editUserTitle: "İstifadəçini Dəyiş",
-      editCompanyUserTitle: "Şirkət İşçisini Dəyiş",
-      addCompanyUserTitle: "Yeni Şirkət İşçisi Əlavə Et",
-      employeeNameLabel: "İşçi Adı",
-      employeeSurnameLabel: "İşçi Soyadı",
-      dobLabel: "Doğum Tarixi",
-      countryLabel: "Ölkə",
-      cityLabel: "Şəhər",
-      storeNameLabel: "Mağaza Adı",
-      addBranchLabel: "Filial Əlavə Et",
-      branchLabel: "Filial Adı",
-      roleLabel: "Rol",
-      mailLabel: "E-poçt",
-      passwordLabel: "Şifrə",
-      repeatPasswordLabel: "Şifrə Təkrarı",
-      removeProcessButton: "Ləğv Et",
-      saveButton: "Yadda Saxla",
-      confirmSaveUserTitle: "Yadda Saxlamağı Təsdiq Et",
-      confirmSaveUserMessage:
-        "Bu istifadəçini yadda saxlamaq istədiyinizə əminsinizmi?",
-      passwordMismatch: "Şifrələr uyğun gəlmir.",
-      invalidEmail: "Zəhmət olmasa, düzgün bir e-poçt ünvanı daxil edin.",
-      selectCountry: "Ölkə Seçin",
-      selectCity: "Şəhər Seçin",
-      selectStore: "Mağaza Seçin",
-      selectRole: "Rol Seçin",
-      discardButton: "Ləğv Et",
-      userNotFound: "İstifadəçi tapılmadı.",
-      backToUserList: "İstifadəçi Siyahısına Qayıt",
-      profilePictureLabel: "Profil Şəkli",
-      profileDetailsTitle: "Profil Məlumatları",
-      discardChangesButton: "Dəyişikliklərdən İmtina Et",
-      saveChangesButton: "Dəyişiklikləri Yadda Saxla",
-      backToDashboard: "İdarə Panelinə Qayıt",
-      accessDeniedTitle: "Giriş Qadağandır",
-      accessDeniedMessage: "Bu səhifəyə giriş icazəniz yoxdur.",
-      goBackButton: "Geri Qayıt",
-    },
-    firmware: {
-      title: "Proqram Təminatı Güncəlləmələri",
-      introText:
-        "Bu bölmə, proqram təminatı güncəlləmələrini idarə etdiyiniz yerdir.",
-      instructionText:
-        "Cihazlara yeni proqram təminatlarını buradan paylaya bilərsiniz.",
-      futureFeatures:
-        "Yaxında: Mövcud proqram təminatı versiyalarını görmək və yeni versiyaları paylamaq üçün funksiyalar əlavə ediləcək.",
-    },
-    menu: {
-      dashboard: "İdarə Paneli",
-      stores: "Mağazalar",
-      newInstallation: "Yeni Quraşdırma",
-      firmware: "Proqram Təminatı",
-      users: "İstifadəçilər",
-    },
-    profile: {
-      profileDetails: "Profil Məlumatları",
-      logOut: "Çıxış",
-      userName: "John Doe",
-    },
-    footer: {
-      rights: "Bütün hüquqlar qorunur.",
-      address: "Nümunə küç. No: 123, Nümunə şəhər, Ölkə.",
-      email: "E-poçt:",
-      phone: "Telefon:",
-      privacy: "Məxfilik Siyasəti",
-      terms: "İstifadə Şərtləri",
-    },
-    login: {
-      title: "Daxil Ol",
-      mailLabel: "E-poçt",
-      passwordLabel: "Şifrə",
-      rememberMe: "Məni xatırla",
-      loginButton: "Daxil Ol",
-      loginError: "Yanlış e-poçt və ya şifrə.",
-      mobileOnlyAccess:
-        "Girişiniz yalnız Mobil Tətbiq üçün etibarlıdır. Şirkət işçisi olmadığınız üçün bu veb sayta giriş icazəniz yoxdur.",
-    },
-  },
-  ru: {
-    dashboard: {
-      title: "Панель управления",
-      welcomeText: "Добро пожаловать в Панель Управления EilSense.io!",
-      instructionText:
-        "Здесь будет представлена сводная информация об общем состоянии вашей системы, производительности магазинов и критически важных уведомлениях. Пожалуйста, выберите соответствующие разделы в левом меню для выполнения детальных операций.",
-      note: "Примечание: Логотип в верхней панели является представлением визуальных тонов вашего имени и логотипа EilSense.io. Ваш фактический логотип (прозрачный файл PNG/SVG) будет отображаться именно так, как вы хотите, после интеграции.",
-    },
-    stores: {
-      title: "Магазины и Филиалы",
-      createStoreTitle: "Создать новый магазин",
-      createStoreDesc: "Добавить новый магазин или филиал в систему.",
-      editStoreTitle: "Редактировать информацию о магазине",
-      editStoreDesc: "Обновить данные существующих магазинов или филиалов.",
-      deleteStoreTitle: "Удалить магазин",
-      deleteStoreDesc: "Удалить магазин или филиал из системы.",
-      viewLogsTitle: "Просмотр логов",
-      viewLogsDesc: "Доступ к логам, связанным с операциями магазина.",
-      storeListTitle: "Магазины",
-      filterBy: "Фильтровать по:",
-      city: "Город",
-      cityPlaceholder: "Введите город",
-      country: "Страна",
-      countryPlaceholder: "Введите страну",
-      openingHour: "Час открытия",
-      closingHour: "Час закрытия",
-      selectHour: "Выберите час",
-      allDayOpen: "Круглосуточно (24/7)",
-      resetFilters: "Сбросить фильтры",
-      nameHeader: "Название магазина",
-      countryHeader: "Страна",
-      cityHeader: "Город",
-      branchHeader: "Филиал",
-      addressHeader: "Адрес",
-      statusHeader: "Статус",
-      tokenHeader: "Токен сервера",
-      workingHoursHeader: "Рабочие часы",
-      createdAtHeader: "Дата создания",
-      noStoresFound: "Магазинов, соответствующих вашим критериям, не найдено.",
-      storeDetailsTitle: "Детали магазина",
-      dialogClose: "Закрыть",
-      typeToFilter: "Введите для фильтрации или выберите",
-      noSuggestions: "Нет предложений",
-      registrationSuccess: "Магазин успешно зарегистрирован! Токен сервера: ",
-      registrationError: "Ошибка при регистрации магазина: ",
-      editStoreInfoTitle: "Редактировать детали магазина",
-      editStoreDetailsStep1Title: "Информация о магазине",
-      editStoreDetailsStep2Title: "Информация об устройстве",
-      countryLabel: "Страна",
-      cityLabel: "Город",
-      storeNameLabel: "Название магазина",
-      addBranchLabel: "Добавить филиал",
-      branchNameLabel: "Название филиала",
-      storeBranchAddressLabel: "Адрес магазина/филиала",
-      allDayOpenLabel: "Круглосуточно (24/7)",
-      openingHourLabel: "Час открытия",
-      closingHourLabel: "Час закрытия",
-      ownerNameLabel: "Имя владельца",
-      ownerSurnameLabel: "Фамилия владельца",
-      installerNameLabel: "Имя установщика",
-      installerSurnameLabel: "Фамилия установщика",
-      nextButton: "Далее",
-      previousButton: "Назад",
-      requiredFieldWarning: "Это поле не может быть пустым.",
-      installedDevicesTitle: "Установленные устройства",
-      editButton: "Редактировать",
-      deleteButton: "Удалить",
-      saveButton: "Сохранить",
-      currentInstallationWarningTitle: "Требуется действие",
-      currentInstallationWarningMsg:
-        "Пожалуйста, сохраните или отмените текущую операцию в форме устройства.",
-      noDevicesProceedTitle: "Невозможно продолжить",
-      noDevicesProceedMsg:
-        "Пожалуйста, установите хотя бы одно устройство перед тем, как продолжить.",
-      newDeviceTitle: "Установка нового устройства",
-      editDeviceTitle: "Редактировать устройство",
-      bluetoothConnectButton: "Подключиться через Bluetooth",
-      bluetoothNoDeviceSelected:
-        "Пожалуйста, сначала подключитесь к устройству ESP32.",
-      idLabel: "ID",
-      tokenLabel: "Токен",
-      allDayWorkLabel: "Круглосуточная работа",
-      awakeTimeLabel: "Время пробуждения",
-      sleepTimeLabel: "Время сна",
-      productNameFontSizeLabel: "Размер шрифта названия продукта",
-      productPriceFontSizeBeforeDiscountLabel: "Размер шрифта цены (до скидки)",
-      productPriceFontSizeAfterDiscountLabel:
-        "Размер шрифта цены (после скидки)",
-      productBarcodeFontSizeLabel: "Размер шрифта штрих-кода",
-      productBarcodeNumbersFontSizeLabel: "Размер шрифта номеров штрих-кода",
-      screenSizeLabel: "Размер экрана",
-      selectScreenSize: "Выберите размер экрана",
-      removeDeviceButton: "Удалить это устройство",
-      addNewDeviceButton: "Добавить новое устройство",
-      deviceIdExists:
-        "Этот ID уже присвоен другому устройству. Пожалуйста, выберите другой ID.",
-      invalidID: "ID должен быть числом.",
-      saveChangesButton: "Сохранить все изменения",
-      backToStoreList: "Назад к списку магазинов",
-      confirmSaveTitle: "Подтвердить сохранение",
-      confirmSaveMessage: "Вы уверены, что хотите сохранить все изменения?",
-      confirmDeleteTitle: "Подтвердить удаление",
-      confirmDeleteMessage: "Вы уверены, что хотите удалить магазин",
-      deleteSuccess: "успешно удалено!",
-      deleteConfirmationPrompt:
-        "Пожалуйста, введите название магазина, чтобы подтвердить удаление:",
-      deleteConfirmationPlaceholder: "Введите здесь название магазина",
-      deleteConfirmationMismatch:
-        "Введенное название магазина не совпадает. Удаление отменено.",
-      logDetailsTitle: "Детали логов магазина",
-      backToLogsList: "Назад к списку магазинов",
-      noStoreSelectedForLogs:
-        "Магазин не выбран. Пожалуйста, выберите магазин из списка.",
-      serverLogsTitle: "Логи сервера",
-      serverLogsDesc: "Просмотр подробной активности и статуса сервера.",
-      esp32LogsTitle: "Логи ESP32",
-      esp32LogsDesc: "Просмотр подробных логов с подключенных устройств ESP32.",
-      comingSoon: "Скоро",
-      backToStoreLogDetails: "Назад к деталям логов",
-      serverSoftwareVersion: "Версия ПО",
-      lastUpdateDate: "Дата последнего обновления",
-      connectedEsp32Count: "Количество подключенных ESP32",
-      serverToken: "Токен сервера",
-      storeName: "Название магазина",
-      registeredByName: "Зарегистрировано",
-      notAvailable: "Н/Д",
-      esp32LogId: "ID",
-      dataRefreshRate: "Частота обновления данных",
-      mosfetStatus: "Статус Mosfet",
-      softwareVersion: "Версия ПО",
-      batteryStatus: "Состояние батареи",
-      noEsp32DevicesFound: "Для этого магазина не найдено устройств ESP32.",
-      logDate: "Дата лога",
-      allVersions: "Все версии",
-      allBatteryLevels: "Все уровни заряда",
-      batteryLessThan25: "<25%",
-      battery25To50: "25% - 50%",
-      batteryGreaterThan50: ">50%",
-      newInstallationTitle: "Установка нового магазина",
-      step1Title: "Создать новый магазин",
-      step2Title: "Генерация токена сервера",
-      step3Title: "Генерация токена ESP32",
-      step4Title: "Установка ESP32",
-      step5Title: "Завершить установку",
-      generateTokenButton: "Сгенерировать токен",
-      copyToClipboardButton: "Копировать в буфер обмена",
-      copiedMessage: "Скопировано в буфер обмена!",
-      checkConnectionButton: "Проверить соединение",
-      connectionSuccess: "Соединение успешно!",
-      connectionError: "Ошибка соединения: ",
-      cannotProceed:
-        "Невозможно перейти к следующему шагу без успешного соединения.",
-      yesButton: "Да",
-      noButton: "Нет",
-      errorTitle: "Ошибка",
-      cancelButton: "Отмена",
-      viewButton: "Просмотр",
-    },
-    users: {
-      usersRolesTitle: "Пользователи и Роли",
-      userForSupermarketTitle: "Пользователь Супермаркета",
-      userForSupermarketDesc:
-        "Управление пользователями для филиалов супермаркетов.",
-      userForCompanyTitle: "Сотрудник Компании",
-      userForCompanyDesc: "Управление пользователями для основной компании.",
-      addNewUserButton: "Добавить нового пользователя",
-      store: "Магазин",
-      allStores: "Все магазины",
-      country: "Страна",
-      allCountries: "Все страны",
-      city: "Город",
-      allCities: "Все города",
-      clearFilters: "Сбросить фильтры",
-      nameSurnameHeader: "Имя и Фамилия",
-      storeNameHeader: "Название магазина",
-      branchHeader: "Филиал",
-      countryHeader: "Страна",
-      cityHeader: "Город",
-      roleHeader: "Роль",
-      editButton: "Редактировать",
-      deleteButton: "Удалить",
-      noUsersFound:
-        "Пользователей, соответствующих вашим критериям, не найдено.",
-      confirmDeleteUserTitle: "Подтвердить удаление пользователя",
-      confirmDeleteUserMessage: "Вы уверены, что хотите удалить пользователя",
-      deleteUserSuccess: "успешно удален!",
-      deleteConfirmationPrompt:
-        "Пожалуйста, введите полное имя пользователя, чтобы подтвердить удаление:",
-      deleteConfirmationPlaceholder: "Введите здесь полное имя",
-      deleteConfirmationMismatch:
-        "Введенное имя не совпадает. Удаление отменено.",
-      addNewUserTitle: "Добавить нового пользователя",
-      editUserTitle: "Редактировать пользователя",
-      editCompanyUserTitle: "Редактировать сотрудника компании",
-      addCompanyUserTitle: "Добавить нового сотрудника компании",
-      employeeNameLabel: "Имя сотрудника",
-      employeeSurnameLabel: "Фамилия сотрудника",
-      dobLabel: "Дата рождения",
-      countryLabel: "Страна",
-      cityLabel: "Город",
-      storeNameLabel: "Название магазина",
-      addBranchLabel: "Добавить филиал",
-      branchLabel: "Название филиала",
-      roleLabel: "Роль",
-      mailLabel: "Эл. почта",
-      passwordLabel: "Пароль",
-      repeatPasswordLabel: "Повторите пароль",
-      removeProcessButton: "Отменить",
-      saveButton: "Сохранить",
-      confirmSaveUserTitle: "Подтвердить сохранение",
-      confirmSaveUserMessage:
-        "Вы уверены, что хотите сохранить этого пользователя?",
-      passwordMismatch: "Пароли не совпадают.",
-      invalidEmail:
-        "Пожалуйста, введите действительный адрес электронной почты.",
-      selectCountry: "Выберите страну",
-      selectCity: "Выберите город",
-      selectStore: "Выберите магазин",
-      selectRole: "Выберите роль",
-      discardButton: "Отменить",
-      userNotFound: "Пользователь не найден.",
-      backToUserList: "Назад к списку пользователей",
-      profilePictureLabel: "Фото профиля",
-      profileDetailsTitle: "Детали профиля",
-      discardChangesButton: "Отменить изменения",
-      saveChangesButton: "Сохранить изменения",
-      backToDashboard: "Назад на панель управления",
-      accessDeniedTitle: "Доступ запрещен",
-      accessDeniedMessage: "У вас нет разрешения на доступ к этой странице.",
-      goBackButton: "Назад",
-    },
-    firmware: {
-      title: "Обновления прошивки",
-      introText: "В этом разделе вы управляете обновлениями прошивки.",
-      instructionText:
-        "Отсюда вы можете распространять новое программное обеспечение на устройства.",
-      futureFeatures:
-        "Скоро: Будут добавлены функции для просмотра текущих версий прошивки и распространения новых версий.",
-    },
-    menu: {
-      dashboard: "Панель управления",
-      stores: "Магазины и Филиалы",
-      newInstallation: "Новая установка",
-      firmware: "Прошивка",
-      users: "Пользователи / Роли",
-    },
-    profile: {
-      userName: "John Doe",
-      profileDetails: "Детали профиля",
-      logOut: "Выйти",
-    },
-    footer: {
-      rights: "Все права защищены.",
-      address: "Примерная ул., д. 123, Примерный город, Страна.",
-      email: "Эл. почта:",
-      phone: "Телефон:",
-      privacy: "Политика конфиденциальности",
-      terms: "Условия использования",
-    },
-    login: {
-      title: "Вход",
-      mailLabel: "Эл. почта",
-      passwordLabel: "Пароль",
-      rememberMe: "Запомнить меня",
-      loginButton: "Войти",
-      loginError: "Неверный e-mail или пароль.",
-      mobileOnlyAccess:
-        "Ваш логин действителен только для Мобильного Приложения. У вас нет доступа к этому веб-сайту, так как вы не являетесь сотрудником компании.",
-    },
-  },
+
   pl: {
+    languages: {
+      en: "Angielski",
+      az: "Azerbejdżański",
+      tr: "Turecki",
+      pl: "Polski",
+      ru: "Rosyjski",
+    },
+    languagesShort: {
+      en: "EN",
+      tr: "TR",
+      az: "AZ",
+      pl: "PL",
+      ru: "RU",
+    },
+    // =================================================================
+    // Ogólnego przeznaczenia i wspólne komponenty
+    // =================================================================
+    common: {
+      cancel: "Anuluj",
+      saving: "Zapisywanie...",
+      notAvailable: "N/D",
+      genericError: "Wystąpił nieoczekiwany błąd. Proszę spróbować ponownie.",
+      couldNotLoadData: "Nie można załadować danych.",
+      updatingText: "Aktualizowanie...",
+      actionsLabel: "Akcje",
+      genericUser: "Użytkownik",
+      selectOption: "Wybierz opcję",
+      typeToSearch: "Wpisz, aby wyszukać...",
+      nothingFound: "Nic nie znaleziono.",
+      searchPlaceholder: "Szukaj...",
+    },
+
+    // =================================================================
+    // Systemy ogólnosystemowe (Menu, Ładowanie, Dialogi, itp.)
+    // =================================================================
+    menu: {
+      dashboard: "Panel główny",
+      stores: "Sklepy i Oddziały",
+      newInstallation: "Nowa instalacja",
+      firmware: "Oprogramowanie",
+      users: "Użytkownicy i Role",
+    },
+
+    loader: {
+      loadingTitle: "Ładowanie...",
+    },
+
+    dialogs: {
+      // Ogólne dialogi
+      confirmTitle: "Potwierdź akcję",
+      deleteConfirmationPrompt: "Aby potwierdzić, wpisz:",
+      yesButton: "Tak",
+      noButton: "Nie",
+      okButton: "OK",
+      // Specyficzne monity
+      unsavedChangesPrompt:
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić stronę?",
+      // Błędy Bluetooth
+      btNotConnected: "Nie połączono z żadnym urządzeniem.",
+      btConfigFailed: "Nie udało się wysłać konfiguracji do urządzenia.",
+    },
+
+    // =================================================================
+    // Tłumaczenia specyficzne для stron i funkcji
+    // =================================================================
     dashboard: {
       title: "Panel główny",
-      welcomeText: "Witamy w Panelu Zarządzania EilSense.io!",
+      welcomeMessage: "Witaj!",
       instructionText:
-        "Ten obszar będzie podsumowywał ogólny stan systemu, wydajność sklepów i krytyczne powiadomienia. Proszę wybrać odpowiednie sekcje z lewego menu, aby wykonać szczegółowe operacje.",
-      note: "Uwaga: Logo w górnym pasku nagłówka jest reprezentacją tonów wizualnych Twojej nazwy i logo EilSense.io. Twoje rzeczywiste logo (przezroczysty plik PNG/SVG) pojawi się dokładnie tak, jak chcesz, gdy zostanie tutaj zintegrowane.",
+        "Ten obszar będzie podsumowywał ogólny stan Twojego systemu...",
     },
+
     stores: {
+      // Ogólne
       title: "Sklepy i Oddziały",
+      loading: "Ładowanie sklepów...",
+      noStoresFound: "Nie znaleziono sklepów.",
+      fetchError: "Wystąpił błąd podczas ładowania sklepów.",
+      couldNotLoadStoreData: "Nie można załadować danych sklepu.",
+      storeNotFound: "Sklep nie został znaleziony.",
+      // Tytuły i opisy stron
       createStoreTitle: "Utwórz nowy sklep",
       createStoreDesc: "Dodaj nowy sklep lub oddział do systemu.",
       editStoreTitle: "Edytuj informacje o sklepie",
-      editStoreDesc: "Aktualizuj szczegóły istniejących sklepów lub oddziałów.",
+      editStoreDesc:
+        "Zaktualizuj szczegóły istniejących sklepów lub oddziałów.",
       deleteStoreTitle: "Usuń sklep",
       deleteStoreDesc: "Usuń sklep lub oddział z systemu.",
-      viewLogsTitle: "Zobacz logi",
-      viewLogsDesc: "Dostęp do logów związanych z operacjami sklepu.",
-      storeListTitle: "Sklepy",
-      filterBy: "Filtruj według:",
-      city: "Miasto",
-      cityPlaceholder: "Wpisz miasto",
-      country: "Kraj",
-      countryPlaceholder: "Wpisz kraj",
-      openingHour: "Godzina otwarcia",
-      closingHour: "Godzina zamknięcia",
-      selectHour: "Wybierz godzinę",
-      allDayOpen: "Czynne całą dobę (24/7)",
-      resetFilters: "Resetuj filtry",
-      nameHeader: "Nazwa sklepu",
-      countryHeader: "Kraj",
-      cityHeader: "Miasto",
-      branchHeader: "Oddział",
-      addressHeader: "Adres",
-      statusHeader: "Status",
-      tokenHeader: "Token serwera",
-      workingHoursHeader: "Godziny pracy",
-      createdAtHeader: "Utworzono",
-      noStoresFound: "Nie znaleziono sklepów pasujących do Twoich kryteriów.",
-      storeDetailsTitle: "Szczegóły sklepu",
-      dialogClose: "Zamknij",
-      typeToFilter: "Wpisz, aby filtrować lub wybrać",
-      noSuggestions: "Brak sugestii",
-      registrationSuccess: "Sklep zarejestrowany pomyślnie! Token serwera: ",
-      registrationError: "Błąd podczas rejestracji sklepu: ",
-      editStoreInfoTitle: "Edytuj szczegóły sklepu",
-      editStoreDetailsStep1Title: "Informacje o sklepie",
-      editStoreDetailsStep2Title: "Informacje o urządzeniu",
+      viewLogsTitle: "Wyświetl logi",
+      viewLogsDesc: "Uzyskaj dostęp do logów związanych z operacjami sklepu.",
+      logDetailsTitle: "Szczegóły logu",
+      backToLogsList: "Powrót do listy logów",
+      serverLogsTitle: "Logi serwera",
+      serverLogsDesc: "Wyświetl szczegółową aktywność i status serwera.",
+      esp32LogsTitle: "Logi ESP32",
+      esp32LogsDesc: "Wyświetl szczegółowe logi z podłączonych urządzeń ESP32.",
+      // Formularze i pola
+      storeNameLabel: "Nazwa sklepu",
       countryLabel: "Kraj",
       cityLabel: "Miasto",
-      storeNameLabel: "Nazwa sklepu",
       addBranchLabel: "Dodaj oddział",
       branchNameLabel: "Nazwa oddziału",
       storeBranchAddressLabel: "Adres sklepu/oddziału",
       allDayOpenLabel: "Czynne całą dobę (24/7)",
       openingHourLabel: "Godzina otwarcia",
       closingHourLabel: "Godzina zamknięcia",
+      selectHour: "Wybierz godzinę",
       ownerNameLabel: "Imię właściciela",
       ownerSurnameLabel: "Nazwisko właściciela",
       installerNameLabel: "Imię instalatora",
-      installerSurnameLabel: "Nazwisko instalatora",
+      serverIpLabel: "Adres IP serwera",
+      requiredFieldWarning: "To pole jest wymagane.",
+      // Nagłówki tabel
+      nameHeader: "Nazwa sklepu",
+      location: "Lokalizacja",
+      installer: "Instalator",
+      devices: "Urządzenia",
+      // Przyciski i akcje
       nextButton: "Dalej",
       previousButton: "Wstecz",
-      requiredFieldWarning: "To pole nie może być puste.",
-      installedDevicesTitle: "Zainstalowane urządzenia",
+      saveButton: "Zapisz",
+      saveChangesButton: "Zapisz wszystkie zmiany",
       editButton: "Edytuj",
       deleteButton: "Usuń",
-      saveButton: "Zapisz",
-      currentInstallationWarningTitle: "Wymagana akcja",
-      currentInstallationWarningMsg:
-        "Proszę zapisać lub anulować bieżącą operację formularza urządzenia.",
-      noDevicesProceedTitle: "Nie można kontynuować",
-      noDevicesProceedMsg:
-        "Proszę zainstalować co najmniej jedno urządzenie przed kontynuowaniem.",
-      newDeviceTitle: "Instalacja nowego urządzenia",
-      editDeviceTitle: "Edytuj urządzenie",
-      bluetoothConnectButton: "Połącz przez Bluetooth",
-      bluetoothNoDeviceSelected:
-        "Proszę najpierw połączyć się z urządzeniem ESP32.",
-      idLabel: "ID",
-      tokenLabel: "Token",
-      allDayWorkLabel: "Praca całodobowa",
-      awakeTimeLabel: "Czas wybudzenia",
-      sleepTimeLabel: "Czas uśpienia",
-      productNameFontSizeLabel: "Rozmiar czcionki nazwy produktu",
-      productPriceFontSizeBeforeDiscountLabel:
-        "Rozmiar czcionki ceny (przed zniżką)",
-      productPriceFontSizeAfterDiscountLabel:
-        "Rozmiar czcionki ceny (po zniżce)",
-      productBarcodeFontSizeLabel: "Rozmiar czcionki kodu kreskowego",
-      productBarcodeNumbersFontSizeLabel:
-        "Rozmiar czcionki numerów kodu kreskowego",
-      screenSizeLabel: "Rozmiar ekranu",
-      selectScreenSize: "Wybierz rozmiar ekranu",
-      removeDeviceButton: "Usuń to urządzenie",
+      viewLogsButton: "Wyświetl logi",
       addNewDeviceButton: "Dodaj nowe urządzenie",
-      deviceIdExists:
-        "Ten ID jest już przypisany do innego urządzenia. Proszę wybrać inne ID.",
-      invalidID: "ID musi być liczbą.",
-      saveChangesButton: "Zapisz wszystkie zmiany",
-      backToStoreList: "Powrót do listy sklepów",
-      confirmSaveTitle: "Potwierdź zapisanie",
-      confirmSaveMessage: "Czy na pewno chcesz zapisać wszystkie zmiany?",
+      // Dialogi
       confirmDeleteTitle: "Potwierdź usunięcie",
-      confirmDeleteMessage: "Czy na pewno chcesz usunąć sklep",
-      deleteSuccess: "usunięto pomyślnie!",
-      deleteConfirmationPrompt:
-        "Proszę wpisać nazwę sklepu, aby potwierdzić usunięcie:",
-      deleteConfirmationPlaceholder: "Wpisz tutaj nazwę sklepu",
-      deleteConfirmationMismatch:
-        "Wpisana nazwa sklepu nie pasuje. Usunięcie anulowane.",
-      logDetailsTitle: "Szczegóły logów sklepu",
-      backToLogsList: "Powrót do listy sklepów",
-      noStoreSelectedForLogs:
-        "Nie wybrano sklepu. Proszę wybrać sklep z listy.",
-      serverLogsTitle: "Logi serwera",
-      serverLogsDesc: "Zobacz szczegółową aktywność i status serwera.",
-      esp32LogsTitle: "Logi ESP32",
-      esp32LogsDesc: "Zobacz szczegółowe logi z podłączonych urządzeń ESP32.",
-      comingSoon: "Wkrótce",
-      backToStoreLogDetails: "Powrót do szczegółów logów",
+      confirmDeleteMessage: "Czy na pewno chcesz usunąć",
+      deleteProcessError: "Wystąpił błąd podczas procesu usuwania.",
+      // Strona logów serwera
       serverSoftwareVersion: "Wersja oprogramowania",
       lastUpdateDate: "Data ostatniej aktualizacji",
       connectedEsp32Count: "Liczba podłączonych ESP32",
       serverToken: "Token serwera",
-      storeName: "Nazwa sklepu",
-      registeredByName: "Zarejestrowano przez",
-      notAvailable: "N/A",
-      esp32LogId: "ID",
-      dataRefreshRate: "Częstotliwość odświeżania danych",
-      mosfetStatus: "Status Mosfet",
-      softwareVersion: "Wersja oprogramowania",
-      batteryStatus: "Stan baterii",
-      noEsp32DevicesFound: "Nie znaleziono urządzeń ESP32 dla tego sklepu.",
-      logDate: "Data logu",
-      allVersions: "Wszystkie wersje",
-      allBatteryLevels: "Wszystkie poziomy baterii",
-      batteryLessThan25: "<25%",
-      battery25To50: "25% - 50%",
-      batteryGreaterThan50: ">50%",
-      newInstallationTitle: "Nowa instalacja sklepu",
-      step1Title: "Utwórz nowy sklep",
-      step2Title: "Generowanie tokena serwera",
-      step3Title: "Generowanie tokena ESP32",
-      step4Title: "Instalacja ESP32",
-      step5Title: "Zakończ instalację",
-      generateTokenButton: "Generuj token",
-      copyToClipboardButton: "Kopiuj do schowka",
-      copiedMessage: "Skopiowano do schowka!",
-      checkConnectionButton: "Sprawdź połączenie",
-      connectionSuccess: "Połączenie udane!",
-      connectionError: "Błąd połączenia: ",
-      cannotProceed:
-        "Nie można przejść do następnego kroku bez udanego połączenia.",
-      yesButton: "Tak",
-      noButton: "Nie",
-      errorTitle: "Błąd",
-      cancelButton: "Anuluj",
-      viewButton: "Zobacz",
+      registeredByName: "Zarejestrowane przez",
+      backToStoreLogDetails: "Powrót do szczegółów logu",
     },
-    users: {
-      usersRolesTitle: "Użytkownicy i Role",
-      userForSupermarketTitle: "Użytkownik Supermarketu",
-      userForSupermarketDesc:
-        "Zarządzaj użytkownikami dla oddziałów supermarketów.",
-      userForCompanyTitle: "Użytkownik Firmy",
-      userForCompanyDesc: "Zarządzaj użytkownikami dla głównej firmy.",
-      addNewUserButton: "Dodaj nowego użytkownika",
-      store: "Sklep",
-      allStores: "Wszystkie sklepy",
+
+    "stores.filterControls": {
       country: "Kraj",
       allCountries: "Wszystkie kraje",
       city: "Miasto",
       allCities: "Wszystkie miasta",
-      clearFilters: "Wyczyść filtry",
-      nameSurnameHeader: "Imię i Nazwisko",
-      storeNameHeader: "Nazwa sklepu",
-      branchHeader: "Oddział",
+      resetButton: "Resetuj filtry",
+    },
+
+    "stores.deleteStore": {
+      pageTitle: "Usuń sklep",
+      pageDescription: "Wybierz sklep, aby trwale usunąć go z systemu.",
+    },
+
+    "stores.editStore": {
+      pageTitle: "Edytuj szczegóły sklepu",
+      pageDescription: "Wybierz sklep, aby edytować jego szczegóły.",
+      workflowTitle: "Edytuj sklep",
+      step1Title: "Informacje o sklepie",
+      step2Title: "Zarządzanie urządzeniami",
+      successTitle: "Sukces",
+      storeUpdateSuccessMessage: "Szczegóły sklepu zaktualizowane pomyślnie.",
+      updateFailedTitle: "Aktualizacja nie powiodła się",
+    },
+
+    "stores.installationWizard": {
+      title: "Instalacja nowego sklepu",
+      description:
+        "Postępuj zgodnie z krokami, aby zarejestrować nowy sklep i jego urządzenia.",
+      // Tytuły kroków
+      step1Title: "Utwórz sklep",
+      step2Title: "Token serwera",
+      step3Title: "Token ESP32",
+      step4Title: "Konfiguracja urządzenia",
+      step5Title: "Zakończ",
+      // Teksty specyficzne dla kroków
+      step2Description:
+        "Wygeneruj unikalny token dla serwera sklepu, aby mógł się połączyć.",
+      step3Description:
+        "Wygeneruj wspólny token dla wszystkich urządzeń ESP32 w tym sklepie.",
+      step5Description:
+        "Ostateczny status Twoich urządzeń jest pokazany poniżej. Przejrzyj i zakończ instalację.",
+      // Formularz urządzenia
+      installedDevicesTitle: "Zainstalowane urządzenia",
+      editDeviceTitle: "Edytuj urządzenie",
+      newDeviceTitle: "Instalacja nowego urządzenia",
+      noDevicesYet: "Nie dodano jeszcze żadnych urządzeń.",
+      idLabel: "ID",
+      tokenLabel: "Token ESP32",
+      allDayWorkLabel: "Praca całodobowa",
+      awakeTimeLabel: "Czas wybudzenia",
+      sleepTimeLabel: "Czas uśpienia",
+      screenSizeLabel: "Rozmiar ekranu",
+      selectScreenSize: "Wybierz...",
+      wifiSsidLabel: "SSID WIFI",
+      wifiPasswordLabel: "Hasło WIFI",
+      fontSettingsLabel: "Ustawienia czcionki",
+      productNameFontSizeLabel: "Nazwa produktu",
+      productPriceFontSizeBeforeDiscountLabel: "Cena (przed)",
+      productPriceFontSizeAfterDiscountLabel: "Cena (po)",
+      productBarcodeFontSizeLabel: "Kod kreskowy",
+      productBarcodeNumbersFontSizeLabel: "Numery kodu kreskowego",
+      noSsid: "Brak SSID",
+      allDay: "Cały dzień",
+      // Tokeny i połączenie
+      generateTokenButton: "Generuj token",
+      generating: "Generowanie...",
+      tokenPlaceholder: "Token pojawi się tutaj...",
+      step3TokenPlaceholder: "Kliknij 'Generuj', aby utworzyć token...",
+      copyToClipboardButton: "Kopiuj do schowka",
+      copiedMessage: "Skopiowano!",
+      checkConnectionButton: "Sprawdź połączenie",
+      checking: "Sprawdzanie...",
+      connectionSuccess: "Połączenie udane!",
+      connectionError: "Połączenie nieudane:",
+      // Błędy i ostrzeżenia
+      storeIdNotFoundError:
+        "Nie znaleziono ID sklepu. Proszę wrócić do kroku 1.",
+      tokenGenerationError: "Nie udało się wygenerować tokenu.",
+      generateTokenFirst: "Proszę najpierw wygenerować token.",
+      cannotProceedTitle: "Nie można kontynuować",
+      checkConnectionFirst:
+        "Proszę nacisnąć 'Sprawdź połączenie' i upewnić się, że jest udane.",
+      idRequired: "ID jest wymagane.",
+      idMustBePositive: "ID musi być dodatnią liczbą całkowitą.",
+      idInUse: "To ID jest już w użyciu.",
+      screenSizeRequired: "Rozmiar ekranu jest wymagany.",
+      wifiSsidRequired: "SSID WIFI jest wymagane.",
+      wifiPasswordRequired: "Hasło WIFI jest wymagane.",
+      passwordRequiredForNew: "Hasło jest wymagane dla nowych urządzeń.",
+      awakeTimeRequired: "Czas wybudzenia jest wymagany.",
+      sleepTimeRequired: "Czas uśpienia jest wymagany.",
+      unsavedChangesTitle: "Niezapisane zmiany",
+      unsavedChangesMessage:
+        "Proszę zapisać lub anulować otwarty formularz urządzenia.",
+      validationErrorTitle: "Błąd walidacji",
+      validationErrorMessage:
+        "Wymagany jest prawidłowy adres IP serwera, aby kontynuować.",
+      warningTitle: "Ostrzeżenie",
+      noDevicesWarning:
+        "Proszę dodać co najmniej jedno urządzenie, aby kontynuować.",
+      exitConfirmation:
+        "Instalacja jest w toku. Czy na pewno chcesz opuścić tę stronę? Twój postęp zostanie utracony.",
+      beforeUnloadPrompt:
+        "Masz niezapisane zmiany. Czy na pewno chcesz opuścić stronę?",
+      // Ostatni krok
+      loadingStatus: "Ładowanie ostatecznego statusu...",
+      installingText: "Instalowanie...",
+      completeInstallationButton: "Zakończ instalację",
+      installationErrorTitle: "Błąd instalacji",
+      installationTimeoutError:
+        "Upłynął limit czasu żądania instalacji. Proszę spróbować ponownie.",
+      deleteDeviceTooltip: "Usuń urządzenie",
+
+      installationSuccessTitle: "Instalacja Zakończona Pomyślnie",
+      installationSuccessMessage:
+        "Instalacja została pomyślnie zakończona! Przekierowywanie do panelu głównego...",
+      installationFailedMessage:
+        "Nie udało się ukończyć instalacji. Proszę spróbować ponownie.",
+      installationTimeoutMessage:
+        "Przekroczono limit czasu żądania instalacji. Proszę spróbować ponownie.",
+
+      // PL: Tłumaczenia dla logów w Kroku 5
+      error: "Błąd",
+      errorValidation: "Błąd walidacji",
+      logSourceServer: "Serwer sklepu",
+      logSourceDevices: "Urządzenia",
+      logStatusOnline: "Online",
+      logStatusReady: "Gotowe",
+      logStatusNotFound: "Nie znaleziono",
+      logDetailHeartbeat: "Odebrano sygnał Heartbeat",
+      logDetailLastSeen: "Ostatnio widziano",
+      logDetailYes: "Tak",
+      logDetailBattery: "Stan baterii",
+      logDetailRefreshRate: "Częstotliwość odświeżania ekranu",
+      logDetailLastSync: "Ostatnia synchronizacja",
+      logDetailInfo: "Informacja",
+      logDevicePrefix: "ID urządzenia:",
+      logNoDevices: "W Kroku 4 nie dodano żadnych urządzeń.",
+      logRefreshRateValue: "15 minut",
+    },
+
+    "stores.esp32LogFilters": {
+      filterTitle: "Filtry",
+      date: "Data",
+      selectDate: "Wybierz datę...",
+      logTime: "Godzina logu",
+      allTimes: "Wszystkie godziny",
+      opening: "Otwarcie (06-10)",
+      midDay: "Południe (11-15)",
+      closing: "Zamknięcie (17+)",
+      noDataSuffix: " - Brak danych",
+      batteryLevel: "Poziom baterii",
+      allBatteries: "Wszystkie baterie",
+      highBattery: "Wysoki (>50%)",
+      mediumBattery: "Średni (20-50%)",
+      lowBattery: "Niski (<20%)",
+      softwareVersion: "Wersja oprogramowania",
+      allVersions: "Wszystkie wersje",
+      filterInfo:
+        "Wyświetlane są logi z ostatnich 30 dni. Wyłączone opcje nie mają danych dla wybranej daty.",
+      resetFilters: "Resetuj filtry",
+    },
+
+    "stores.esp32LogTable": {
+      title: "Logi ESP32 -",
+      headerTimestamp: "Znacznik czasu",
+      headerDeviceId: "ID urządzenia",
+      headerStore: "Sklep",
+      headerBranch: "Oddział",
+      headerBattery: "Bateria",
+      headerRefresh: "Odświeżanie (ms)",
+      headerMosfet: "Mosfet",
+      headerVersion: "Wersja",
+      headerLogType: "Typ logu",
+      noLogsFoundTitle: "Nie znaleziono logów",
+      noLogsFoundMessage:
+        "Brak logów pasujących do bieżących kryteriów filtrowania.",
+    },
+
+    users: {
+      // Ogólne
+      usersRolesTitle: "Użytkownicy i Role",
+      // Tytuły i opisy stron
+      userForSupermarketTitle: "Użytkownicy supermarketu",
+      userForSupermarketDesc:
+        "Zarządzaj użytkownikami powiązanymi z oddziałami supermarketu.",
+      userForCompanyTitle: "Użytkownicy firmy",
+      userForCompanyDesc: "Zarządzaj użytkownikami powiązanymi z główną firmą.",
+      // Nagłówki tabel
+      fullNameHeader: "Imię i nazwisko",
+      roleHeader: "Rola",
       countryHeader: "Kraj",
       cityHeader: "Miasto",
-      roleHeader: "Rola",
-      editButton: "Edytuj",
-      deleteButton: "Usuń",
-      noUsersFound:
-        "Nie znaleziono użytkowników pasujących do Twoich kryteriów.",
-      confirmDeleteUserTitle: "Potwierdź usunięcie użytkownika",
-      confirmDeleteUserMessage: "Czy na pewno chcesz usunąć użytkownika",
-      deleteUserSuccess: "usunięto pomyślnie!",
-      deleteConfirmationPrompt:
-        "Proszę wpisać pełne imię i nazwisko użytkownika, aby potwierdzić usunięcie:",
-      deleteConfirmationPlaceholder: "Wpisz tutaj pełne imię i nazwisko",
-      deleteConfirmationMismatch:
-        "Wpisane imię i nazwisko nie pasuje. Usunięcie anulowane.",
-      addNewUserTitle: "Dodaj nowego użytkownika",
-      editUserTitle: "Edytuj użytkownika",
-      editCompanyUserTitle: "Edytuj pracownika firmy",
-      addCompanyUserTitle: "Dodaj nowego pracownika firmy",
-      employeeNameLabel: "Imię pracownika",
-      employeeSurnameLabel: "Nazwisko pracownika",
-      dobLabel: "Data urodzenia",
-      countryLabel: "Kraj",
-      cityLabel: "Miasto",
-      storeNameLabel: "Nazwa sklepu",
-      addBranchLabel: "Dodaj oddział",
-      branchLabel: "Nazwa oddziału",
-      roleLabel: "Rola",
-      mailLabel: "E-mail",
+      assignedStoreHeader: "Przypisany sklep",
+      // Status i komunikaty o błędach
+      noUsersFound: "Nie znaleziono użytkowników.",
+      userLoadError:
+        "Nie można załadować danych użytkownika. Użytkownik może nie istnieć.",
+      usersLoadError:
+        "Nie udało się załadować użytkowników. Spróbuj ponownie później.",
+      userDeleteError: "Wystąpił błąd podczas usuwania użytkownika.",
+      userOrStoreLoadError:
+        "Nie można załadować danych użytkownika lub sklepów.",
+      // Dialogi
+      confirmDeleteTitle: "Potwierdź usunięcie użytkownika",
+      confirmDeleteMessage: "Czy na pewno chcesz usunąć",
+      // Różne
+      profilePreviewAlt: "Podgląd profilu",
+      userAvatarAlt: "Awatar dla {userName}",
+    },
+
+    "users.companyUsersPage": {
+      title: "Użytkownicy firmy",
+      subtitle: "Zarządzaj administratorami, szefami krajów i inżynierami",
+      addUser: "Dodaj użytkownika",
+    },
+
+    "users.supermarketUsersPage": {
+      title: "Użytkownicy supermarketu",
+      subtitle:
+        "Zarządzaj użytkownikami przypisanymi do konkretnych oddziałów supermarketu",
+      addUser: "Dodaj użytkownika",
+    },
+
+    "users.addUserForm": {
+      title: "Dodaj nowego użytkownika firmy",
+      subtitle: "Wypełnij szczegóły, aby utworzyć nowe konto użytkownika.",
+      nameLabel: "Imię",
+      surnameLabel: "Nazwisko",
+      emailLabel: "Email",
       passwordLabel: "Hasło",
       repeatPasswordLabel: "Powtórz hasło",
-      removeProcessButton: "Anuluj",
-      saveButton: "Zapisz",
-      confirmSaveUserTitle: "Potwierdź zapisanie",
-      confirmSaveUserMessage: "Czy na pewno chcesz zapisać tego użytkownika?",
-      passwordMismatch: "Hasła nie pasują do siebie.",
-      invalidEmail: "Proszę wpisać prawidłowy adres e-mail.",
-      selectCountry: "Wybierz kraj",
-      selectCity: "Wybierz miasto",
-      selectStore: "Wybierz sklep",
+      roleLabel: "Rola",
       selectRole: "Wybierz rolę",
-      discardButton: "Odrzuć",
-      userNotFound: "Nie znaleziono użytkownika.",
-      backToUserList: "Powrót do listy użytkowników",
+      countryLabel: "Kraj",
+      cityLabel: "Miasto",
+      saveButton: "Zapisz użytkownika",
       profilePictureLabel: "Zdjęcie profilowe",
-      profileDetailsTitle: "Szczegóły profilu",
-      discardChangesButton: "Odrzuć zmiany",
-      saveChangesButton: "Zapisz zmiany",
-      backToDashboard: "Powrót do panelu głównego",
-      accessDeniedTitle: "Dostęp zabroniony",
-      accessDeniedMessage: "Nie masz uprawnień do dostępu do tej strony.",
-      goBackButton: "Wróć",
+      passwordMismatchError: "Hasła nie pasują do siebie.",
+      roleRequiredError: "Proszę wybrać rolę dla użytkownika.",
     },
+
+    "users.addSupermarketUserForm": {
+      title: "Dodaj nowego użytkownika supermarketu",
+      subtitle: "Utwórz nowego użytkownika przypisanego do sklepu",
+      fetchStoresError: "Nie udało się załadować sklepów.",
+      storeRequiredError: "Proszę przypisać sklep do użytkownika.",
+      assignStoreLabel: "Przypisz do sklepu",
+      selectStore: "Wybierz sklep",
+    },
+
+    "users.editUserForm": {
+      title: "Edytuj użytkownika",
+      titleSupermarket: "Edytuj użytkownika supermarketu",
+      subtitlePrefix: "Zaktualizuj szczegóły dla",
+      saveButton: "Zapisz zmiany",
+    },
+
+    roles: {
+      Admin: "Administrator",
+      Country_Chief: "Szef kraju",
+      Engineer: "Inżynier",
+      Analyst: "Analityk",
+      Runner: "Pracownik terenowy",
+    },
+
     firmware: {
-      title: "Aktualizacje oprogramowania",
+      title: "Oprogramowanie",
       introText: "W tej sekcji zarządzasz aktualizacjami oprogramowania.",
       instructionText:
-        "Możesz stąd dystrybuować nowe oprogramowanie na urządzenia.",
+        "Możesz stąd dystrybuować nowe oprogramowanie do urządzeń.",
       futureFeatures:
-        "Wkrótce: Zostaną dodane funkcje do przeglądania aktualnych wersji oprogramowania i dystrybucji nowych wersji.",
+        "Wkrótce: Zostaną dodane funkcje do przeglądania obecnych wersji oprogramowania i dystrybucji nowych.",
     },
-    menu: {
-      dashboard: "Panel główny",
-      stores: "Sklepy i Oddziały",
-      newInstallation: "Nowa instalacja",
-      firmware: "Oprogramowanie",
-      users: "Użytkownicy / Role",
-    },
+
     profile: {
-      userName: "John Doe",
-      profileDetails: "Szczegóły profilu",
+      // Strona szczegółów profilu
+      detailsTitle: "Szczegóły profilu",
+      profilePictureLabel: "Zdjęcie profilowe",
+      nameLabel: "Imię",
+      surnameLabel: "Nazwisko",
+      emailLabel: "Email",
+      changePasswordTitle: "Zmień hasło",
+      changePasswordSubtitle: "Pozostaw puste, aby zachować obecne hasło",
+      newPasswordLabel: "Nowe hasło",
+      repeatPasswordLabel: "Powtórz nowe hasło",
+      saveButton: "Zapisz zmiany",
+      updateSuccess: "Informacje profilowe zaktualizowane pomyślnie!",
+      // Menu rozwijane w nagłówku
       logOut: "Wyloguj się",
+      avatarAlt: "Profil",
+      // Błędy
+      passwordMismatchError: "Hasła nie pasują do siebie.",
+      passwordLengthError: "Hasło musi mieć co najmniej 6 znaków.",
+      nameRequired: "Pole imię jest wymagane.",
+      surnameRequired: "Pole nazwisko jest wymagane.",
+      emailRequired: "Pole email jest wymagane.",
+      invalidEmail: "Proszę podać prawidłowy adres email.",
+      profilePictureSizeError: "Zdjęcie profilowe musi być mniejsze niż 15MB.",
+      profilePictureTypeError: "Proszę wybrać prawidłowy plik obrazu.",
+      updateError: "Wystąpił błąd podczas aktualizacji.",
+      updateInvalidDataError:
+        "Przesłane dane są nieprawidłowe. Proszę sprawdzić wszystkie pola.",
+      sessionExpiredError:
+        "Twoja sesja wygasła. Proszę zalogować się ponownie.",
+      permissionError: "Nie masz uprawnień do tej akcji.",
     },
+
     footer: {
       rights: "Wszelkie prawa zastrzeżone.",
-      address: "Przykładowa ul. Nr 123, Przykładowe miasto, Kraj.",
-      email: "E-mail:",
+      address: "Przykładowa ul. Nr 123, Przykładowe Miasto, Kraj.",
+      email: "Email:",
       phone: "Telefon:",
       privacy: "Polityka prywatności",
       terms: "Warunki użytkowania",
     },
+
     login: {
       title: "Logowanie",
-      mailLabel: "E-mail",
+      mailLabel: "Email",
       passwordLabel: "Hasło",
       rememberMe: "Zapamiętaj mnie",
       loginButton: "Zaloguj się",
-      loginError: "Nieprawidłowy e-mail lub hasło.",
-      mobileOnlyAccess:
-        "Twoje logowanie jest ważne tylko dla Aplikacji Mobilnej. Nie masz dostępu do tej strony internetowej, ponieważ nie jesteś pracownikiem firmy.",
+      loginError: "Nieprawidłowy email lub hasło.",
+    },
+
+    accessDenied: {
+      title: "Dostęp zabroniony",
+      message: "Nie masz uprawnień do dostępu do tej sekcji.",
+      goBackButton: "Wróć",
+    },
+
+    notFound: {
+      title: "404 - Strona nie została znaleziona",
+      message: "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+      backToHomeButton: "Przejdź do strony głównej",
+    },
+  },
+
+  ru: {
+    languages: {
+      en: "Английский",
+      az: "Азербайджанский",
+      tr: "Турецкий",
+      pl: "Польский",
+      ru: "Русский",
+    },
+    languagesShort: {
+      en: "EN",
+      az: "AZ",
+      tr: "TR",
+      pl: "PL",
+      ru: "RU",
+    },
+    // =================================================================
+    // Общего назначения и общие компоненты
+    // =================================================================
+    common: {
+      cancel: "Отмена",
+      saving: "Сохранение...",
+      notAvailable: "Н/Д",
+      genericError:
+        "Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова.",
+      couldNotLoadData: "Не удалось загрузить данные.",
+      updatingText: "Обновление...",
+      actionsLabel: "Действия",
+      genericUser: "Пользователь",
+      selectOption: "Выберите вариант",
+      typeToSearch: "Введите для поиска...",
+      nothingFound: "Ничего не найдено.",
+      searchPlaceholder: "Поиск...",
+    },
+
+    // =================================================================
+    // Системные компоненты (Меню, Загрузчик, Диалоги и т.д.)
+    // =================================================================
+    menu: {
+      dashboard: "Панель управления",
+      stores: "Магазины и филиалы",
+      newInstallation: "Новая установка",
+      firmware: "Прошивка",
+      users: "Пользователи и роли",
+    },
+
+    loader: {
+      loadingTitle: "Загрузка...",
+    },
+
+    dialogs: {
+      // Общие диалоги
+      confirmTitle: "Подтвердите действие",
+      deleteConfirmationPrompt: "Для подтверждения, пожалуйста, введите:",
+      yesButton: "Да",
+      noButton: "Нет",
+      okButton: "ОК",
+      // Специфические запросы
+      unsavedChangesPrompt:
+        "У вас есть несохраненные изменения. Вы уверены, что хотите уйти?",
+      // Ошибки Bluetooth
+      btNotConnected: "Нет подключения к устройству.",
+      btConfigFailed: "Не удалось отправить конфигурацию на устройство.",
+    },
+
+    // =================================================================
+    // Переводы для конкретных страниц и функций
+    // =================================================================
+    dashboard: {
+      title: "Панель управления",
+      welcomeMessage: "Добро пожаловать!",
+      instructionText:
+        "Здесь будет отображаться общая информация о состоянии вашей системы...",
+    },
+
+    stores: {
+      // Общее
+      title: "Магазины и филиалы",
+      loading: "Загрузка магазинов...",
+      noStoresFound: "Магазины не найдены.",
+      fetchError: "Произошла ошибка при загрузке магазинов.",
+      couldNotLoadStoreData: "Не удалось загрузить данные магазина.",
+      storeNotFound: "Магазин не найден.",
+      // Заголовки и описания страниц
+      createStoreTitle: "Создать новый магазин",
+      createStoreDesc: "Добавьте новый магазин или филиал в систему.",
+      editStoreTitle: "Редактировать информацию о магазине",
+      editStoreDesc: "Обновите детали существующих магазинов или филиалов.",
+      deleteStoreTitle: "Удалить магазин",
+      deleteStoreDesc: "Удалите магазин или филиал из системы.",
+      viewLogsTitle: "Просмотр логов",
+      viewLogsDesc: "Доступ к логам, связанным с операциями магазина.",
+      logDetailsTitle: "Детали лога",
+      backToLogsList: "Назад к списку логов",
+      serverLogsTitle: "Логи сервера",
+      serverLogsDesc: "Просмотр детальной активности и статуса сервера.",
+      esp32LogsTitle: "Логи ESP32",
+      esp32LogsDesc: "Просмотр детальных логов с подключенных устройств ESP32.",
+      // Формы и поля
+      storeNameLabel: "Название магазина",
+      countryLabel: "Страна",
+      cityLabel: "Город",
+      addBranchLabel: "Добавить филиал",
+      branchNameLabel: "Название филиала",
+      storeBranchAddressLabel: "Адрес магазина/филиала",
+      allDayOpenLabel: "Открыто круглосуточно (24/7)",
+      openingHourLabel: "Час открытия",
+      closingHourLabel: "Час закрытия",
+      selectHour: "Выберите час",
+      ownerNameLabel: "Имя владельца",
+      ownerSurnameLabel: "Фамилия владельца",
+      installerNameLabel: "Имя установщика",
+      serverIpLabel: "IP-адрес сервера",
+      requiredFieldWarning: "Это поле обязательно для заполнения.",
+      // Заголовки таблиц
+      nameHeader: "Название магазина",
+      location: "Местоположение",
+      installer: "Установщик",
+      devices: "Устройства",
+      // Кнопки и действия
+      nextButton: "Далее",
+      previousButton: "Назад",
+      saveButton: "Сохранить",
+      saveChangesButton: "Сохранить все изменения",
+      editButton: "Редактировать",
+      deleteButton: "Удалить",
+      viewLogsButton: "Просмотр логов",
+      addNewDeviceButton: "Добавить новое устройство",
+      // Диалоги
+      confirmDeleteTitle: "Подтвердите удаление",
+      confirmDeleteMessage: "Вы уверены, что хотите удалить",
+      deleteProcessError: "Произошла ошибка в процессе удаления.",
+      // Страница логов сервера
+      serverSoftwareVersion: "Версия ПО",
+      lastUpdateDate: "Дата последнего обновления",
+      connectedEsp32Count: "Количество подключенных ESP32",
+      serverToken: "Токен сервера",
+      registeredByName: "Зарегистрировано",
+      backToStoreLogDetails: "Назад к деталям лога",
+    },
+
+    "stores.filterControls": {
+      country: "Страна",
+      allCountries: "Все страны",
+      city: "Город",
+      allCities: "Все города",
+      resetButton: "Сбросить фильтры",
+    },
+
+    "stores.deleteStore": {
+      pageTitle: "Удалить магазин",
+      pageDescription:
+        "Выберите магазин, чтобы навсегда удалить его из системы.",
+    },
+
+    "stores.editStore": {
+      pageTitle: "Редактировать детали магазина",
+      pageDescription: "Выберите магазин, чтобы отредактировать его детали.",
+      workflowTitle: "Редактировать магазин",
+      step1Title: "Информация о магазине",
+      step2Title: "Управление устройствами",
+      successTitle: "Успех",
+      storeUpdateSuccessMessage: "Детали магазина успешно обновлены.",
+      updateFailedTitle: "Ошибка обновления",
+    },
+
+    "stores.installationWizard": {
+      title: "Установка нового магазина",
+      description:
+        "Следуйте шагам, чтобы зарегистрировать новый магазин и его устройства.",
+      // Заголовки шагов
+      step1Title: "Создать магазин",
+      step2Title: "Токен сервера",
+      step3Title: "Токен ESP32",
+      step4Title: "Настройка устройства",
+      step5Title: "Завершение",
+      // Тексты для шагов
+      step2Description:
+        "Создайте уникальный токен для подключения сервера магазина.",
+      step3Description:
+        "Создайте общий токен для всех устройств ESP32 в этом магазине.",
+      step5Description:
+        "Ниже показан окончательный статус ваших устройств. Проверьте и завершите установку.",
+      // Форма устройства
+      installedDevicesTitle: "Установленные устройства",
+      editDeviceTitle: "Редактировать устройство",
+      newDeviceTitle: "Установка нового устройства",
+      noDevicesYet: "Устройства еще не добавлены.",
+      idLabel: "ID",
+      tokenLabel: "Токен ESP32",
+      allDayWorkLabel: "Круглосуточная работа",
+      awakeTimeLabel: "Время пробуждения",
+      sleepTimeLabel: "Время сна",
+      screenSizeLabel: "Размер экрана",
+      selectScreenSize: "Выберите...",
+      wifiSsidLabel: "WIFI SSID",
+      wifiPasswordLabel: "Пароль WIFI",
+      fontSettingsLabel: "Настройки шрифта",
+      productNameFontSizeLabel: "Название продукта",
+      productPriceFontSizeBeforeDiscountLabel: "Цена (до)",
+      productPriceFontSizeAfterDiscountLabel: "Цена (после)",
+      productBarcodeFontSizeLabel: "Штрих-код",
+      productBarcodeNumbersFontSizeLabel: "Цифры штрих-кода",
+      noSsid: "Нет SSID",
+      allDay: "Весь день",
+      // Токены и подключение
+      generateTokenButton: "Сгенерировать токен",
+      generating: "Генерация...",
+      tokenPlaceholder: "Токен появится здесь...",
+      step3TokenPlaceholder: "Нажмите 'Сгенерировать', чтобы создать токен...",
+      copyToClipboardButton: "Копировать в буфер обмена",
+      copiedMessage: "Скопировано!",
+      checkConnectionButton: "Проверить соединение",
+      checking: "Проверка...",
+      connectionSuccess: "Соединение успешно!",
+      connectionError: "Ошибка соединения:",
+      // Ошибки и предупреждения
+      storeIdNotFoundError:
+        "ID магазина не найден. Пожалуйста, вернитесь к Шагу 1.",
+      tokenGenerationError: "Не удалось сгенерировать токен.",
+      generateTokenFirst: "Пожалуйста, сначала сгенерируйте токен.",
+      cannotProceedTitle: "Невозможно продолжить",
+      checkConnectionFirst:
+        "Пожалуйста, нажмите 'Проверить соединение' и убедитесь в его успешности.",
+      idRequired: "Требуется ID.",
+      idMustBePositive: "ID должен быть положительным целым числом.",
+      idInUse: "Этот ID уже используется.",
+      screenSizeRequired: "Требуется размер экрана.",
+      wifiSsidRequired: "Требуется WIFI SSID.",
+      wifiPasswordRequired: "Требуется пароль WIFI.",
+      passwordRequiredForNew: "Пароль обязателен для новых устройств.",
+      awakeTimeRequired: "Требуется время пробуждения.",
+      sleepTimeRequired: "Требуется время сна.",
+      unsavedChangesTitle: "Несохраненные изменения",
+      unsavedChangesMessage:
+        "Пожалуйста, сохраните или отмените открытую форму устройства.",
+      validationErrorTitle: "Ошибка валидации",
+      validationErrorMessage:
+        "Для продолжения требуется действительный IP-адрес сервера.",
+      warningTitle: "Предупреждение",
+      noDevicesWarning:
+        "Пожалуйста, добавьте хотя бы одно устройство, чтобы продолжить.",
+      exitConfirmation:
+        "Идет установка. Вы уверены, что хотите покинуть эту страницу? Ваш прогресс будет потерян.",
+      beforeUnloadPrompt:
+        "У вас есть несохраненные изменения. Вы уверены, что хотите уйти?",
+      // Последний шаг
+      loadingStatus: "Загрузка финального статуса...",
+      installingText: "Установка...",
+      completeInstallationButton: "Завершить установку",
+      installationErrorTitle: "Ошибка установки",
+      installationTimeoutError:
+        "Время ожидания запроса на установку истекло. Пожалуйста, попробуйте снова.",
+      deleteDeviceTooltip: "Удалить устройство",
+
+      installationSuccessTitle: "Установка прошла успешно",
+      installationSuccessMessage:
+        "Установка успешно завершена! Перенаправление на панель управления...",
+      installationFailedMessage:
+        "Не удалось завершить установку. Пожалуйста, попробуйте снова.",
+      installationTimeoutMessage:
+        "Время ожидания запроса на установку истекло. Пожалуйста, попробуйте снова.",
+
+      // Новое: Переводы для логов Шага 5
+      error: "Ошибка",
+      errorValidation: "Ошибка валидации",
+      logSourceServer: "Сервер магазина",
+      logSourceDevices: "Устройства",
+      logStatusOnline: "В сети",
+      logStatusReady: "Готово",
+      logStatusNotFound: "Не найдено",
+      logDetailHeartbeat: "Получен сигнал Heartbeat",
+      logDetailLastSeen: "Последний раз в сети",
+      logDetailYes: "Да",
+      logDetailBattery: "Состояние батареи",
+      logDetailRefreshRate: "Частота обновления экрана",
+      logDetailLastSync: "Последняя синхронизация",
+      logDetailInfo: "Информация",
+      logDevicePrefix: "ID устройства:",
+      logNoDevices: "На Шаге 4 не было добавлено ни одного устройства.",
+      logRefreshRateValue: "15 минут",
+    },
+
+    "stores.esp32LogFilters": {
+      filterTitle: "Фильтры",
+      date: "Дата",
+      selectDate: "Выберите дату...",
+      logTime: "Время лога",
+      allTimes: "Все время",
+      opening: "Утро (06-10)",
+      midDay: "День (11-15)",
+      closing: "Вечер (17+)",
+      noDataSuffix: " - Нет данных",
+      batteryLevel: "Уровень заряда",
+      allBatteries: "Все батареи",
+      highBattery: "Высокий (>50%)",
+      mediumBattery: "Средний (20-50%)",
+      lowBattery: "Низкий (<20%)",
+      softwareVersion: "Версия ПО",
+      allVersions: "Все версии",
+      filterInfo:
+        "Отображаются логи за последние 30 дней. Отключенные опции не имеют данных для выбранной даты.",
+      resetFilters: "Сбросить фильтры",
+    },
+
+    "stores.esp32LogTable": {
+      title: "Логи ESP32 -", // Добавляется название магазина
+      headerTimestamp: "Временная метка",
+      headerDeviceId: "ID устройства",
+      headerStore: "Магазин",
+      headerBranch: "Филиал",
+      headerBattery: "Батарея",
+      headerRefresh: "Обновление (мс)",
+      headerMosfet: "Mosfet",
+      headerVersion: "Версия",
+      headerLogType: "Тип лога",
+      noLogsFoundTitle: "Логи не найдены",
+      noLogsFoundMessage:
+        "Нет логов, соответствующих вашим текущим критериям фильтрации.",
+    },
+
+    users: {
+      // Общее
+      usersRolesTitle: "Пользователи и роли",
+      // Заголовки и описания страниц
+      userForSupermarketTitle: "Пользователи супермаркета",
+      userForSupermarketDesc:
+        "Управление пользователями, связанными с филиалами супермаркета.",
+      userForCompanyTitle: "Пользователи компании",
+      userForCompanyDesc:
+        "Управление пользователями, связанными с основной компанией.",
+      // Заголовки таблиц
+      fullNameHeader: "Полное имя",
+      roleHeader: "Роль",
+      countryHeader: "Страна",
+      cityHeader: "Город",
+      assignedStoreHeader: "Приписанный магазин",
+      // Статус и сообщения об ошибках
+      noUsersFound: "Пользователи не найдены.",
+      userLoadError:
+        "Не удалось загрузить данные пользователя. Пользователь может не существовать.",
+      usersLoadError:
+        "Не удалось загрузить пользователей. Пожалуйста, попробуйте позже.",
+      userDeleteError: "Произошла ошибка при удалении пользователя.",
+      userOrStoreLoadError:
+        "Не удалось загрузить данные пользователя или магазинов.",
+      // Диалоги
+      confirmDeleteTitle: "Подтвердите удаление пользователя",
+      confirmDeleteMessage: "Вы уверены, что хотите удалить", // Добавляется имя пользователя
+      // Разное
+      profilePreviewAlt: "Предпросмотр профиля",
+      userAvatarAlt: "Аватар для {userName}", // {userName} - это заполнитель
+    },
+
+    "users.companyUsersPage": {
+      title: "Пользователи компании",
+      subtitle:
+        "Управление администраторами, руководителями стран и инженерами",
+      addUser: "Добавить пользователя",
+    },
+
+    "users.supermarketUsersPage": {
+      title: "Пользователи супермаркета",
+      subtitle:
+        "Управление пользователями, назначенными на конкретные филиалы супермаркета",
+      addUser: "Добавить пользователя",
+    },
+
+    "users.addUserForm": {
+      title: "Добавить нового пользователя компании",
+      subtitle:
+        "Заполните данные для создания новой учетной записи пользователя.",
+      nameLabel: "Имя",
+      surnameLabel: "Фамилия",
+      emailLabel: "Email",
+      passwordLabel: "Пароль",
+      repeatPasswordLabel: "Повторите пароль",
+      roleLabel: "Роль",
+      selectRole: "Выберите роль",
+      countryLabel: "Страна",
+      cityLabel: "Город",
+      saveButton: "Сохранить пользователя",
+      profilePictureLabel: "Фото профиля",
+      passwordMismatchError: "Пароли не совпадают.",
+      roleRequiredError: "Пожалуйста, выберите роль для пользователя.",
+    },
+
+    "users.addSupermarketUserForm": {
+      title: "Добавить нового пользователя супермаркета",
+      subtitle: "Создать нового пользователя, приписанного к магазину",
+      fetchStoresError: "Не удалось загрузить магазины.",
+      storeRequiredError: "Пожалуйста, припишите пользователя к магазину.",
+      assignStoreLabel: "Приписать к магазину",
+      selectStore: "Выберите магазин",
+    },
+
+    "users.editUserForm": {
+      title: "Редактировать пользователя",
+      titleSupermarket: "Редактировать пользователя супермаркета",
+      subtitlePrefix: "Обновите данные для",
+      saveButton: "Сохранить изменения",
+    },
+
+    roles: {
+      Admin: "Администратор",
+      Country_Chief: "Глава страны",
+      Engineer: "Инженер",
+      Analyst: "Аналитик",
+      Runner: "Полевой сотрудник",
+    },
+
+    firmware: {
+      title: "Прошивка",
+      introText: "В этом разделе вы управляете обновлениями прошивки.",
+      instructionText:
+        "Отсюда вы можете распространять новое программное обеспечение на устройства.",
+      futureFeatures:
+        "Скоро: Будут добавлены функции для просмотра текущих версий прошивки и распространения новых версий.",
+    },
+
+    profile: {
+      // Страница деталей профиля
+      detailsTitle: "Детали профиля",
+      profilePictureLabel: "Фото профиля",
+      nameLabel: "Имя",
+      surnameLabel: "Фамилия",
+      emailLabel: "Email",
+      changePasswordTitle: "Изменить пароль",
+      changePasswordSubtitle: "Оставьте пустым, чтобы сохранить текущий пароль",
+      newPasswordLabel: "Новый пароль",
+      repeatPasswordLabel: "Повторите новый пароль",
+      saveButton: "Сохранить изменения",
+      updateSuccess: "Информация профиля успешно обновлена!",
+      // Выпадающее меню в шапке
+      logOut: "Выйти",
+      avatarAlt: "Профиль",
+      // Ошибки
+      passwordMismatchError: "Пароли не совпадают.",
+      passwordLengthError: "Пароль должен содержать не менее 6 символов.",
+      nameRequired: "Поле 'Имя' обязательно для заполнения.",
+      surnameRequired: "Поле 'Фамилия' обязательно для заполнения.",
+      emailRequired: "Поле 'Email' обязательно для заполнения.",
+      invalidEmail:
+        "Пожалуйста, введите действительный адрес электронной почты.",
+      profilePictureSizeError: "Фото профиля должно быть меньше 15 МБ.",
+      profilePictureTypeError:
+        "Пожалуйста, выберите действительный файл изображения.",
+      updateError: "Произошла ошибка при обновлении.",
+      updateInvalidDataError:
+        "Отправленные данные неверны. Пожалуйста, проверьте все поля.",
+      sessionExpiredError: "Ваша сессия истекла. Пожалуйста, войдите снова.",
+      permissionError: "У вас нет прав для выполнения этого действия.",
+    },
+
+    footer: {
+      rights: "Все права защищены.",
+      address: "Примерная ул., д. 123, Примерный Город, Страна.",
+      email: "Email:",
+      phone: "Телефон:",
+      privacy: "Политика конфиденциальности",
+      terms: "Условия использования",
+    },
+
+    login: {
+      title: "Вход",
+      mailLabel: "Email",
+      passwordLabel: "Пароль",
+      rememberMe: "Запомнить меня",
+      loginButton: "Войти",
+      loginError: "Неверный email или пароль.",
+    },
+
+    accessDenied: {
+      title: "Доступ запрещен",
+      message: "У вас нет прав для доступа к этому разделу.",
+      goBackButton: "Назад",
+    },
+
+    notFound: {
+      title: "404 - Страница не найдена",
+      message: "Страница, которую вы ищете, не существует или была перемещена.",
+      backToHomeButton: "На главную страницу",
     },
   },
 };

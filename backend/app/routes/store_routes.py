@@ -1,59 +1,61 @@
 # app/routes/store_routes.py
 
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import models
 from app.database.connection import get_db
-# HATA DÜZELTMESİ: Gerekli şemalar ve CRUD fonksiyonları buraya import edildi
 from app.schemas import store_schemas
 from app.crud import store_crud
 from app.security.security import get_current_user
-# utils import'unu önceki adımda eklemiştik ama burada da teyit edelim
 from app.utils import token_utils
 
 router = APIRouter(prefix="/api/stores", tags=["Stores"])
 
-# Store Creating api
+
 @router.post("", response_model=store_schemas.StoreResponse, status_code=status.HTTP_201_CREATED)
 def create_new_store(
     store: store_schemas.StoreCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    Yeni bir mağaza oluşturur. 
-    Kurulumu yapan kişi (installer), isteği gönderen kullanıcıdır.
-    """
-    # GÜNCELLEME: Yetkilendirme eklendi (Sadece Admin ve Engineer kurulum yapabilir)
+    """Yeni bir mağaza oluşturur. Kurulumcu, isteği gönderen kullanıcıdır."""
     allowed_roles = [models.UserRole.Admin, models.UserRole.Engineer, models.UserRole.Country_Chief]
     if current_user.role not in allowed_roles:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized to perform a new installation."
         )
-    
-    # GÜNCELLEME: CRUD fonksiyonuna, isteği yapan kullanıcının ID'si gönderiliyor.
     return store_crud.create_store(db=db, store=store, installer_id=current_user.id)
+
 
 @router.get("", response_model=List[store_schemas.StoreResponse])
 def read_stores(
     skip: int = 0,
     limit: int = 100,
+    country: Optional[str] = None,
+    city: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """Tüm mağazaları listeler."""
-    stores_from_db = store_crud.get_stores(db, skip=skip, limit=limit)
-    response_stores = []
-    for store in stores_from_db:
-        store_data = store.__dict__
-        if store.installer:
-            store_data['installerName'] = store.installer.name
-            store_data['installerSurname'] = store.installer.surname
-        response_stores.append(store_schemas.StoreResponse.model_validate(store_data))
-    return response_stores
+    """Mağazaları role göre ve filtrelere göre GÜVENLİ bir şekilde listeler."""
+    
+    if current_user.role == models.UserRole.Admin:
+        stores_from_db = store_crud.get_stores(db, skip=skip, limit=limit, country=country, city=city)
+        
+    elif current_user.role in [models.UserRole.Country_Chief, models.UserRole.Engineer, models.UserRole.Analyst]:
+        # GÜVENLİK: Frontend'den gelen 'country' filtresini yok sayar, her zaman kullanıcının kendi ülkesini kullanır.
+        stores_from_db = store_crud.get_stores_by_country(
+            db, country=current_user.country, city=city, skip=skip, limit=limit
+        )
+    else:
+        stores_from_db = []
+    
+    # DOĞRU YÖNTEM: Hatalı for döngüsü ve __dict__ kullanımı kaldırıldı.
+    # FastAPI ve Pydantic, veritabanı objelerini otomatik ve hatasız olarak JSON'a çevirir.
+    return stores_from_db
+
 
 @router.get("/{store_id}", response_model=store_schemas.StoreResponse)
 def read_store(
@@ -61,48 +63,62 @@ def read_store(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """ID'ye göre tek bir mağazayı getirir."""
+    """ID'ye göre tek bir mağazayı getirir ve yetki kontrolü yapar."""
     db_store = store_crud.get_store(db, store_id=store_id)
     if db_store is None:
         raise HTTPException(status_code=404, detail="Store not found")
+    can_view = False
+    if current_user.role == models.UserRole.Admin:
+        can_view = True
+    elif current_user.role in [models.UserRole.Country_Chief, models.UserRole.Engineer, models.UserRole.Analyst]:
+        if current_user.country == db_store.country:
+            can_view = True
     
-    store_data = db_store.__dict__
-    if db_store.installer:
-        store_data['installerName'] = db_store.installer.name
-        store_data['installerSurname'] = db_store.installer.surname
-    return store_schemas.StoreResponse.model_validate(store_data)
+    if not can_view:
+        raise HTTPException(status_code=403, detail="Not authorized to view this store")
+    return db_store
 
 @router.put("/{store_id}", response_model=store_schemas.StoreResponse)
 def update_store_details(
-    store_id: int,
-    store_in: store_schemas.StoreUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    store_id: int, store_in: store_schemas.StoreUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """Bir mağazanın detaylarını günceller."""
-    if current_user.role != models.UserRole.Admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
     db_store = store_crud.get_store(db, store_id=store_id)
     if not db_store:
         raise HTTPException(status_code=404, detail="Store not found")
+
+    can_update = False
+    if current_user.role == models.UserRole.Admin:
+        can_update = True
+    elif current_user.role in [models.UserRole.Country_Chief, models.UserRole.Engineer, models.UserRole.Analyst]:
+        if db_store.country == current_user.country:
+            can_update = True
     
+    if not can_update:
+        raise HTTPException(status_code=403, detail="Not authorized to update this store.")
+        
     return store_crud.update_store(db, db_store=db_store, store_in=store_in)
+
 
 @router.delete("/{store_id}", response_model=store_schemas.StoreResponse)
 def delete_store_by_id(
-    store_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    store_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
     """Bir mağazayı siler."""
-    if current_user.role != models.UserRole.Admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
-    deleted_store = store_crud.delete_store(db, store_id=store_id)
-    if not deleted_store:
+    db_store = store_crud.get_store(db, store_id=store_id)
+    if not db_store:
         raise HTTPException(status_code=404, detail="Store not found")
-    return deleted_store
+        
+    can_delete = False
+    if current_user.role in [models.UserRole.Admin, models.UserRole.Country_Chief]:
+        if db_store.country == current_user.country or current_user.role == models.UserRole.Admin:
+            can_delete = True
+
+    if not can_delete:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this store.")
+
+    return store_crud.delete_store(db, store_id=store_id)
+
 
 @router.post("/{store_id}/generate-server-token", response_model=store_schemas.StoreResponse)
 def generate_new_server_token(
@@ -120,6 +136,7 @@ def generate_new_server_token(
     
     return store_crud.regenerate_server_token(db, db_store=db_store)
 
+
 @router.post("/{store_id}/generate-esp32-token", response_model=store_schemas.StoreResponse)
 def generate_new_esp32_token(
     store_id: int,
@@ -135,3 +152,21 @@ def generate_new_esp32_token(
         raise HTTPException(status_code=404, detail="Store not found")
     
     return store_crud.regenerate_esp32_token(db, db_store=db_store)
+
+
+
+
+@router.post("/api/stores/{store_id}/delete-draft")
+def delete_draft_store(store_id: int, db: Session = Depends(get_db)):
+    """
+    Kullanıcı kurulumu tamamlamadan sayfadan ayrılırsa,
+    yarım kalan taslak mağaza kaydını siler.
+    """
+    # store_crud içinde bu ID'ye sahip mağazayı bulan ve silen bir fonksiyon olmalı.
+    # Örnek: store_crud.delete_store_if_draft(db, store_id=store_id)
+    deleted_store = store_crud.delete_store(db, store_id=store_id)
+    if not deleted_store:
+        # Mağaza bulunamasa bile hata döndürmeye gerek yok, çünkü bu "fire-and-forget" bir işlemdir.
+        return {"status": "store not found or already deleted"}
+        
+    return {"status": "draft store deleted successfully"}

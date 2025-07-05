@@ -1,49 +1,50 @@
-# app/routes/auth_routes.py
+# backend/app/routes/auth_routes.py
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from datetime import timedelta
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-# DÜZELTME: Limiter artık kendi dosyasından import ediliyor.
-from app.core.limiter import limiter
-from app.database import models
 from app.database.connection import get_db
-from app.schemas import token_schemas
 from app.crud import user_crud
-from app.security.security import create_access_token # Sadece create_access_token'a ihtiyacımız var burada
+from app.schemas import token_schemas, user_schemas # <-- user_schemas'ı da import edin
+from app.security import security
+from app.core.config import settings
+from app.database import models
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-@router.post("/login", response_model=token_schemas.LoginResponse)
-@limiter.limit("3/5minute")
-async def login_for_access_token(
-    request: Request,
-    db: Session = Depends(get_db),
-    form_data: OAuth2PasswordRequestForm = Depends()
-):
-    user = user_crud.authenticate_user(db, email=form_data.username, password=form_data.password)
+
+# --- TEK DEĞİŞİKLİK BU SATIRDA ---
+# Önceki hatalı öneri: @router.post("/login", ...)
+# Doğrusu:
+@router.post("/token", response_model=user_schemas.LoginResponse)
+# ---------------------------------
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Kullanıcıyı doğrular, rolünü kontrol eder ve bir erişim jetonu oluşturur.
+    """
+    user = user_crud.authenticate_user(
+        db, email=form_data.username, password=form_data.password
+    )
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
-    COMPANY_ROLES = [
-        models.UserRole.Admin,
-        models.UserRole.Country_Chief,
-        models.UserRole.Analyst,
-        models.UserRole.Engineer
-    ]
-    
-    if user.role not in COMPANY_ROLES:
+        
+    if user.role == models.UserRole.Runner:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="This user account does not have permission to access the web panel."
+            detail="Access to this web panel is not authorized for your role."
         )
 
-    access_token = create_access_token(
-        data={"sub": user.email}
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
-
-    return {"user": user, "token": access_token}
+    
+    # --- DEĞİŞİKLİK 2: Cevabı Pydantic modeli olarak döndürün ---
+    return user_schemas.LoginResponse(user=user, token=access_token)

@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import models
@@ -8,100 +8,75 @@ from app.schemas import user_schemas
 from app.crud import user_crud
 from app.security.security import get_current_user
 
+from app.database.models import UserRole 
+
 router = APIRouter(
     prefix="/api/users",
     tags=["Users"]
 )
 
-MARKET_ROLES = [models.UserRole.Runner, models.UserRole.Supermarket_Admin]
-
-
 # Not: Bu endpoint'in path'i "" olarak ayarlandı, prefix ile birleşince /api/users olur.
-
-@router.post("", response_model=user_schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=user_schemas.UserResponse)
 def create_new_user(
     user: user_schemas.UserCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Yeni bir kullanıcı oluşturur. Yetkilendirme hiyerarşiye göredir.
-    """
-    creator_role = current_user.role
-    target_role = user.role
-    can_create = False
-
-    # --- YENİ ve DETAYLI YETKİLENDİRME MANTIĞI ---
-    if creator_role == models.UserRole.Admin:
-        can_create = True
-        
-    elif creator_role == models.UserRole.Country_Chief:
-        allowed_roles = [models.UserRole.Engineer, models.UserRole.Analyst] + MARKET_ROLES
-        if target_role in allowed_roles and user.country == current_user.country:
-            can_create = True
-            
-    elif creator_role == models.UserRole.Analyst:
-        allowed_roles = [models.UserRole.Engineer] + MARKET_ROLES
-        if target_role in allowed_roles:
-            can_create = True
-            
-    elif creator_role == models.UserRole.Engineer:
-        if target_role in MARKET_ROLES:
-            can_create = True
-
-    if not can_create:
+    """Yeni bir kullanıcı oluşturur ve rol bazlı güvenlik kontrolü yapar."""
+    
+    # 1. GÜVENLİK KURALI: Sadece Admin, "Admin" rolünde birini oluşturabilir.
+    # Eğer yeni kullanıcının rolü "Admin" ise ve bu isteği yapan kişi Admin değilse,
+    # isteği reddet.
+    if user.role == models.UserRole.Admin and current_user.role != models.UserRole.Admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to create a user with this role."
+            detail="You are not authorized to create an Admin user."
         )
-    # --- YETKİLENDİRME SONU ---
 
+    # 2. GÜVENLİK KURALI: Country Chief, sadece kendi ülkesinde kullanıcı oluşturabilir.
+    if current_user.role == models.UserRole.Country_Chief:
+        # Gelen verideki ülke ne olursa olsun, onu mevcut şefin ülkesiyle üzerine yaz.
+        user.country = current_user.country
+    
+
+    # Email'in zaten kayıtlı olup olmadığını kontrol et
     db_user = user_crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+        
     return user_crud.create_user(db=db, user=user)
 
-# Bu endpoint, 30 günden eski logları silmek için bir arka plan görevi başlatır.
-@router.post("/cleanup/logs", status_code=status.HTTP_202_ACCEPTED)
-def trigger_log_cleanup(
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    """30 günden eski logları silmek için bir arka plan görevi başlatır. (Sadece Admin)"""
-    if current_user.role != models.UserRole.Admin:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    
+
 # Yönlendirme (redirect) sorununu çözmek için hem / hem de boş path'i tanımlıyoruz.
 # include_in_schema=False, Swagger arayüzünün karışmasını engeller, sadece bir tanesini gösterir.
 @router.get("/", response_model=List[user_schemas.UserResponse], include_in_schema=False)
 @router.get("", response_model=List[user_schemas.UserResponse])
 def read_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db),
+    user_type: str, 
+    db: Session = Depends(get_db), 
     current_user: models.User = Depends(get_current_user)
 ):
-    """
-    Kullanıcıları rollerine göre listeler:
-    - Admin: Tüm kullanıcıları görür.
-    - Country Chief: Sadece kendi ülkesindeki kullanıcıları görür.
-    - Diğerleri: Sadece kendi bilgilerini görür.
-    """
-    # HATA DÜZELTMESİ: Karşılaştırmayı doğrudan Enum üyesi ile yapıyoruz.
-    if current_user.role is models.UserRole.Admin:
-        users = user_crud.get_users(db, skip=skip, limit=limit)
-    elif current_user.role is models.UserRole.Country_Chief:
-        users = user_crud.get_users_by_country(db, country=current_user.country, skip=skip, limit=limit)
-    else:
-        # Diğer roller (Engineer, Analyst vb.) sadece kendi bilgilerini görebilir.
-        users = [current_user]
-        
+    """Kullanıcıları tipine göre listeler."""
+    # CRUD fonksiyonuna artık mevcut kullanıcının ID'sini de gönderiyoruz.
+    users = user_crud.get_users(db, user_type=user_type, current_user_id=current_user.id)
     return users
+
+# --- DÜZELTME: /me endpoint'i, /{user_id}'den ÖNCE tanımlandı ---
+@router.get("/me", response_model=user_schemas.UserResponse)
+def read_users_me(current_user: models.User = Depends(get_current_user)):
+    """
+    Geçerli token'a sahip olan kullanıcının kendi bilgilerini döndürür.
+    """
+    
+    # --- DEBUG İÇİN EKLENDİ ---
+    print("--- VERİ OKUMA (/me) ---")
+    print(f"Veritabanından Okunan Kullanıcı: ID={current_user.id}, Dil={current_user.language}, Tema={current_user.theme}")
+    print("----------------------")
+    # --- BİTTİ ---
+
+    return current_user
 # --- DÜZELTME SONU ---
 
-# Tek bir kullanıcıyı ID'sine göre getiririz.
 @router.get("/{user_id}", response_model=user_schemas.UserResponse)
 def read_user(
     user_id: int, 
@@ -116,7 +91,6 @@ def read_user(
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-# Yalnızca Admin rolündeki kullanıcıların güncelleme ve silme işlemlerine izin veriyoruz.
 @router.put("/{user_id}", response_model=user_schemas.UserResponse)
 def update_existing_user(
     user_id: int,
@@ -125,49 +99,41 @@ def update_existing_user(
     current_user: models.User = Depends(get_current_user)
 ):
     """
-    Bir kullanıcının bilgilerini günceller.
-    - Admin herkesi güncelleyebilir.
-    - Country Chief kendi ülkesindeki kendinden düşük rolleri güncelleyebilir.
-    - Diğerleri güncelleme yapamaz.
+    Bir kullanıcının bilgilerini günceller. Sadece Admin yapabilir.
     """
-    creator_role = current_user.role
-    can_update = False
-
-    db_user_to_update = user_crud.get_user(db, user_id=user_id)
-    if not db_user_to_update:
-        raise HTTPException(status_code=404, detail="User not found")
-        
-    # KURAL: Analist rol değişikliği yapamaz. (ve diğerleri de)
-    if user_in.role is not None and creator_role not in [models.UserRole.Admin, models.UserRole.Country_Chief]:
-         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not authorized to change user roles."
-        )
-
-    if creator_role == models.UserRole.Admin:
-        can_update = True
-    elif creator_role == models.UserRole.Country_Chief:
-        if db_user_to_update.country == current_user.country:
-            can_update = True
-
-    if not can_update:
+    if current_user.role != models.UserRole.Admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not authorized to update this user."
+            detail="Not authorized to update user"
         )
-    
-    return user_crud.update_user(db=db, db_user=db_user_to_update, user_in=user_in)
 
-@router.put("/me/preferences", response_model=user_schemas.UserResponse)
-def update_my_preferences(
-    prefs: user_schemas.UserPreferencesUpdate,
+    db_user = user_crud.get_user(db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    updated_user = user_crud.update_user(db=db, db_user=db_user, user_in=user_in)
+    return updated_user
+
+@router.put("/me", response_model=user_schemas.UserResponse)
+def update_own_profile(
+    user_in: user_schemas.ProfileUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    """Giriş yapmış olan kullanıcının kendi tema ve dil tercihlerini günceller."""
-    return user_crud.update_user_preferences(db, db_user=current_user, prefs=prefs)
+    """Giriş yapmış kullanıcının kendi profilini güncellemesini sağlar."""
+    updated_user = user_crud.update_profile(db=db, db_user=current_user, user_in=user_in)
+    return updated_user
 
-# Bu endpoint, bir kullanıcıyı siler. Sadece Admin rolündeki kullanıcılar bu işlemi yapabilir.
+@router.put("/me/preferences", response_model=user_schemas.UserResponse)
+def update_current_user_preferences(
+    preferences: user_schemas.UserPreferencesUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Giriş yapmış kullanıcının kendi dil ve tema tercihlerini günceller."""
+    # Bu rota, sizin zaten sahip olduğunuz doğru CRUD fonksiyonunu çağırır.
+    return user_crud.update_user_preferences(db=db, user=current_user, preferences=preferences)
+
 @router.delete("/{user_id}", response_model=user_schemas.UserResponse)
 def delete_existing_user(
     user_id: int, 
