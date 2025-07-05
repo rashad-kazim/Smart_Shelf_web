@@ -1,7 +1,14 @@
 // src/components/common/AutocompleteInput.jsx
 
 import React, { useState, Fragment } from "react";
-import { Combobox, Transition } from "@headlessui/react";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
+  Transition,
+} from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -10,10 +17,11 @@ const AutocompleteInput = ({
   selected,
   setSelected,
   disabled = false,
-  placeholder = "Select an option",
 }) => {
   const [query, setQuery] = useState("");
-  const { isDarkMode } = useAuth();
+  const { isDarkMode, appTranslations, language } = useAuth();
+
+  const translations = appTranslations[language]?.common;
 
   const filteredOptions =
     query === ""
@@ -39,22 +47,21 @@ const AutocompleteInput = ({
     <Combobox value={selected} onChange={setSelected} disabled={disabled}>
       <div className="relative mt-1">
         <div className={inputContainerClass}>
-          {/* DÜZELTME: Combobox.Input artık tüm alanı kaplıyor ve tıklandığında listeyi açıyor */}
-          <Combobox.Input
+          <ComboboxInput
             as="input"
             className={inputClass}
             displayValue={(option) => option || ""}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={placeholder}
+            placeholder={translations.selectOption}
           />
-          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+          <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronDown
               className={`h-5 w-5 ${
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               }`}
               aria-hidden="true"
             />
-          </Combobox.Button>
+          </ComboboxButton>
         </div>
         <Transition
           as={Fragment}
@@ -62,10 +69,10 @@ const AutocompleteInput = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
           afterLeave={() => setQuery("")}>
-          <Combobox.Options className={optionsContainerClass}>
+          <ComboboxOptions className={optionsContainerClass}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
-                <Combobox.Option
+                <ComboboxOption
                   key={option}
                   className={({ active }) =>
                     `relative cursor-default select-none py-2 pl-10 pr-4 ${
@@ -95,17 +102,19 @@ const AutocompleteInput = ({
                       ) : null}
                     </>
                   )}
-                </Combobox.Option>
+                </ComboboxOption>
               ))
             ) : (
               <div
                 className={`relative cursor-default select-none px-4 py-2 ${
                   isDarkMode ? "text-gray-400" : "text-gray-700"
                 }`}>
-                {query === "" ? "Type to search..." : "Nothing found."}
+                {query === ""
+                  ? translations.typeToSearch
+                  : translations.nothingFound}
               </div>
             )}
-          </Combobox.Options>
+          </ComboboxOptions>
         </Transition>
       </div>
     </Combobox>

@@ -1,3 +1,5 @@
+// src/pages/Users/AddCompanyUserForm.jsx
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
@@ -14,12 +16,13 @@ const AddCompanyUserForm = () => {
   const capitalize = (s) =>
     s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 
-  const translations = useMemo(
-    () => appTranslations[language]?.users?.addUserForm || {},
+  const addUserTranslations = useMemo(
+    () => appTranslations[language]?.["users.addUserForm"],
     [appTranslations, language]
   );
-  const commonTranslations = useMemo(
-    () => appTranslations[language]?.common || {},
+
+  const commonTranslation = useMemo(
+    () => appTranslations[language]?.common,
     [appTranslations, language]
   );
 
@@ -37,7 +40,7 @@ const AddCompanyUserForm = () => {
         ? capitalize(profileUser.country)
         : "",
     city: "",
-    profile_picture: null, // Profil resmi için state
+    profile_picture: null,
   });
 
   const [countryOptions, setCountryOptions] = useState([]);
@@ -53,7 +56,7 @@ const AddCompanyUserForm = () => {
       axiosInstance
         .get("/api/utils/countries")
         .then((res) => setCountryOptions((res.data || []).map(capitalize)))
-        .catch((err) => console.error("Failed to fetch countries", err));
+        .catch((err) => {});
     } else if (profileUser?.country) {
       setCountryOptions([capitalize(profileUser.country)]);
     }
@@ -94,11 +97,11 @@ const AddCompanyUserForm = () => {
     setError(null);
 
     if (formData.password !== formData.repeatPassword) {
-      setError(translations.passwordMismatchError || "Passwords do not match.");
+      setError(addUserTranslations.passwordMismatchError);
       return;
     }
     if (!formData.role) {
-      setError(translations.roleRequiredError || "Please select a role.");
+      setError(addUserTranslations.roleRequiredError);
       return;
     }
 
@@ -112,7 +115,7 @@ const AddCompanyUserForm = () => {
       setError(
         typeof errorDetail === "string"
           ? errorDetail
-          : translations.genericError || "An error occurred."
+          : commonTranslation.genericError
       );
     } finally {
       setIsSubmitting(false);
@@ -138,11 +141,8 @@ const AddCompanyUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Add New Company User"}
-        subtitle={
-          translations.subtitle ||
-          "Fill in the details to create a new user account."
-        }
+        title={addUserTranslations.title}
+        subtitle={addUserTranslations.subtitle}
       />
       <div className="max-w-2xl mx-auto mt-6">
         <form
@@ -150,7 +150,7 @@ const AddCompanyUserForm = () => {
           className={`p-8 rounded-lg shadow-lg ${formContainerClass}`}>
           <div className="flex flex-col items-center mb-6">
             <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
-              {translations.profilePictureLabel || "Profile Picture"}
+              {addUserTranslations.profilePictureLabel}
             </label>
             <div
               onClick={() => fileInputRef.current.click()}
@@ -185,7 +185,7 @@ const AddCompanyUserForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.nameLabel || "Name"}
+                {addUserTranslations.nameLabel}
               </label>
               <input
                 type="text"
@@ -198,7 +198,7 @@ const AddCompanyUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.surnameLabel || "Surname"}
+                {addUserTranslations.surnameLabel}
               </label>
               <input
                 type="text"
@@ -211,7 +211,7 @@ const AddCompanyUserForm = () => {
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.emailLabel || "Email"}
+                {addUserTranslations.emailLabel}
               </label>
               <input
                 type="email"
@@ -224,7 +224,7 @@ const AddCompanyUserForm = () => {
             </div>
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.passwordLabel || "Password"}
+                {addUserTranslations.passwordLabel}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -246,7 +246,7 @@ const AddCompanyUserForm = () => {
             </div>
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.repeatPasswordLabel || "Repeat Password"}
+                {addUserTranslations.repeatPasswordLabel}
               </label>
               <input
                 type={showRepeatPassword ? "text" : "password"}
@@ -268,7 +268,7 @@ const AddCompanyUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.roleLabel || "Role"}
+                {addUserTranslations.roleLabel}
               </label>
               <select
                 name="role"
@@ -277,37 +277,37 @@ const AddCompanyUserForm = () => {
                 required
                 className={inputClass}>
                 <option value="" disabled>
-                  {translations.selectRole || "Select a role"}
+                  {addUserTranslations.selectRole}
                 </option>
                 {availableRoles.map((role) => (
                   <option key={role} value={role}>
-                    {role}
+                    {appTranslations[language]?.roles[role]}
                   </option>
                 ))}
               </select>
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.countryLabel || "Country"}
+                {addUserTranslations.countryLabel}
               </label>
               <AutocompleteInput
                 options={countryOptions}
                 selected={formData.country}
                 setSelected={handleCountryChange}
                 disabled={!isAdmin}
-                placeholder={translations.countryPlaceholder || "Search..."}
+                placeholder={commonTranslation.searchPlaceholder}
               />
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.cityLabel || "City"}
+                {addUserTranslations.cityLabel}
               </label>
               <AutocompleteInput
                 options={cityOptions}
                 selected={formData.city}
                 setSelected={handleCityChange}
                 disabled={!formData.country}
-                placeholder={translations.cityPlaceholder || "Search..."}
+                placeholder={commonTranslation.searchPlaceholder}
               />
             </div>
           </div>
@@ -323,15 +323,15 @@ const AddCompanyUserForm = () => {
               type="button"
               onClick={() => navigate(-1)}
               className="px-6 py-2 rounded-md text-sm font-medium bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
-              {commonTranslations.cancel || "Cancel"}
+              {commonTranslation.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
               {isSubmitting
-                ? commonTranslations.saving || "Saving..."
-                : translations.saveButton || "Save User"}
+                ? commonTranslation.saving
+                : addUserTranslations.saveButton}
             </button>
           </div>
         </form>

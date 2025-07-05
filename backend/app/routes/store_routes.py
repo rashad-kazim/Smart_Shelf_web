@@ -152,3 +152,21 @@ def generate_new_esp32_token(
         raise HTTPException(status_code=404, detail="Store not found")
     
     return store_crud.regenerate_esp32_token(db, db_store=db_store)
+
+
+
+
+@router.post("/api/stores/{store_id}/delete-draft")
+def delete_draft_store(store_id: int, db: Session = Depends(get_db)):
+    """
+    Kullanıcı kurulumu tamamlamadan sayfadan ayrılırsa,
+    yarım kalan taslak mağaza kaydını siler.
+    """
+    # store_crud içinde bu ID'ye sahip mağazayı bulan ve silen bir fonksiyon olmalı.
+    # Örnek: store_crud.delete_store_if_draft(db, store_id=store_id)
+    deleted_store = store_crud.delete_store(db, store_id=store_id)
+    if not deleted_store:
+        # Mağaza bulunamasa bile hata döndürmeye gerek yok, çünkü bu "fire-and-forget" bir işlemdir.
+        return {"status": "store not found or already deleted"}
+        
+    return {"status": "draft store deleted successfully"}

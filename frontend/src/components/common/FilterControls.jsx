@@ -1,136 +1,131 @@
-import React from "react";
-import { RotateCcw, X } from "lucide-react";
+// src/components/common/FilterControls.jsx
+// STATUS: FINAL (Central and reusable filter component for all store pages)
+
+import React, { useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { RotateCcw, X } from "lucide-react";
 
+// This component receives filtering logic (hook) and data from outside, only renders the UI.
 const FilterControls = ({
-  countryOptions = [],
-  cityOptions = [],
-  selectedCountries = [],
-  selectedCities = [], // Artık bu da bir dizi
-  toggleCountry,
-  toggleCity, // Çoklu şehir seçimi için yeni fonksiyon
-  resetFilters,
+  profileUser,
+  countryOptions,
+  cityOptions,
+  selectedCountries,
+  selectedCities,
+  onCountryChange,
+  onCityChange,
+  onReset,
   isCountryDisabled = false,
+  isMultiCountry = true,
+  isMultiCity = true,
 }) => {
-  const { currentColors, appTranslations, language } = useAuth();
-  const translations = appTranslations[language]?.stores || {};
-  const inputStyle = {
-    backgroundColor: currentColors.pureWhite,
-    color: currentColors.darkText,
-    borderColor: currentColors.mediumGrayText,
-  };
+  const { isDarkMode, appTranslations, language } = useAuth();
 
-  // Şehir dropdown'ı, en az bir ülke seçilmeden aktif olmaz.
-  const isCityDisabled = selectedCountries.length === 0;
+  const selectClass = `w-full p-2 border rounded-md transition-colors ${
+    isDarkMode
+      ? "bg-gray-700 text-white border-gray-600"
+      : "bg-white text-gray-800 border-gray-300"
+  }`;
+  const disabledSelectClass = `cursor-not-allowed ${
+    isDarkMode ? "bg-gray-800 text-gray-500" : "bg-gray-100 text-gray-500"
+  }`;
+
+  const translations = useMemo(
+    () => appTranslations[language]?.["stores.filterControls"],
+    [appTranslations, language]
+  );
 
   return (
     <div
-      className="p-4 rounded-lg mb-6"
-      style={{ backgroundColor: currentColors.secondaryBackground }}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-        {/* Ülke Filtresi */}
-        <div>
+      className={`p-4 rounded-lg border mb-6 ${
+        isDarkMode
+          ? "bg-gray-900/50 border-gray-700"
+          : "bg-gray-50 border-gray-200"
+      }`}>
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="flex-1 min-w-[200px]">
           <label className="block text-sm font-medium mb-1">
-            {translations.country || "Country"}
+            {translations?.country}
           </label>
           <select
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value) toggleCountry(value);
-            }}
+            value={isMultiCountry ? "" : selectedCountries[0] || ""}
+            onChange={(e) => onCountryChange(e.target.value)}
             disabled={isCountryDisabled}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
-            value="" // Her seçimden sonra başa dönmesi için
-          >
-            {isCountryDisabled && selectedCountries.length > 0 ? (
-              <option value={selectedCountries[0]}>
-                {selectedCountries[0]}
+            className={`${selectClass} ${
+              isCountryDisabled ? disabledSelectClass : ""
+            }`}>
+            <option value="">{translations?.allCountries}</option>
+            {countryOptions.map((country) => (
+              <option key={country} value={country}>
+                {country}
               </option>
-            ) : (
-              <>
-                <option value="" disabled>
-                  {translations.select || "Select..."}
-                </option>
-                {countryOptions
-                  .filter((country) => !selectedCountries.includes(country))
-                  .map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-              </>
-            )}
+            ))}
           </select>
         </div>
 
-        {/* Şehir Filtresi */}
-        <div>
+        <div className="flex-1 min-w-[200px]">
           <label className="block text-sm font-medium mb-1">
-            {translations.city || "City"}
+            {translations?.city}
           </label>
           <select
-            onChange={(e) => {
-              const value = e.target.value;
-              if (value) toggleCity(value);
-            }}
-            disabled={isCityDisabled}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
-            value="" // Her seçimden sonra başa dönmesi için
-          >
-            <option value="" disabled>
-              {translations.select || "Select..."}
-            </option>
-            {cityOptions
-              .filter((city) => !selectedCities.includes(city))
-              .map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
+            value={isMultiCity ? "" : selectedCities[0] || ""}
+            onChange={(e) => onCityChange(e.target.value)}
+            disabled={
+              countryOptions.length === 0 && selectedCountries.length === 0
+            }
+            className={`${selectClass} ${
+              countryOptions.length === 0 && selectedCountries.length === 0
+                ? disabledSelectClass
+                : ""
+            }`}>
+            <option value="">{translations?.allCities}</option>
+            {cityOptions.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Reset Butonu */}
-        <button
-          onClick={resetFilters}
-          className="flex items-center justify-center px-4 py-2 rounded-md font-medium text-white h-10"
-          style={{ backgroundColor: currentColors.logoPrimaryBlue }}>
-          <RotateCcw size={18} className="mr-2" />
-          {translations.resetFilters || "Reset Filters"}
-        </button>
+        <div className="pt-5">
+          <button
+            onClick={onReset}
+            className="flex items-center px-4 py-2 rounded-md font-medium text-white bg-gray-500 hover:bg-gray-600 transition-colors"
+            title={translations?.resetButton}>
+            <RotateCcw size={16} className="mr-2" />
+            {translations?.resetButton}
+          </button>
+        </div>
       </div>
 
-      {/* Seçili Filtre Etiketleri */}
-      <div className="flex flex-wrap gap-2 mt-4 min-h-[28px]">
-        {selectedCountries.map((country) => (
-          <span
-            key={country}
-            className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-            {country}
-            {!isCountryDisabled && (
+      {(selectedCountries.length > 0 || selectedCities.length > 0) && (
+        <div className="flex flex-wrap gap-2 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+          {selectedCountries.map((country) => (
+            <span
+              key={country}
+              className="flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-blue-900 dark:text-blue-300">
+              {country}
               <button
-                onClick={() => toggleCountry(country)}
-                className="ml-2 text-blue-500 hover:text-blue-700">
+                onClick={() => onCountryChange(country)}
+                className="ml-1.5 text-blue-500 hover:text-blue-700">
                 <X size={14} />
               </button>
-            )}
-          </span>
-        ))}
-        {selectedCities.map((city) => (
-          <span
-            key={city}
-            className="flex items-center bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
-            {city}
-            <button
-              onClick={() => toggleCity(city)}
-              className="ml-2 text-green-500 hover:text-green-700">
-              <X size={14} />
-            </button>
-          </span>
-        ))}
-      </div>
+            </span>
+          ))}
+          {selectedCities.map((city) => (
+            <span
+              key={city}
+              className="flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full dark:bg-green-900 dark:text-green-300">
+              {city}
+              <button
+                onClick={() => onCityChange(city)}
+                className="ml-1.5 text-green-500 hover:text-green-700">
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,19 +1,21 @@
 // src/App.js
 
 import React from "react";
-// DÜZELTME: BrowserRouter (Router olarak) importu buradan kaldırıldı.
-// Bu, projenin ana giriş dosyası olan index.js'te olmalıdır.
+// FIX: BrowserRouter (as Router) import removed from here.
+// It should be in the project's main entry file, index.js.
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider, useAuth } from "./context/AuthContext";
 import { ROLES } from "./config/roles";
 
-// Layout ve Yardımcı Bileşenler
+// Layout and Helper Components
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import NotFoundPage from "./pages/misc/NotFoundPage";
 import AccessDeniedPage from "./pages/misc/AccessDeniedPage";
 
-// Sayfaların Import Edilmesi
+import CustomDialog from "./components/common/CustomDialog";
+
+// Importing Pages
 import LoginPage from "./Auth/LoginPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import FirmwarePage from "./pages/Firmware/FirmwarePage";
@@ -35,27 +37,27 @@ import CompanyUsers from "./pages/Users/CompanyUsers";
 import AddCompanyUserForm from "./pages/Users/AddCompanyUserForm";
 import EditCompanyUserForm from "./pages/Users/EditCompanyUserForm";
 
-// Rotaları yöneten ana bileşen
+// Main component managing routes
 const AppRoutes = () => {
   const { isAuthenticated } = useAuth();
 
   return (
     <Routes>
-      {/* Giriş yapmamış kullanıcılar sadece Login sayfasını görür. Giriş yapmışsa ana sayfaya yönlendirilir. */}
+      {/* Users who are not logged in can only see the Login page. If logged in, redirect to home page. */}
       <Route
         path="/login"
         element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />}
       />
 
-      {/* Diğer tüm sayfalar MainLayout ile sarılmıştır ve giriş yapmayı gerektirir */}
+      {/* All other pages are wrapped with MainLayout and require login */}
       <Route path="/" element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          {/* --- YETKİLENDİRME KURALLARI UYGULANMIŞ ROTALAR --- */}
+          {/* --- ROUTES WITH AUTHORIZATION RULES APPLIED --- */}
 
-          {/* Dashboard: Tüm yetkili şirket çalışanları */}
+          {/* Dashboard: All authorized company employees */}
           <Route index element={<DashboardPage />} />
 
-          {/* Mağaza Yönetimi Rotaları */}
+          {/* Store Management Routes */}
           <Route path="stores" element={<StoresPage />} />
 
           <Route
@@ -101,7 +103,7 @@ const AppRoutes = () => {
             <Route path="delete-store" element={<DeleteStorePage />} />
           </Route>
 
-          {/* Log Görüntüleme Rotaları */}
+          {/* Log Viewing Routes */}
           <Route
             element={
               <ProtectedRoute
@@ -117,7 +119,7 @@ const AppRoutes = () => {
             <Route path="esp32-logs/:storeId" element={<ESP32LogsPage />} />
           </Route>
 
-          {/* Kullanıcı Yönetimi Rotaları */}
+          {/* User Management Routes */}
           <Route
             element={
               <ProtectedRoute
@@ -155,30 +157,54 @@ const AppRoutes = () => {
             />
           </Route>
 
-          {/* Firmware Sayfası: Sadece Admin */}
+          {/* Firmware Page: Admin only */}
           <Route element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]} />}>
             <Route path="firmware" element={<FirmwarePage />} />
           </Route>
 
-          {/* Profil Sayfası: Giriş yapmış herkes görebilir */}
+          {/* Profile Page: Accessible to all logged-in users */}
           <Route path="profile-details" element={<ProfileDetailsPage />} />
 
-          {/* Yetkisiz Erişim Sayfası */}
+          {/* Unauthorized Access Page */}
           <Route path="/access-denied" element={<AccessDeniedPage />} />
         </Route>
       </Route>
 
-      {/* Eşleşmeyen tüm yollar 404 sayfasına yönlendirilir */}
+      {/* All unmatched paths are redirected to the 404 page */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
 
-// Ana App bileşeni
+const AppWithDialog = () => {
+  const { showDialog, dialogConfig, hideMyDialog } = useAuth();
+
+  return (
+    <>
+      <AppRoutes /> {/* All page routes */}
+      {/* If showDialog is true, show CustomDialog with settings from context */}
+      {showDialog && (
+        <CustomDialog
+          title={dialogConfig.title}
+          message={dialogConfig.message}
+          type={dialogConfig.type}
+          confirmationText={dialogConfig.confirmationText}
+          onConfirm={() => {
+            dialogConfig.onConfirm();
+            hideMyDialog();
+          }}
+          onCancel={hideMyDialog}
+        />
+      )}
+    </>
+  );
+};
+
+// Main App component
 function App() {
   return (
     <AppProvider>
-      <AppRoutes />
+      <AppWithDialog />
     </AppProvider>
   );
 }

@@ -1,6 +1,6 @@
 // src/components/stores/StoresTable.jsx
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 const StoresTable = ({ stores, isLoading, renderActions }) => {
@@ -10,22 +10,26 @@ const StoresTable = ({ stores, isLoading, renderActions }) => {
     language,
     isDarkMode,
   } = useAuth();
-  const translations = appTranslations[language]?.stores || {};
+
+  const translations = useMemo(
+    () => appTranslations[language]?.stores,
+    [appTranslations, language]
+  );
 
   const tableHeader = (
     <thead style={{ backgroundColor: colors.lightGrayBg }}>
       <tr>
         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-          {translations.nameHeader || "Store Name"}
+          {translations.nameHeader}
         </th>
         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-          {translations.location || "Location"}
+          {translations.location}
         </th>
         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-          {translations.installer || "Installer"}
+          {translations.installer}
         </th>
         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-          {translations.devices || "Devices"}
+          {translations.devices}
         </th>
         <th className="px-6 py-3"></th>
       </tr>
@@ -39,9 +43,7 @@ const StoresTable = ({ stores, isLoading, renderActions }) => {
           <td colSpan="5" className="text-center p-8">
             <div className="flex justify-center items-center">
               <div className="w-8 h-8 border-2 border-t-2 border-gray-400 border-t-blue-500 rounded-full animate-spin"></div>
-              <p className="ml-3 text-gray-500">
-                {translations.loading || "Loading stores..."}
-              </p>
+              <p className="ml-3 text-gray-500">{translations.loading}</p>
             </div>
           </td>
         </tr>
@@ -62,7 +64,7 @@ const StoresTable = ({ stores, isLoading, renderActions }) => {
                 store.installerSurname || ""
               }`.trim() || "-"}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-6 py-4 whitespace-nowrap flex justify-center">
               {store.num_esp32_connected}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -73,7 +75,7 @@ const StoresTable = ({ stores, isLoading, renderActions }) => {
       ) : (
         <tr>
           <td colSpan="5" className="text-center p-8 text-gray-500">
-            {translations.noStoresFound || "No stores found."}
+            {translations.noStoresFound}
           </td>
         </tr>
       )}
@@ -82,7 +84,7 @@ const StoresTable = ({ stores, isLoading, renderActions }) => {
 
   return (
     <div
-      className="overflow-x-auto rounded-lg border"
+      className="overflow-x-auto rounded-lg border min-h-[400px] max-h-[600px] overflow-y-auto overflow-x-auto"
       style={{ borderColor: colors.mediumGrayText }}>
       <table
         className="min-w-full divide-y"

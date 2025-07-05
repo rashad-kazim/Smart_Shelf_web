@@ -1,92 +1,115 @@
 # backend/seed.py
 
-import sys
-from os.path import abspath, dirname
-from datetime import datetime, timedelta
+import os
+import json # JSON modülünü import ediyoruz
 from sqlalchemy.orm import Session
-
-# Projenin ana dizinini Python path'ine ekle
-sys.path.insert(0, dirname(abspath(__file__)))
-
 from app.database.connection import engine, Base, SessionLocal
-from app.database.models import User, Store, Device, UserRole
-from app.security.security import get_password_hash, encrypt_data
+from app.database import models
+from app.security.security import get_password_hash
+from app.utils.token_utils import generate_server_token, generate_esp32_token
+
+# DÜZELTME: Veriler artık JSON dosyalarından okunacak.
+# Bu, kodu daha temiz tutar ve veriyi koddan ayırır.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_JSON_PATH = os.path.join(BASE_DIR, 'test_data', 'users.json')
+STORES_JSON_PATH = os.path.join(BASE_DIR, 'test_data', 'stores.json')
+
 
 def setup_database():
-    """Veritabanını ve tabloları sıfırdan oluşturur."""
     print("Dropping all tables and recreating...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully.")
 
-from sqlalchemy.orm import Session
-
-def seed_data(db: Session):
-    """Veritabanını tek bir işlem (transaction) içinde test verileriyle doldurur."""
+def seed_users(db: Session):
+    print("Preparing users...")
+    
+    # DÜZELTME: Veriyi JSON dosyasından oku
     try:
-        print("Seeding database with test data...")
+        with open(USERS_JSON_PATH, 'r', encoding='utf-8') as f:
+            users_data = json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: '{USERS_JSON_PATH}' not found. Please create it.")
+        print("Seeding stopped.")
+        return # Dosya yoksa işlemi durdur
 
-        # --- 1. Kullanıcı Nesnelerini Oluşturma ---
-        print("Preparing users...")
-        common_password = get_password_hash("testpassword123")
-        admin_password = get_password_hash("Admin448.")
-
-        users_to_create = [
-            User(name="Rasad", surname="Admin", email="kresad555@gmail.com", hashed_password=admin_password, role=UserRole.Admin, country="Poland", city="Warsaw"),
-            User(name="Jan", surname="Kowalski", email="chief.pl@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Poland", city="Krakow"),
-            User(name="Ahmet", surname="Yılmaz", email="chief.tr@example.com", hashed_password=common_password, role=UserRole.Country_Chief, country="Turkey", city="Ankara"),
-            User(name="Piotr", surname="Nowak", email="engineer.pl@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Poland", city="Warsaw"),
-            User(name="Ayşe", surname="Kaya", email="engineer.tr@example.com", hashed_password=common_password, role=UserRole.Engineer, country="Turkey", city="Istanbul"),
-            User(name="Ewa", surname="Wiśniewska", email="analyst.pl@example.com", hashed_password=common_password, role=UserRole.Analyst, country="Poland", city="Lodz"),
-        ]
-        db.add_all(users_to_create)
+    for user_data in users_data:
+        # Şifreyi hash'le
+        password = user_data.pop('password', 'default_password')
+        user_data['hashed_password'] = get_password_hash(password)
         
-        # Objelere ID atanması için veritabanına FLUSH gönderiyoruz, ama COMMIT etmiyoruz.
-        # Bu sayede kullanıcı ID'lerini mağazalarda kullanabiliriz.
+        # models.User, string rolünü otomatik olarak Enum'a çevirecektir.
+        user = models.User(**user_data)
+        db.add(user)
+    
+    print(f"{len(users_data)} users prepared.")
+
+def seed_stores_and_devices(db: Session):
+    print("Preparing stores and devices...")
+
+    try:
+        with open(STORES_JSON_PATH, 'r', encoding='utf-8') as f:
+            stores_data = json.load(f)
+    except FileNotFoundError:
+        print(f"ERROR: '{STORES_JSON_PATH}' not found. Please create it.")
+        print("Skipping store seeding.")
+        return # Dosya yoksa işlemi durdur
+
+    all_users = db.query(models.User).all()
+    
+    for store_data in stores_data:
+        # 'installerName' anahtarını JSON'dan oku
+        installer = next((u for u in all_users if u.name == store_data.get("installerName")), None)
+        
+        db_store = models.Store(
+            name=store_data["name"],
+            country=store_data["country"],
+            city=store_data["city"],
+            branch=store_data.get("branch"),
+            address=store_data["address"],
+            owner_name=store_data["ownerName"], # JSON'daki anahtarla eşleştir
+            owner_surname=store_data["ownerSurname"], # JSON'daki anahtarla eşleştir
+            working_hours=store_data["working_hours"],
+            server_token=generate_server_token(),
+            esp32_token=generate_esp32_token(),
+            installer_id=installer.id if installer else None
+        )
+        db.add(db_store)
         db.flush() 
-        print(f"{len(users_to_create)} users prepared.")
 
-        # --- 2. Mağaza ve Cihaz Nesnelerini Oluşturma ---
-        print("Preparing stores and devices...")
-        engineer_pl_id = next(user.id for user in users_to_create if user.email == "engineer.pl@example.com")
-        engineer_tr_id = next(user.id for user in users_to_create if user.email == "engineer.tr@example.com")
+        device_local_id_counter = 1
+        for device_data in store_data.get("devices", []):
+            db.add(models.Device(
+                **device_data,
+                device_local_id=device_local_id_counter,
+                store_id=db_store.id
+            ))
+            device_local_id_counter += 1
 
-        store1 = Store(
-            name="Biedronka Warszawa", country="Poland", city="Warsaw", installer_id=engineer_pl_id, server_token="srv_poland_1"
-        )
-        store2 = Store(
-            name="Carrefour İstanbul", country="Turkey", city="Istanbul", installer_id=engineer_tr_id, server_token="srv_turkey_1"
-        )
+def run_seeding():
+    db = SessionLocal()
+    try:
+        setup_database()
+        print("Seeding database with test data...")
         
-        # Mağazaları da FLUSH ile session'a ekleyip ID'lerini alıyoruz
-        db.add_all([store1, store2])
-        db.flush()
+        seed_users(db)
+        print("Committing users...")
+        db.commit() 
+        print("Users committed successfully.")
         
-        devices_to_create = [
-            Device(store_id=store1.id, screen_size="130cm", wifi_password=encrypt_data("Pass1")),
-            Device(store_id=store1.id, screen_size="100cm", wifi_password=encrypt_data("Pass2")),
-            Device(store_id=store2.id, screen_size="130cm", wifi_password=encrypt_data("Pass3")),
-        ]
-        db.add_all(devices_to_create)
-        
-        # --- 3. Her Şeyi Tek Seferde Veritabanına Yazma ---
-        # Eğer bu noktaya kadar hata olmadıysa, tüm değişiklikleri tek seferde COMMIT ediyoruz.
+        seed_stores_and_devices(db)
+        print("Committing stores and devices...")
         db.commit()
+        print("Stores and devices committed successfully.")
         
-        print(f"\n✅ Database seeding completed successfully!")
-        print(f"   - {len(users_to_create)} users created.")
-        print(f"   - 2 stores created.")
-        print(f"   - {len(devices_to_create)} devices created.")
-
+        print("\n✅ Database seeding completed successfully!")
+        
     except Exception as e:
         print(f"\n❌ An error occurred during seeding. Rolling back all changes.")
-        print(f"   Error: {e}")
-        # Herhangi bir hata durumunda, tüm işlemleri geri alıyoruz.
+        print(f"  Error: {e}")
         db.rollback()
     finally:
         db.close()
 
 if __name__ == "__main__":
-    db_session = SessionLocal()
-    setup_database()
-    seed_data(db_session)
+    run_seeding()

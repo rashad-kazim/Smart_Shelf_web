@@ -1,13 +1,13 @@
-// src/pages/Auth/LoginPage.jsx
+// src/Auth/LoginPage.jsx
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../context/AuthContext"; // useAuth'u import ediyoruz
-import GlobalLoader from "../components/common/GlobalLoader"; // Global Loader'ı import ediyoruz
+import { useAuth } from "../context/AuthContext";
+import GlobalLoader from "../components/common/GlobalLoader";
 
 const LoginPage = () => {
-  // Gerekli tüm fonksiyon ve state'leri AuthContext'ten alıyoruz.
+  // Get all necessary functions and states from AuthContext.
   const {
     login,
     isLoading,
@@ -23,23 +23,23 @@ const LoginPage = () => {
   const [email, setEmail] = useState(
     () => localStorage.getItem("rememberedEmail") || ""
   );
-  const [password, setPassword] = useState(""); // Şifre başlangıçta boş olmalı
+  const [password, setPassword] = useState(""); // Password should be empty initially
   const [rememberMe, setRememberMe] = useState(
     () => localStorage.getItem("rememberMe") === "true"
   );
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // GÜNCELLEME: handleLogin fonksiyonu artık API'ye bağlanıyor.
+  // UPDATE: handleLogin function now connects to the API.
   const handleLogin = async (e) => {
-    e.preventDefault(); // Formun varsayılan gönderme işlemini engelle
-    setError(""); // Eski hataları temizle
+    e.preventDefault(); // Prevent the default form submission
+    setError(""); // Clear previous errors
 
-    // Context'ten gelen login fonksiyonunu çağırıyoruz.
+    // Call the login function from context.
     const result = await login(email, password);
 
     if (result.success) {
-      // "Remember Me" mantığı
+      // "Remember Me" logic
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email);
         localStorage.setItem("rememberMe", "true");
@@ -47,16 +47,16 @@ const LoginPage = () => {
         localStorage.removeItem("rememberedEmail");
         localStorage.removeItem("rememberMe");
       }
-      navigate("/"); // Başarılı girişte ana sayfaya yönlendir
+      navigate("/"); // Redirect to home page on successful login
     } else {
-      // Başarısız girişte API'den gelen hata mesajını göster
-      setError(result.message || translations.loginError);
+      // Show error message from API on failed login
+      setError(translations.loginError);
     }
   };
 
   return (
     <>
-      {/* Global yükleme durumu aktifse, GlobalLoader bileşenini göster */}
+      {/* Show GlobalLoader component if global loading state is active */}
       {isLoading && <GlobalLoader />}
 
       <div
@@ -68,7 +68,7 @@ const LoginPage = () => {
           <h1
             className="text-3xl font-semibold mb-6 text-center"
             style={{ color: colors.darkText }}>
-            {translations.title || "Login"}
+            {translations.title}
           </h1>
 
           {error && (
@@ -94,7 +94,7 @@ const LoginPage = () => {
                   color: colors.darkText,
                   borderColor: colors.mediumGrayText,
                 }}
-                required // Form doğrulama
+                required
               />
             </div>
 
@@ -115,7 +115,7 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full p-3 bg-transparent focus:outline-none"
                   style={{ color: colors.darkText }}
-                  required // Form doğrulama
+                  required
                 />
                 <span
                   className="p-2 cursor-pointer"
@@ -144,7 +144,7 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              disabled={isLoading} // Yükleme sırasında butonu devre dışı bırak
+              disabled={isLoading} // Disable button while loading
               className="w-full py-3 px-4 rounded-md font-medium text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: colors.logoPrimaryBlue }}>
               {translations.loginButton}

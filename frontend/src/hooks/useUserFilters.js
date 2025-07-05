@@ -6,7 +6,7 @@ import { ROLES } from "../config/roles";
 const capitalize = (s) =>
   s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 
-// Bu hook, kullanıcıları filtrelemek için özelleştirildi.
+// This hook is customized for filtering users.
 export const useUserFilters = (initialUsers = [], profileUser) => {
   const isAdmin = profileUser?.role === ROLES.ADMIN;
 

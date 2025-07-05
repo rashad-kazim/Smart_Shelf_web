@@ -12,7 +12,7 @@ export const ROLES = {
   RUNNER: "Runner",
 };
 
-// Farklı kullanıcı tipleri için izin verilen rolleri gruplayan liste
+// List grouping allowed roles for different user types
 export const ROLES_LIST = {
   company: [ROLES.COUNTRY_CHIEF, ROLES.ENGINEER, ROLES.ANALYST],
   supermarket: [ROLES.RUNNER],

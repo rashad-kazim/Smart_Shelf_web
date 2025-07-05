@@ -1,4 +1,4 @@
-# app/security/security.py
+# backend/app/security/security.py
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -8,7 +8,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-from cryptography.fernet import Fernet
 
 from app.core.config import settings
 from app.database.connection import get_db
@@ -19,30 +18,10 @@ from app.crud import user_crud
 # Şifre hash'leme için Argon2 kullanıyoruz.
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-# Veri şifreleme için Fernet kullanıyoruz.
-cipher_suite = Fernet(settings.ENCRYPTION_KEY.encode())
-
 # Güvenlik şeması
 bearer_scheme = HTTPBearer()
 
-# --- VERİ ŞİFRELEME FONKSİYONLARI ---
-def encrypt_data(data: str) -> str:
-    """Verilen string'i şifreler."""
-    if not data:
-        return data
-    encrypted_data = cipher_suite.encrypt(data.encode())
-    return encrypted_data.decode()
-
-def decrypt_data(encrypted_data: str) -> str:
-    """Şifrelenmiş veriyi çözer."""
-    if not encrypted_data:
-        return encrypted_data
-    try:
-        decrypted_data = cipher_suite.decrypt(encrypted_data.encode())
-        return decrypted_data.decode()
-    except Exception:
-        return ""
-# --- BİTTİ ---
+# DÜZELTME: Veri şifreleme fonksiyonları (encrypt_data, decrypt_data) buradan kaldırıldı.
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Girilen şifre ile hash'lenmiş şifreyi karşılaştırır."""

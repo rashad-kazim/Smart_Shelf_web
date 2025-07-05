@@ -1,5 +1,6 @@
 // src/pages/Dashboard/DashboardPage.jsx
-import React from "react";
+
+import React, { useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 const DashboardPage = () => {
@@ -7,9 +8,17 @@ const DashboardPage = () => {
   const { currentColors, appTranslations, language, profileUser } = useAuth();
 
   // This was where the error was. appTranslations is no longer undefined.
-  const translations = appTranslations[language]?.dashboard || {};
-  const welcomeText = `${translations.welcomeText || "Welcome!"} ${
-    profileUser?.name || "User"
+  const dashboardTranslations = useMemo(
+    () => appTranslations[language]?.dashboard,
+    [appTranslations, language]
+  );
+  const commonTranslations = useMemo(
+    () => appTranslations[language]?.common,
+    [appTranslations, language]
+  );
+
+  const welcomeText = `${dashboardTranslations.welcomeMessage} ${
+    profileUser?.name || commonTranslations.genericUser
   }`;
 
   return (
@@ -22,13 +31,10 @@ const DashboardPage = () => {
       <h1
         className="text-3xl font-semibold mb-6"
         style={{ color: currentColors.darkText }}>
-        {translations.title || "Dashboard"}
+        {dashboardTranslations.title}
       </h1>
       <p className="mb-4">{welcomeText}</p>
-      <p className="mb-4">
-        {translations.instructionText ||
-          "This area will summarize the overall status of your system..."}
-      </p>
+      <p className="mb-4">{dashboardTranslations.instructionText}</p>
     </div>
   );
 };

@@ -1,40 +1,42 @@
 // Store management main page
 // src/pages/Stores/StoresPage.js
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlusCircle, Edit, Trash2, List } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-// This page now gets its data directly from context and its own props, not from App.js.
 const StoresPage = () => {
   const { currentColors, appTranslations, language } = useAuth();
   const navigate = useNavigate();
 
-  const translations = appTranslations[language]?.stores || {};
+  const translations = useMemo(
+    () => appTranslations[language]?.stores,
+    [appTranslations, language]
+  );
 
   // Data for action cards
   const cardData = [
     {
-      title: translations.createStoreTitle || "Create New Store",
-      description: translations.createStoreDesc || "",
+      title: translations.createStoreTitle,
+      description: translations.createStoreDesc,
       icon: PlusCircle,
       route: "/new-installation",
     },
     {
-      title: translations.editStoreTitle || "Edit Store Information",
-      description: translations.editStoreDesc || "",
+      title: translations.editStoreTitle,
+      description: translations.editStoreDesc,
       icon: Edit,
       route: "/edit-store-details",
     },
     {
-      title: translations.deleteStoreTitle || "Delete Store",
-      description: translations.deleteStoreDesc || "",
+      title: translations.deleteStoreTitle,
+      description: translations.deleteStoreDesc,
       icon: Trash2,
       route: "/delete-store",
     },
     {
-      title: translations.viewLogsTitle || "View Logs",
-      description: translations.viewLogsDesc || "",
+      title: translations.viewLogsTitle,
+      description: translations.viewLogsDesc,
       icon: List,
       route: "/view-logs",
     },
@@ -50,7 +52,7 @@ const StoresPage = () => {
       <h1
         className="text-3xl font-semibold mb-6"
         style={{ color: currentColors.darkText }}>
-        {translations.title || "Stores & Branches"}
+        {translations.title}
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

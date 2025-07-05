@@ -1,3 +1,5 @@
+// src/pages/Users/EditCompanyUserForm.jsx
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
@@ -24,12 +26,28 @@ const EditCompanyUserForm = () => {
   const capitalize = (s) =>
     s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 
-  const translations = useMemo(
-    () => appTranslations[language]?.users?.editUserForm || {},
+  const userTranslations = useMemo(
+    () => appTranslations[language]?.users,
     [appTranslations, language]
   );
+
+  const userProfileTranslations = useMemo(
+    () => appTranslations[language]?.profile,
+    [appTranslations, language]
+  );
+
+  const userAddTranslations = useMemo(
+    () => appTranslations[language]?.["users.addUserForm"],
+    [appTranslations, language]
+  );
+
+  const userEditTranslations = useMemo(
+    () => appTranslations[language]?.["users.editUserForm"],
+    [appTranslations, language]
+  );
+
   const commonTranslations = useMemo(
-    () => appTranslations[language]?.common || {},
+    () => appTranslations[language]?.common,
     [appTranslations, language]
   );
 
@@ -49,17 +67,16 @@ const EditCompanyUserForm = () => {
         });
       })
       .catch((err) => {
-        console.error("Failed to fetch user data", err);
-        setError("Could not load user data. The user may not exist.");
+        setError(userTranslations.userLoadError);
       });
-  }, [userId]);
+  }, [userId, userTranslations.userLoadError]);
 
   useEffect(() => {
     if (profileUser?.role === ROLES.ADMIN) {
       axiosInstance
         .get("/api/utils/countries")
         .then((res) => setCountryOptions((res.data || []).map(capitalize)))
-        .catch((err) => console.error("Failed to fetch countries", err));
+        .catch((err) => {});
     } else if (profileUser?.country) {
       setCountryOptions([capitalize(profileUser.country)]);
     }
@@ -91,7 +108,7 @@ const EditCompanyUserForm = () => {
     setError(null);
 
     if (formData.password && formData.password !== formData.repeatPassword) {
-      setError(translations.passwordMismatchError || "Passwords do not match.");
+      setError(userAddTranslations.passwordMismatchError);
       return;
     }
 
@@ -110,7 +127,7 @@ const EditCompanyUserForm = () => {
       setError(
         typeof errorDetail === "string"
           ? errorDetail
-          : translations.genericError || "An error occurred."
+          : commonTranslations.genericError
       );
     } finally {
       setIsSubmitting(false);
@@ -140,10 +157,8 @@ const EditCompanyUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Edit User"}
-        subtitle={`${translations.subtitlePrefix || "Update the details for"} ${
-          formData.name
-        } ${formData.surname}`}
+        title={userEditTranslations.title}
+        subtitle={`${userEditTranslations.subtitlePrefix} ${formData.name} ${formData.surname}`}
       />
       <div className="max-w-2xl mx-auto mt-6">
         <form
@@ -152,7 +167,7 @@ const EditCompanyUserForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.nameLabel || "Name"}
+                {userAddTranslations.nameLabel}
               </label>
               <input
                 type="text"
@@ -165,7 +180,7 @@ const EditCompanyUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.surnameLabel || "Surname"}
+                {userAddTranslations.surnameLabel}
               </label>
               <input
                 type="text"
@@ -178,7 +193,7 @@ const EditCompanyUserForm = () => {
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.emailLabel || "Email"}
+                {userAddTranslations.emailLabel}
               </label>
               <input
                 type="email"
@@ -191,7 +206,7 @@ const EditCompanyUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.roleLabel || "Role"}
+                {userAddTranslations.roleLabel}
               </label>
               <select
                 name="role"
@@ -200,7 +215,7 @@ const EditCompanyUserForm = () => {
                 required
                 className={inputClass}>
                 <option value="" disabled>
-                  {translations.selectRole || "Select a role"}
+                  {userAddTranslations.selectRole}
                 </option>
                 {availableRoles.map((role) => (
                   <option key={role} value={role}>
@@ -211,26 +226,26 @@ const EditCompanyUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.countryLabel || "Country"}
+                {userAddTranslations.countryLabel}
               </label>
               <AutocompleteInput
                 options={countryOptions}
                 selected={formData.country}
                 setSelected={handleCountryChange}
                 disabled={!isAdmin}
-                placeholder={translations.countryPlaceholder || "Search..."}
+                placeholder={commonTranslations.typeToSearch}
               />
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.cityLabel || "City"}
+                {userAddTranslations.cityLabel}
               </label>
               <AutocompleteInput
                 options={cityOptions}
                 selected={formData.city}
                 setSelected={handleCityChange}
                 disabled={!formData.country}
-                placeholder={translations.cityPlaceholder || "Search..."}
+                placeholder={commonTranslations.typeToSearch}
               />
             </div>
 
@@ -246,21 +261,18 @@ const EditCompanyUserForm = () => {
 
             <h4
               className={`md:col-span-2 text-lg font-semibold mb-0 -mt-4 ${labelClass}`}>
-              {translations.changePasswordTitle || "Change Password"}
+              {userProfileTranslations.changePasswordTitle}
               <span
                 className={`block text-xs font-normal mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}>
-                (
-                {translations.changePasswordSubtitle ||
-                  "Leave blank to keep current password"}
-                )
+                ({userProfileTranslations.changePasswordSubtitle})
               </span>
             </h4>
 
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.newPasswordLabel || "New Password"}
+                {userProfileTranslations.newPasswordLabel}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -281,7 +293,7 @@ const EditCompanyUserForm = () => {
             </div>
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.repeatPasswordLabel || "Repeat New Password"}
+                {userProfileTranslations.repeatPasswordLabel}
               </label>
               <input
                 type={showRepeatPassword ? "text" : "password"}
@@ -313,15 +325,15 @@ const EditCompanyUserForm = () => {
               type="button"
               onClick={() => navigate(-1)}
               className="px-6 py-2 rounded-md text-sm font-medium bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
-              {commonTranslations.cancel || "Cancel"}
+              {commonTranslations.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
               {isSubmitting
-                ? commonTranslations.saving || "Saving..."
-                : translations.saveButton || "Save Changes"}
+                ? commonTranslations.saving
+                : userEditTranslations.saveButton}
             </button>
           </div>
         </form>

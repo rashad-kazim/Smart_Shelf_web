@@ -60,6 +60,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
+origins = [
+    "http://localhost:3000",  # React geliştirme sunucusu
+    "http://127.0.0.1:3000", # Bazen tarayıcılar bunu kullanabilir
+    # Gelecekte canlıya çıktığınızda "https://sizin-domaininiz.com" gibi adresleri de buraya eklemelisiniz.
+]
+
 # Middleware'ler (CORS, Limiter vb.) en üste eklenir
 app.add_middleware(
     CORSMiddleware,

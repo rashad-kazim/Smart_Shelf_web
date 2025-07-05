@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.database import models
 from app.database.connection import get_db
@@ -25,7 +25,7 @@ def server_heartbeat(request: Request, db: Session = Depends(get_db)):
     if not db_store:
         raise HTTPException(status_code=404, detail="Store with this token not found")
     
-    db_store.last_seen = datetime.utcnow()
+    db_store.last_seen = datetime.now(timezone.utc)
     db.commit()
     
     return {"status": "ok", "store": db_store.name, "timestamp": db_store.last_seen}
@@ -49,6 +49,28 @@ def submit_log_for_store(
         raise HTTPException(status_code=404, detail="Store with this token not found")
 
     return log_crud.create_log(db=db, store_id=db_store.id, log=log)
+
+
+# --- Toplu log gönderimi için ---
+@router.post("/logs/bulk", status_code=status.HTTP_201_CREATED)
+def submit_bulk_logs_for_store(
+    logs: List[log_schemas.LogCreate], # Artık tek bir log yerine bir liste bekliyor
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    İnternet kesintisi sonrası birikmiş logları toplu olarak kabul eder.
+    """
+    server_token = request.headers.get("X-Server-Token")
+    if not server_token:
+        raise HTTPException(status_code=401, detail="Server token missing")
+        
+    db_store = db.query(models.Store).filter(models.Store.server_token == server_token).first()
+    if not db_store:
+        raise HTTPException(status_code=404, detail="Store with this token not found")
+
+    return log_crud.bulk_create_logs(db=db, store_id=db_store.id, logs=logs)
+
 
 # Mağaza loglarını getirme endpointi
 @router.get("/logs/{store_id}", response_model=List[log_schemas.LogResponse])

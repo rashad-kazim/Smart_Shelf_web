@@ -12,7 +12,9 @@ const CustomDialog = ({
   confirmationText,
 }) => {
   const { currentColors: colors, appTranslations, language } = useAuth();
-  const translations = appTranslations[language]?.dialogs || {};
+
+  const translations =
+    appTranslations[language]?.dialogs || appTranslations.en.dialogs;
 
   const [confirmInput, setConfirmInput] = useState("");
   const isConfirmDisabled =
@@ -41,8 +43,7 @@ const CustomDialog = ({
             <label
               className="block text-sm mb-2"
               style={{ color: colors.darkText }}>
-              {translations.deleteConfirmationPrompt ||
-                "Onaylamak için lütfen şunu yazın:"}{" "}
+              {translations.deleteConfirmationPrompt}{" "}
               <strong className="font-mono select-all">
                 {confirmationText}
               </strong>
@@ -70,7 +71,7 @@ const CustomDialog = ({
                 backgroundColor: colors.prevButtonBg,
                 color: colors.whiteText,
               }}>
-              {translations.noButton || "Hayır"}
+              {translations.noButton}
             </button>
           )}
           <button
@@ -87,8 +88,8 @@ const CustomDialog = ({
                 : colors.logoPrimaryBlue,
             }}>
             {type === "confirm"
-              ? translations.yesButton || "Evet"
-              : translations.okButton || "Tamam"}
+              ? translations.yesButton
+              : translations.okButton}
           </button>
         </div>
       </div>

@@ -1,3 +1,5 @@
+// src/pages/Users/EditSupermarketUserForm.jsx
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
@@ -13,11 +15,27 @@ const EditSupermarketUserForm = () => {
 
   // Çeviri nesneleri
   const translations = useMemo(
-    () => appTranslations[language]?.users?.editUserForm || {},
+    () => appTranslations[language]?.["users.editUserForm"],
     [appTranslations, language]
   );
+
+  const pageTranslations = useMemo(
+    () => appTranslations[language]?.["users.addUserForm"],
+    [appTranslations, language]
+  );
+
+  const addSuperMTranslations = useMemo(
+    () => appTranslations[language]?.["users.addSupermarketUserForm"],
+    [appTranslations, language]
+  );
+
+  const labelTranslations = useMemo(
+    () => appTranslations[language]?.profile,
+    [appTranslations, language]
+  );
+
   const commonTranslations = useMemo(
-    () => appTranslations[language]?.common || {},
+    () => appTranslations[language]?.common,
     [appTranslations, language]
   );
 
@@ -54,12 +72,11 @@ const EditSupermarketUserForm = () => {
         });
         setStores(storesResponse.data || []);
       } catch (err) {
-        console.error("Failed to fetch initial data:", err);
-        setError("Could not load user data or stores.");
+        setError(commonTranslations.couldNotLoadData);
       }
     };
     fetchInitialData();
-  }, [userId]);
+  }, [userId, commonTranslations.couldNotLoadData]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -81,7 +98,7 @@ const EditSupermarketUserForm = () => {
 
     // Yeni şifre girilmişse, eşleşip eşleşmediklerini kontrol et
     if (formData.password && formData.password !== formData.repeatPassword) {
-      setError(translations.passwordMismatchError || "Passwords do not match.");
+      setError(translations.passwordMismatchError);
       return;
     }
 
@@ -97,7 +114,7 @@ const EditSupermarketUserForm = () => {
       await axiosInstance.put(`/api/users/${userId}`, userData);
       navigate("/users/supermarket");
     } catch (err) {
-      let errorMessage = translations.genericError || "An error occurred.";
+      let errorMessage = translations.genericError;
       const errorDetail = err.response?.data?.detail;
       if (typeof errorDetail === "string") {
         errorMessage = errorDetail;
@@ -128,10 +145,8 @@ const EditSupermarketUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Edit Supermarket User"}
-        subtitle={`${translations.subtitlePrefix || "Update details for"} ${
-          formData.name
-        } ${formData.surname}`}
+        title={translations.titleSupermarket}
+        subtitle={`${translations.subtitlePrefix} ${formData.name} ${formData.surname}`}
       />
       <div className="max-w-2xl mx-auto mt-6">
         <form
@@ -139,7 +154,7 @@ const EditSupermarketUserForm = () => {
           className={`p-8 rounded-lg shadow-lg ${formContainerClass}`}>
           <div className="flex flex-col items-center mb-6">
             <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
-              {translations.profilePictureLabel || "Profile Picture"}
+              {pageTranslations.profilePictureLabel}
             </label>
             <div
               onClick={() => fileInputRef.current.click()}
@@ -174,7 +189,7 @@ const EditSupermarketUserForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.nameLabel || "Name"}
+                {pageTranslations.nameLabel}
               </label>
               <input
                 type="text"
@@ -187,7 +202,7 @@ const EditSupermarketUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.surnameLabel || "Surname"}
+                {pageTranslations.surnameLabel}
               </label>
               <input
                 type="text"
@@ -200,7 +215,7 @@ const EditSupermarketUserForm = () => {
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.emailLabel || "Email"}
+                {pageTranslations.emailLabel}
               </label>
               <input
                 type="email"
@@ -224,7 +239,7 @@ const EditSupermarketUserForm = () => {
 
             <h4
               className={`md:col-span-2 text-lg font-semibold mb-0 -mt-4 ${labelClass}`}>
-              {translations.changePasswordTitle || "Change Password"}
+              {translations.changePasswordTitle}
               <span
                 className={`block text-xs font-normal mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
@@ -238,7 +253,7 @@ const EditSupermarketUserForm = () => {
 
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.newPasswordLabel || "New Password"}
+                {labelTranslations.newPasswordLabel}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -259,7 +274,7 @@ const EditSupermarketUserForm = () => {
             </div>
             <div className="relative ">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.repeatPasswordLabel || "Repeat New Password"}
+                {labelTranslations.repeatPasswordLabel}
               </label>
               <input
                 type={showRepeatPassword ? "text" : "password"}
@@ -281,7 +296,7 @@ const EditSupermarketUserForm = () => {
 
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.assignStoreLabel || "Assign to Store"}
+                {addSuperMTranslations.assignStoreLabel}
               </label>
               <select
                 name="assigned_store_id"
@@ -290,7 +305,7 @@ const EditSupermarketUserForm = () => {
                 required
                 className={`${inputClass} cursor-pointer`}>
                 <option value="" disabled>
-                  {translations.selectStore || "Select a store"}
+                  {addSuperMTranslations.selectStore}
                 </option>
                 {stores.map((store) => (
                   <option
@@ -315,15 +330,15 @@ const EditSupermarketUserForm = () => {
               type="button"
               onClick={() => navigate(-1)}
               className="px-6 py-2 rounded-md text-sm font-medium bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
-              {commonTranslations.cancel || "Cancel"}
+              {commonTranslations.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
               {isSubmitting
-                ? commonTranslations.saving || "Saving..."
-                : translations.saveButton || "Save Changes"}
+                ? commonTranslations.saving
+                : labelTranslations.saveButton}
             </button>
           </div>
         </form>

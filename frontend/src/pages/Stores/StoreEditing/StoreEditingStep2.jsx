@@ -1,556 +1,281 @@
-// src/pages/Stores/StoreEditingStep2.jsx
-import React, { useRef } from "react";
-import { Edit, Trash2, ChevronDown, Bluetooth } from "lucide-react";
+// src/pages/Stores/StoreEditing/StoreEditingStep2.jsx
 
-const StoreEditingStep2 = (props) => {
-  const {
-    currentStoreDevices,
-    currentInstallingDevice,
-    deviceForm,
-    isDeviceFormActive,
-    fontSizes,
-    screenSizes,
-    deviceFormErrors,
-    colors,
-    translations,
-    timeOptions,
-    onSaveAll,
-    onBack,
-    handleAddNewDevice,
-    handleEditDevice,
-    handleSaveDevice,
-    handleDeleteDevice,
-    handleCancelDeviceForm,
-    handleDeviceFormChange,
-    bluetoothConnectedDevice,
-    handleBluetoothConnect,
-    storeForm,
-    esp32Token,
-  } = props;
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import DeviceList from "../../../components/InstallationSteps/Step4Details/DeviceList";
+import DeviceForm from "../../../components/InstallationSteps/Step4Details/DeviceForm";
 
-  const newDeviceFormSectionRef = useRef(null);
+// Initial state of the form (camelCase)
+const initialDeviceFormState = {
+  id: 0,
+  isEditing: false,
+  screenSize: "",
+  allDayWork: false,
+  awakeTime: "09:00",
+  sleepTime: "21:00",
+  wifi_ssid: "",
+  wifi_password: "",
+  productNameFontSize: 12,
+  productPriceFontSizeBeforeDiscount: 12,
+  productPriceFontSizeAfterDiscount: 12,
+  productBarcodeFontSize: 12,
+  productBarcodeNumbersFontSize: 12,
+};
 
-  const handleAddNewDeviceClick = () => {
-    handleAddNewDevice();
-    setTimeout(
-      () =>
-        newDeviceFormSectionRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        }),
-      100
+const StoreEditingStep2 = ({
+  wizardData,
+  updateWizardData,
+  onBack,
+  onSaveAll,
+}) => {
+  const { isDarkMode, showMyDialog, appTranslations, language } = useAuth();
+
+  // States will now always work with clean (camelCase) data
+  const [devices, setDevices] = useState([]);
+  const [isFormActive, setIsFormActive] = useState(false);
+  const [activeForm, setActiveForm] = useState(initialDeviceFormState);
+  const [formErrors, setFormErrors] = useState({});
+  const [editingOriginalId, setEditingOriginalId] = useState(null);
+
+  const storesTranslations = useMemo(
+    () => appTranslations[language]?.stores,
+    [appTranslations, language]
+  );
+
+  const editStoreTranslations = useMemo(
+    () => appTranslations[language]?.["stores.editStore"],
+    [appTranslations, language]
+  );
+
+  const wizardTranslations = useMemo(
+    () => appTranslations[language]?.["stores.installationWizard"],
+    [appTranslations, language]
+  );
+
+  useEffect(() => {
+    setDevices(wizardData.devices || []);
+  }, [wizardData.devices]);
+
+  const timeOptions = Array.from(
+    { length: 24 },
+    (_, i) => `${String(i).padStart(2, "0")}:00`
+  );
+  const screenSizes = ["130cm", "110cm", "80cm"];
+  const fontSizes = Array.from({ length: 33 }, (_, i) => i + 8);
+
+  const handleIpAddressChange = (e) => {
+    const value = e.target.value.replace(/[^\d.]/g, "").replace(/\.{2,}/g, ".");
+    updateWizardData({ server_local_ip: value });
+  };
+
+  const handleEdit = (device) => {
+    setEditingOriginalId(device.id);
+    setActiveForm({ ...device, isEditing: true });
+    setIsFormActive(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingOriginalId(null);
+    const maxId = devices.reduce(
+      (max, d) => Math.max(max, parseInt(d.id, 10) || 0),
+      0
     );
+    setActiveForm({
+      ...initialDeviceFormState,
+      id: maxId + 1,
+      isEditing: false,
+    });
+    setIsFormActive(true);
   };
 
-  // Styles for input fields
+  const handleCancel = () => {
+    setIsFormActive(false);
+    setFormErrors({});
+  };
+
+  const handleDelete = (deviceId) => {
+    setDevices((prev) => prev.filter((d) => d.id !== deviceId));
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setActiveForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const validateDeviceForm = () => {
+    const errors = {};
+    if (!activeForm.id) errors.id = wizardTranslations.idRequired;
+    const isIdInUse = devices.some(
+      (d) =>
+        String(d.id) === String(activeForm.id) && d.id !== editingOriginalId
+    );
+    if (isIdInUse) errors.id = wizardTranslations.idInUse;
+    if (!activeForm.screenSize)
+      errors.screenSize = wizardTranslations.screenSizeRequired;
+    if (!activeForm.wifi_ssid)
+      errors.wifi_ssid = wizardTranslations.wifiSsidRequired;
+    // Password is only required when adding a new device
+    if (!activeForm.isEditing && !activeForm.wifi_password) {
+      errors.wifi_password = wizardTranslations.wifiPasswordRequired;
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveDevice = () => {
+    if (!validateDeviceForm()) return;
+
+    setDevices((prevDevices) => {
+      let updatedDevices;
+      const deviceToSave = { ...activeForm };
+      delete deviceToSave.isEditing;
+
+      if (activeForm.isEditing) {
+        updatedDevices = prevDevices.map((d) =>
+          d.id === editingOriginalId ? deviceToSave : d
+        );
+      } else {
+        updatedDevices = [...prevDevices, deviceToSave];
+      }
+      return updatedDevices.sort((a, b) => a.id - b.id);
+    });
+
+    setIsFormActive(false);
+    setEditingOriginalId(null);
+  };
+
+  const handleProceedToSave = () => {
+    if (isFormActive) {
+      showMyDialog({
+        title: wizardTranslations.unsavedChangesTitle,
+        message: wizardTranslations.unsavedChangesMessage,
+      });
+      return;
+    }
+
+    const ipPattern =
+      /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (
+      !wizardData.server_local_ip ||
+      !ipPattern.test(wizardData.server_local_ip)
+    ) {
+      showMyDialog({
+        title: wizardTranslations.errorValidation,
+        message: wizardTranslations.validationErrorMessage,
+      });
+      return;
+    }
+
+    onSaveAll(devices);
+  };
+
+  // Checks if the IP address is valid before saving.
+  const ipPattern =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  if (
+    !wizardData.server_local_ip ||
+    !ipPattern.test(wizardData.server_local_ip)
+  ) {
+    showMyDialog({
+      title: wizardTranslations.errorValidation,
+      message: wizardTranslations.validationErrorMessage,
+    });
+    return;
+  }
+
   const inputStyle = {
-    backgroundColor: colors.pureWhite,
-    color: colors.darkText,
-    borderColor: colors.mediumGrayText,
-  };
-
-  const readOnlyInputStyle = {
-    backgroundColor: colors.lightGrayBg,
-    color: colors.mediumGrayText,
-    borderColor: colors.mediumGrayText,
-    cursor: "default",
+    backgroundColor: isDarkMode ? "#374151" : "#F9FAFB",
+    color: isDarkMode ? "#E5E7EB" : "#111827",
+    borderColor: isDarkMode ? "#4B5563" : "#D1D5DB",
   };
 
   return (
     <div
       className="p-6 rounded-lg shadow-md max-w-4xl mx-auto"
-      style={{ backgroundColor: colors?.pureWhite }}>
+      style={{ backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF" }}>
       <h2
         className="text-xl font-semibold mb-6"
-        style={{ color: colors?.darkText }}>
-        {translations?.step4Title || "Device Installation"}
+        style={{ color: isDarkMode ? "#E2E8F0" : "#1F2937" }}>
+        {editStoreTranslations.step2Title}
       </h2>
+
+      <div className="mb-6">
+        <label
+          htmlFor="server_local_ip"
+          className="block text-sm font-bold mb-1"
+          style={{ color: isDarkMode ? "#E2E8F0" : "#1F2937" }}>
+          {storesTranslations.serverIpLabel}
+        </label>
+        <input
+          type="text"
+          id="server_local_ip"
+          name="server_local_ip"
+          value={wizardData.server_local_ip || ""}
+          onChange={handleIpAddressChange}
+          className="w-full p-2 border rounded-md"
+          style={{ ...inputStyle }}
+          placeholder="192.168.1.100"
+          maxLength="15"
+        />
+      </div>
 
       <div className="mb-6">
         <h3
           className="text-lg font-semibold mb-4"
-          style={{ color: colors.darkText }}>
-          {translations.installedDevicesTitle || "Installed Devices"}
+          style={{ color: isDarkMode ? "#E2E8F0" : "#1F2937" }}>
+          {wizardTranslations.installedDevicesTitle}
         </h3>
-        {/* FIX: Added safety check with (currentStoreDevices || []) */}
-        {(currentStoreDevices || []).length === 0 ? (
-          <p style={{ color: colors.mediumGrayText }}>
-            {translations.noDevicesYet ||
-              "No devices installed for this store."}
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {(currentStoreDevices || []).map((device) => (
-              <li
-                key={device.id}
-                className="flex justify-between items-center p-3 rounded-md"
-                style={{ backgroundColor: colors.lightGrayBg }}>
-                <span style={{ color: colors.darkText }}>
-                  ID: {device.id} - Screen: {device.screenSize}
-                </span>
-                <div className="space-x-2">
-                  <button
-                    onClick={() => handleEditDevice(device)}
-                    className="p-1 text-blue-600 hover:text-blue-800">
-                    <Edit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteDevice(device.id)}
-                    className="p-1 text-red-600 hover:text-red-800">
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <DeviceList
+          devices={devices}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
 
-      {isDeviceFormActive ? (
-        <div
-          ref={newDeviceFormSectionRef}
-          className="border-t-2 border-dashed pt-6 mt-6"
-          style={{ borderColor: colors.mediumGrayText }}>
-          <h3
-            className="text-lg font-semibold mb-4 col-span-full"
-            style={{ color: colors.darkText }}>
-            {currentInstallingDevice
-              ? `${translations?.editDeviceTitle || "Edit Device"} ID: ${
-                  currentInstallingDevice.id
-                }`
-              : translations?.newDeviceTitle || "New Device Installation"}
-          </h3>
-
-          {!currentInstallingDevice && (
-            <div className="col-span-full text-center mb-4">
-              <button
-                onClick={handleBluetoothConnect}
-                className={`bg-blue-600 hover:bg-blue-700 text-white font-bold w-full py-3 rounded-md flex items-center justify-center transition-colors shadow-lg ${
-                  bluetoothConnectedDevice
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                disabled={!!bluetoothConnectedDevice}>
-                <Bluetooth size={24} className="mr-2" />
-                <span>
-                  {translations?.bluetoothConnectButton ||
-                    "Connect via Bluetooth"}
-                </span>
-              </button>
-              {bluetoothConnectedDevice && (
-                <p className="mt-2" style={{ color: colors?.successGreen }}>
-                  Connected to {bluetoothConnectedDevice.name}
-                </p>
-              )}
-            </div>
-          )}
-
-          <form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-6 gap-y-4">
-              <div>
-                <label htmlFor="id" className="block text-sm font-bold mb-1">
-                  {translations?.idLabel || "ID"}*
-                </label>
-                <input
-                  type="number"
-                  id={`device_${deviceForm.id}`}
-                  name="id"
-                  value={deviceForm.id}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md ${
-                    deviceFormErrors.id ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    borderColor: deviceFormErrors.id
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}
-                />
-                {deviceFormErrors.id && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.id}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1">
-                  {translations?.countryLabel || "Country"}
-                </label>
-                <input
-                  type="text"
-                  value={storeForm.country}
-                  readOnly
-                  className="w-full p-2 border rounded-md"
-                  style={readOnlyInputStyle}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold mb-1">
-                  {translations?.cityLabel || "City"}
-                </label>
-                <input
-                  type="text"
-                  value={storeForm.city}
-                  readOnly
-                  className="w-full p-2 border rounded-md"
-                  style={readOnlyInputStyle}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold mb-1">
-                  {translations?.tokenLabel || "ESP32 Token"}
-                </label>
-                <input
-                  type="text"
-                  value={esp32Token}
-                  readOnly
-                  className="w-full p-2 border rounded-md"
-                  style={readOnlyInputStyle}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-x-6 gap-y-4">
-              <div className="md:col-span-2 relative">
-                <label
-                  htmlFor="screenSize"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.screenSizeLabel || "Screen Size"}*
-                </label>
-                <select
-                  id="device_screenSize"
-                  name="screenSize"
-                  value={deviceForm.screenSize}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md appearance-none ${
-                    deviceFormErrors.screenSize ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    borderColor: deviceFormErrors.screenSize
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}>
-                  <option value="">
-                    {translations?.selectScreenSize || "Select..."}
-                  </option>
-                  {(screenSizes || []).map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="absolute right-3 top-1/2 mt-3 -translate-y-1/2 text-gray-500 pointer-events-none"
-                  size={18}
-                />
-                {deviceFormErrors.screenSize && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.screenSize}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-2 flex items-end pb-1">
-                <input
-                  type="checkbox"
-                  id="allDayWork"
-                  name="allDayWork"
-                  checked={deviceForm.allDayWork}
-                  onChange={handleDeviceFormChange}
-                  className="mr-2 h-4 w-4"
-                  style={{ ...inputStyle, borderColor: colors.mediumGrayText }}
-                />
-                <label
-                  htmlFor="allDayWork"
-                  className="select-none cursor-pointer">
-                  {translations?.allDayWorkLabel || "All Day Work"}
-                </label>
-              </div>
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="awakeTime"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.awakeTimeLabel || "Awake Time"}
-                  {!deviceForm.allDayWork && "*"}
-                </label>
-                <select
-                  id="awakeTime"
-                  name="awakeTime"
-                  value={deviceForm.awakeTime}
-                  disabled={deviceForm.allDayWork}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md appearance-none ${
-                    deviceFormErrors.awakeTime ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: deviceForm.allDayWork
-                      ? colors.lightGrayBg
-                      : colors.pureWhite,
-                    borderColor: deviceFormErrors.awakeTime
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}>
-                  <option value="">
-                    {translations?.selectHour || "Select Time"}
-                  </option>
-                  {(timeOptions || []).map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-                {deviceFormErrors.awakeTime && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.awakeTime}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="sleepTime"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.sleepTimeLabel || "Sleep Time"}
-                  {!deviceForm.allDayWork && "*"}
-                </label>
-                <select
-                  id="sleepTime"
-                  name="sleepTime"
-                  value={deviceForm.sleepTime}
-                  disabled={deviceForm.allDayWork}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md appearance-none ${
-                    deviceFormErrors.sleepTime ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: deviceForm.allDayWork
-                      ? colors.lightGrayBg
-                      : colors.pureWhite,
-                    borderColor: deviceFormErrors.sleepTime
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}>
-                  <option value="">
-                    {translations?.selectHour || "Select Time"}
-                  </option>
-                  {(timeOptions || []).map((time) => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
-                </select>
-                {deviceFormErrors.sleepTime && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.sleepTime}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="wifi_ssid"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.wifiSsidLabel || "WIFI SSID"}*
-                </label>
-                <input
-                  type="text"
-                  id="wifi_ssid"
-                  name="wifi_ssid"
-                  value={deviceForm.wifi_ssid || ""}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md ${
-                    deviceFormErrors.wifi_ssid ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    borderColor: deviceFormErrors.wifi_ssid
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}
-                />
-                {deviceFormErrors.wifi_ssid && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.wifi_ssid}
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="wifi_password"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.wifiPasswordLabel || "WIFI Password"}*
-                </label>
-                <input
-                  type="text"
-                  id="wifi_password"
-                  name="wifi_password"
-                  value={deviceForm.wifi_password || ""}
-                  onChange={handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md ${
-                    deviceFormErrors.wifi_password ? "border-red-500" : ""
-                  }`}
-                  style={{
-                    ...inputStyle,
-                    borderColor: deviceFormErrors.wifi_password
-                      ? colors.errorRed
-                      : colors.mediumGrayText,
-                  }}
-                />
-                {deviceFormErrors.wifi_password && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {deviceFormErrors.wifi_password}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="server_ip"
-                  className="block text-sm font-bold mb-1">
-                  {translations?.serverIpLabel || "Server IP Address"}*
-                </label>
-                <input
-                  type="text"
-                  id="server_ip"
-                  name="server_ip"
-                  value={props.deviceForm.server_ip || ""}
-                  onChange={props.handleDeviceFormChange}
-                  className={`w-full p-2 border rounded-md ${
-                    deviceFormErrors.wifi_password ? "border-red-500" : ""
-                  }`}
-                />
-              </div>
-            </div>
-            <div
-              className="border-t pt-4 mt-4"
-              style={{ borderColor: colors.mediumGrayText }}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-bold mb-1">
-                    {translations?.productNameFontSizeLabel}
-                  </label>
-                  <select
-                    name="productNameFontSize"
-                    value={deviceForm.productNameFontSize}
-                    onChange={handleDeviceFormChange}
-                    className="w-full p-2 border rounded-md"
-                    style={inputStyle}>
-                    {fontSizes.map((s) => (
-                      <option key={s} value={s}>
-                        {s}px
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-1">
-                    {translations?.productPriceFontSizeBeforeDiscountLabel}
-                  </label>
-                  <select
-                    name="productPriceFontSizeBeforeDiscount"
-                    value={deviceForm.productPriceFontSizeBeforeDiscount}
-                    onChange={handleDeviceFormChange}
-                    className="w-full p-2 border rounded-md"
-                    style={inputStyle}>
-                    {fontSizes.map((s) => (
-                      <option key={s} value={s}>
-                        {s}px
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold mb-1">
-                    {translations?.productPriceFontSizeAfterDiscountLabel}
-                  </label>
-                  <select
-                    name="productPriceFontSizeAfterDiscount"
-                    value={deviceForm.productPriceFontSizeAfterDiscount}
-                    onChange={handleDeviceFormChange}
-                    className="w-full p-2 border rounded-md"
-                    style={inputStyle}>
-                    {fontSizes.map((s) => (
-                      <option key={s} value={s}>
-                        {s}px
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                <div className="md:col-span-1">
-                  <label className="block text-sm font-bold mb-1">
-                    {translations?.productBarcodeFontSizeLabel}
-                  </label>
-                  <select
-                    name="productBarcodeFontSize"
-                    value={deviceForm.productBarcodeFontSize}
-                    onChange={handleDeviceFormChange}
-                    className="w-full p-2 border rounded-md"
-                    style={inputStyle}>
-                    {fontSizes.map((s) => (
-                      <option key={s} value={s}>
-                        {s}px
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold mb-1">
-                    {translations?.productBarcodeNumbersFontSizeLabel}
-                  </label>
-                  <select
-                    name="productBarcodeNumbersFontSize"
-                    value={deviceForm.productBarcodeNumbersFontSize}
-                    onChange={handleDeviceFormChange}
-                    className="w-full p-2 border rounded-md"
-                    style={inputStyle}>
-                    {fontSizes.map((s) => (
-                      <option key={s} value={s}>
-                        {s}px
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </form>
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={handleCancelDeviceForm}
-              className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md">
-              {translations?.cancelButton || "Cancel"}
-            </button>
-            <button
-              onClick={handleSaveDevice}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
-              {translations?.saveButton || "Save"}
-            </button>
-          </div>
-        </div>
-      ) : (
+      {!isFormActive ? (
         <div className="text-center mt-6">
           <button
-            onClick={handleAddNewDeviceClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">
-            {translations?.addNewDeviceButton || "Add New Device"}
+            type="button"
+            onClick={handleAddNew}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors">
+            {storesTranslations.addNewDeviceButton}
           </button>
         </div>
+      ) : (
+        <DeviceForm
+          form={activeForm}
+          isEditing={activeForm.isEditing}
+          onFormChange={handleFormChange}
+          onSave={handleSaveDevice}
+          onCancel={handleCancel}
+          errors={formErrors}
+          readOnlyData={{
+            country: wizardData.country,
+            city: wizardData.city,
+            esp32Token: wizardData.esp32_token,
+          }}
+          options={{ screenSizes, timeOptions, fontSizes }}
+          wizardData={wizardData}
+        />
       )}
+
       <div
-        className="flex justify-between mt-8 border-t pt-4"
-        style={{ borderColor: colors.mediumGrayText }}>
+        className="flex justify-between mt-8 border-t pt-6"
+        style={{ borderColor: isDarkMode ? "#4B5563" : "#D1D5DB" }}>
         <button
+          type="button"
           onClick={onBack}
-          className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-md">
-          Previous
+          className="px-6 py-2 rounded-md font-medium bg-gray-500 hover:bg-gray-600 text-white transition-colors">
+          {storesTranslations.previousButton}
         </button>
         <button
-          onClick={onSaveAll}
-          className="px-6 py-3 rounded-md font-bold text-white text-lg"
-          style={{ backgroundColor: colors.logoPrimaryBlue }}>
-          {translations.saveChangesButton || "Save All Changes"}
+          type="button"
+          onClick={handleProceedToSave}
+          className="px-6 py-3 rounded-md font-bold text-white text-lg bg-green-600 hover:bg-green-700 transition-colors">
+          {storesTranslations.saveChangesButton}
         </button>
       </div>
     </div>

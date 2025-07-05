@@ -36,12 +36,18 @@ const SupermarketUsers = () => {
     resetFilters,
   } = useUserFilters(users, profileUser);
 
-  const pageTranslations = useMemo(
-    () => appTranslations[language]?.users?.supermarketUsersPage || {},
+  const userTranslations = useMemo(
+    () => appTranslations[language]?.users,
     [appTranslations, language]
   );
-  const userTranslations = useMemo(
-    () => appTranslations[language]?.users || {},
+
+  const userSupermarketTranslations = useMemo(
+    () => appTranslations[language]?.["users.supermarketUsersPage"],
+    [appTranslations, language]
+  );
+
+  const storesTranslations = useMemo(
+    () => appTranslations[language]?.stores,
     [appTranslations, language]
   );
 
@@ -54,12 +60,11 @@ const SupermarketUsers = () => {
       );
       setUsers(response.data);
     } catch (err) {
-      console.error("Failed to fetch supermarket users:", err);
-      setError("Failed to load users. Please try again later.");
+      setError(userTranslations.usersLoadError);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [userTranslations.usersLoadError]);
 
   useEffect(() => {
     if (!isAuthLoading) {
@@ -73,11 +78,7 @@ const SupermarketUsers = () => {
       await axiosInstance.delete(`/api/users/${userId}`);
       fetchSupermarketUsers();
     } catch (err) {
-      console.error("Failed to delete user:", err);
-      setError(
-        err.response?.data?.detail ||
-          "An error occurred while deleting the user."
-      );
+      setError(userTranslations.userDeleteError);
       setIsLoading(false);
     }
   };
@@ -88,11 +89,8 @@ const SupermarketUsers = () => {
 
   const handleDelete = (user) => {
     setDialogContent({
-      title: userTranslations.confirmDeleteTitle || "Confirm User Deletion",
-      message: `${
-        userTranslations.confirmDeleteMessage ||
-        "Are you sure you want to delete"
-      } '${user.name} ${user.surname}'?`,
+      title: storesTranslations.confirmDeleteTitle,
+      message: `${userTranslations.confirmDeleteMessage} '${user.name} ${user.surname}'?`,
       type: "confirm",
       confirmationText: `${user.name} ${user.surname}`,
       onConfirm: () => {
@@ -130,16 +128,13 @@ const SupermarketUsers = () => {
       {showDialog && <CustomDialog {...dialogContent} />}
       <div className="p-4 sm:p-6">
         <PageHeader
-          title={pageTranslations.title || "Supermarket Users"}
-          subtitle={
-            pageTranslations.subtitle ||
-            "Manage users assigned to specific supermarket branches"
-          }>
+          title={userSupermarketTranslations.title}
+          subtitle={userSupermarketTranslations.subtitle}>
           <Link
             to="/users/supermarket/add"
             className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
             <PlusCircle size={20} className="mr-2" />
-            {pageTranslations.addUser || "Add User"}
+            {userSupermarketTranslations.addUser}
           </Link>
         </PageHeader>
 
@@ -148,9 +143,9 @@ const SupermarketUsers = () => {
           cityOptions={cityOptions}
           selectedCountries={selectedCountries}
           selectedCities={selectedCities}
-          toggleCountry={toggleCountry}
-          toggleCity={toggleCity}
-          resetFilters={resetFilters}
+          onCountryChange={toggleCountry}
+          onCityChange={toggleCity}
+          onReset={resetFilters}
           isCountryDisabled={!isAdmin}
         />
 

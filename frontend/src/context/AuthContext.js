@@ -17,10 +17,27 @@ export const AppProvider = ({ children }) => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isGlobalLoading, setIsGlobalLoading] = useState(false);
   const [isTableLoading, setIsTableLoading] = useState(false);
-  const [profileUser, setProfileUser] = useState(null); // user -> profileUser
+  const [profileUser, setProfileUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [language, setLanguage] = useState("en");
+  const [showDialog, setShowDialog] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState({});
+
+  const showMyDialog = (config) => {
+    setDialogConfig({
+      title: config.title,
+      message: config.message || "",
+      type: config.type || "alert",
+      onConfirm: config.onConfirm || (() => {}),
+      confirmationText: config.confirmationText || "",
+    });
+    setShowDialog(true);
+  };
+
+  const hideMyDialog = () => {
+    setShowDialog(false);
+  };
 
   useEffect(() => {
     const validateToken = async () => {
@@ -30,13 +47,19 @@ export const AppProvider = ({ children }) => {
           const response = await axiosInstance.get("/api/users/me");
           const userData = response.data;
 
-          setProfileUser(userData); // setUser -> setProfileUser
+          setProfileUser(userData);
           setIsAuthenticated(true);
-          setIsDarkMode(userData.preferred_theme === "dark");
-          setLanguage(userData.preferred_language || "en");
+
+          // Set theme and language fields coming from backend correctly
+          setIsDarkMode(userData.theme === "dark");
+          setLanguage(userData.language || "en");
         } catch (error) {
           console.error("Token validation failed:", error);
           localStorage.removeItem("authToken");
+          setProfileUser(null);
+          setIsAuthenticated(false);
+          setIsDarkMode(false);
+          setLanguage("en");
         }
       }
       setIsAuthLoading(false);
@@ -45,7 +68,6 @@ export const AppProvider = ({ children }) => {
     validateToken();
   }, []);
 
-  // API'ye bağlanan ana login fonksiyonu
   const login = useCallback(async (email, password) => {
     setIsGlobalLoading(true);
     try {
@@ -53,7 +75,7 @@ export const AppProvider = ({ children }) => {
       formData.append("username", email);
       formData.append("password", password);
 
-      const response = await axiosInstance.post("/api/auth/login", formData, {
+      const response = await axiosInstance.post("/api/auth/token", formData, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
@@ -61,10 +83,12 @@ export const AppProvider = ({ children }) => {
 
       localStorage.setItem("authToken", token);
 
-      setProfileUser(userData); // setUser -> setProfileUser
+      setProfileUser(userData);
       setIsAuthenticated(true);
-      setIsDarkMode(userData.preferred_theme === "dark");
-      setLanguage(userData.preferred_language || "en");
+
+      // Set theme and language fields coming from backend correctly
+      setIsDarkMode(userData.theme === "dark");
+      setLanguage(userData.language || "en");
 
       return { success: true };
     } catch (error) {
@@ -74,7 +98,8 @@ export const AppProvider = ({ children }) => {
       );
       return {
         success: false,
-        message: error.response?.data?.detail || "Bir hata oluştu.",
+        message:
+          error.response?.data?.detail || "Username or password is incorrect.",
       };
     } finally {
       setIsGlobalLoading(false);
@@ -83,7 +108,7 @@ export const AppProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem("authToken");
-    setProfileUser(null); // setUser -> setProfileUser
+    setProfileUser(null);
     setIsAuthenticated(false);
     setIsDarkMode(false);
     setLanguage("en");
@@ -92,29 +117,92 @@ export const AppProvider = ({ children }) => {
   const updateUserPreferences = useCallback(
     async (preferences) => {
       if (!isAuthenticated) return;
+
       try {
+        // Send in a format suitable for backend schema
         await axiosInstance.put("/api/users/me/preferences", preferences);
+
+        // After successful update, refresh user info
+        const userResponse = await axiosInstance.get("/api/users/me");
+        const updatedUserData = userResponse.data;
+
+        setProfileUser(updatedUserData);
+
+        return { success: true };
       } catch (error) {
         console.error("Failed to update preferences:", error);
+        return { success: false, error: error.response?.data || error.message };
       }
     },
     [isAuthenticated]
   );
 
-  const toggleTheme = useCallback(() => {
-    setIsDarkMode((prevMode) => {
-      const newIsDarkMode = !prevMode;
-      updateUserPreferences({ theme: newIsDarkMode ? "dark" : "light" });
-      return newIsDarkMode;
-    });
-  }, [updateUserPreferences]);
+  // New function to update profile information
+  const updateProfileUser = useCallback(async () => {
+    if (!isAuthenticated) return null;
+
+    try {
+      const response = await axiosInstance.get("/api/users/me");
+      const userData = response.data;
+
+      setProfileUser(userData);
+
+      // If theme and language are also updated
+      setIsDarkMode(userData.theme === "dark");
+      setLanguage(userData.language || "en");
+
+      return userData;
+    } catch (error) {
+      console.error("Failed to update profile user:", error);
+      return null;
+    }
+  }, [isAuthenticated]);
+
+  const toggleTheme = useCallback(async () => {
+    const newTheme = isDarkMode ? "light" : "dark";
+
+    // First update UI (optimistic update)
+    setIsDarkMode(!isDarkMode);
+
+    try {
+      // Send to backend in correct format
+      const result = await updateUserPreferences({ theme: newTheme });
+
+      if (!result.success) {
+        // Revert in case of error
+        setIsDarkMode(isDarkMode);
+        console.error("Theme update failed:", result.error);
+      }
+    } catch (error) {
+      // Revert in case of error
+      setIsDarkMode(isDarkMode);
+      console.error("Theme update failed:", error);
+    }
+  }, [isDarkMode, updateUserPreferences]);
 
   const changeLanguage = useCallback(
-    (newLang) => {
+    async (newLang) => {
+      const oldLang = language;
+
+      // First update UI (optimistic update)
       setLanguage(newLang);
-      updateUserPreferences({ language: newLang });
+
+      try {
+        // Send to backend in correct format
+        const result = await updateUserPreferences({ language: newLang });
+
+        if (!result.success) {
+          // Revert in case of error
+          setLanguage(oldLang);
+          console.error("Language update failed:", result.error);
+        }
+      } catch (error) {
+        // Revert in case of error
+        setLanguage(oldLang);
+        console.error("Language update failed:", error);
+      }
     },
-    [updateUserPreferences]
+    [language, updateUserPreferences]
   );
 
   const lightColors = useMemo(
@@ -170,8 +258,10 @@ export const AppProvider = ({ children }) => {
 
   const value = useMemo(
     () => ({
-      profileUser, // user -> profileUser
-      user: profileUser, // Backward compatibility için
+      profileUser,
+      setProfileUser,
+      updateProfileUser,
+      user: profileUser,
       isAuthenticated,
       isAuthLoading,
       login,
@@ -186,9 +276,17 @@ export const AppProvider = ({ children }) => {
       changeLanguage,
       currentColors,
       appTranslations,
+      showDialog,
+      setShowDialog,
+      dialogConfig,
+      setDialogConfig,
+      showMyDialog,
+      hideMyDialog,
+      updateUserPreferences,
     }),
     [
-      profileUser, // user -> profileUser
+      profileUser,
+      updateProfileUser,
       isAuthenticated,
       isAuthLoading,
       login,
@@ -200,6 +298,9 @@ export const AppProvider = ({ children }) => {
       currentColors,
       toggleTheme,
       changeLanguage,
+      dialogConfig,
+      showDialog,
+      updateUserPreferences,
     ]
   );
 

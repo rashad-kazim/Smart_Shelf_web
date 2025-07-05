@@ -1,4 +1,4 @@
 // src/apiConfig.js
-// Backend sunucusunun adresini merkezi bir yerde tanımlıyoruz.
-// Gelecekte sunucu adresi değişirse, sadece bu dosyayı değiştirmek yeterli olacak.
+// We define the backend server address in a central place.
+// If the server address changes in the future, it will be enough to change only this file.
 export const API_BASE_URL = "http://localhost:8000";

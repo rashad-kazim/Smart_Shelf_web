@@ -1,13 +1,12 @@
 // src/components/layout/Sidebar.jsx
-// src/components/layout/Sidebar.jsx
 
-import React from "react";
+import React, { useMemo } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Home, Store, PlusCircle, Settings, Users } from "lucide-react";
 
 const Sidebar = ({ isSidebarExpanded }) => {
-  // Gerekli tüm state ve fonksiyonlar context'ten alınıyor
+  // All necessary state and functions are taken from context
   const {
     user,
     currentColors: colors,
@@ -15,29 +14,53 @@ const Sidebar = ({ isSidebarExpanded }) => {
     language,
     changeLanguage,
   } = useAuth();
-  const translations = appTranslations[language] || appTranslations.en;
 
-  const navItems = [
-    {
-      name: translations.menu?.dashboard || "Dashboard",
-      icon: Home,
-      route: "/",
-    },
-    {
-      name: translations.menu?.stores || "Stores",
-      icon: Store,
-      route: "/stores",
-    },
-    { name: "New Installation", icon: PlusCircle, route: "/new-installation" },
-    {
-      name: translations.menu?.firmware || "Firmware",
-      icon: Settings,
-      route: "/firmware",
-    },
-    { name: translations.menu?.users || "Users", icon: Users, route: "/users" },
-  ];
+  const menuTranslations = useMemo(
+    () => appTranslations[language]?.menu,
+    [appTranslations, language]
+  );
+  const languageList = useMemo(
+    () => appTranslations[language]?.languages,
+    [appTranslations, language]
+  );
+  const languagesShort = useMemo(
+    () => appTranslations[language]?.languagesShort,
+    [appTranslations, language]
+  );
+  const availableLanguages = Object.keys(languageList);
 
-  // Eğer kullanıcı bilgisi henüz gelmediyse, sidebar'ı gösterme
+  const navItems = useMemo(
+    () => [
+      {
+        name: menuTranslations.dashboard,
+        icon: Home,
+        route: "/",
+      },
+      {
+        name: menuTranslations.stores,
+        icon: Store,
+        route: "/stores",
+      },
+      {
+        name: menuTranslations.newInstallation,
+        icon: PlusCircle,
+        route: "/new-installation",
+      },
+      {
+        name: menuTranslations.firmware,
+        icon: Settings,
+        route: "/firmware",
+      },
+      {
+        name: menuTranslations.users,
+        icon: Users,
+        route: "/users",
+      },
+    ],
+    [menuTranslations]
+  );
+
+  // If user info is not yet available, do not show the sidebar
   if (!user) {
     return null;
   }
@@ -87,7 +110,7 @@ const Sidebar = ({ isSidebarExpanded }) => {
         <select
           id="language-select"
           value={language}
-          onChange={(e) => changeLanguage(e.target.value)} // Artık context'teki changeLanguage fonksiyonunu kullanıyor
+          onChange={(e) => changeLanguage(e.target.value)}
           className={`rounded-md text-white border focus:outline-none cursor-pointer ${
             isSidebarExpanded
               ? "w-full py-2 px-3 text-left"
@@ -97,11 +120,13 @@ const Sidebar = ({ isSidebarExpanded }) => {
             backgroundColor: colors.headerSidebarBg,
             borderColor: colors.mediumGrayText,
           }}>
-          <option value="en">{isSidebarExpanded ? "English" : "EN"}</option>
-          <option value="az">{isSidebarExpanded ? "Azerbaycan" : "AZ"}</option>
-          <option value="tr">{isSidebarExpanded ? "Türkçe" : "TR"}</option>
-          <option value="ru">{isSidebarExpanded ? "Русский" : "RU"}</option>
-          <option value="pl">{isSidebarExpanded ? "Polski" : "PL"}</option>
+          {availableLanguages.map((langKey) => (
+            <option key={langKey} value={langKey}>
+              {isSidebarExpanded
+                ? languageList[langKey]
+                : languagesShort[langKey]}
+            </option>
+          ))}
         </select>
       </div>
     </aside>

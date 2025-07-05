@@ -12,7 +12,7 @@ export const useStoreFilters = (initialStores = [], profileUser) => {
   const [selectedCountries, setSelectedCountries] = useState(
     isAdmin ? [] : profileUser?.country ? [capitalize(profileUser.country)] : []
   );
-  // 1. DÜZELTME: selectedCity artık bir dizi: selectedCities
+  // 1. FIX: selectedCity is now an array: selectedCities
   const [selectedCities, setSelectedCities] = useState([]);
 
   const countryOptions = useMemo(() => {
@@ -43,7 +43,7 @@ export const useStoreFilters = (initialStores = [], profileUser) => {
       const countryMatch =
         selectedCountries.length === 0 ||
         selectedCountries.includes(capitalize(store.country));
-      // 2. DÜZELTME: Şehir filtresi artık dizide arama yapıyor
+      // 2. FIX: City filter now searches in array
       const cityMatch =
         selectedCities.length === 0 ||
         selectedCities.includes(capitalize(store.city));
@@ -60,14 +60,14 @@ export const useStoreFilters = (initialStores = [], profileUser) => {
     );
   };
 
-  // 3. DÜZELTME: Şehirleri yönetmek için yeni bir toggle fonksiyonu
+  // 3. FIX: New toggle function to manage cities
   const toggleCity = (city) => {
     setSelectedCities((prev) =>
       prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]
     );
   };
 
-  // 4. DÜZELTME: Reset fonksiyonu artık selectedCities'i de sıfırlıyor
+  // 4. FIX: Reset function now also resets selectedCities
   const resetFilters = () => {
     if (!isAdmin) {
       setSelectedCities([]);
@@ -82,9 +82,9 @@ export const useStoreFilters = (initialStores = [], profileUser) => {
     countryOptions,
     cityOptions,
     selectedCountries,
-    selectedCities, // Dizi olarak gönderiliyor
+    selectedCities,
     toggleCountry,
-    toggleCity, // Yeni fonksiyon gönderiliyor
+    toggleCity,
     resetFilters,
   };
 };

@@ -3,26 +3,26 @@
 import axios from "axios";
 import { API_BASE_URL } from "../apiConfig";
 
-// API istekleri için temel bir axios örneği (instance) oluşturuyoruz.
+// We create a basic axios instance for API requests.
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Axios Interceptor: Bu, her istek gönderilmeden hemen önce araya giren bir fonksiyondur.
+// Axios Interceptor: This is a function that intercepts right before each request is sent.
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Tarayıcının yerel hafızasından (localStorage) token'ı alıyoruz.
+    // We get the token from the browser's local storage.
     const token = localStorage.getItem("authToken");
 
-    // Eğer token varsa, isteğin başlığına (Header) 'Authorization' olarak ekliyoruz.
-    // Bu sayede her istekte token'ı manuel olarak eklememize gerek kalmaz.
+    // If there is a token, we add it to the request header as 'Authorization'.
+    // This way, we don't need to manually add the token to each request.
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
-    // İstek hatası durumunda hatayı geri döndür.
+    // In case of a request error, return the error.
     return Promise.reject(error);
   }
 );

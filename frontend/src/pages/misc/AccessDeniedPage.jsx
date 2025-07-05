@@ -1,6 +1,6 @@
 // src/pages/misc/AccessDeniedPage.jsx
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ShieldAlert } from "lucide-react";
@@ -8,7 +8,10 @@ import { ShieldAlert } from "lucide-react";
 const AccessDeniedPage = () => {
   const { currentColors: colors, appTranslations, language } = useAuth();
   const navigate = useNavigate();
-  const translations = appTranslations[language]?.accessDenied || {};
+  const translations = useMemo(
+    () => appTranslations[language]?.accessDenied,
+    [appTranslations, language]
+  );
 
   return (
     <div className="flex items-center justify-center h-full">
@@ -20,21 +23,18 @@ const AccessDeniedPage = () => {
           />
         </div>
         <h3 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
-          {translations.title || "Access Denied"}
+          {translations.title}
         </h3>
         <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          <p>
-            {translations.message ||
-              "You do not have permission to access this section."}
-          </p>
+          <p>{translations.message}</p>
         </div>
         <div className="mt-6">
           <button
             type="button"
-            onClick={() => navigate(-1)} // Bir önceki sayfaya git
+            onClick={() => navigate(-1)}
             className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white transition-colors"
             style={{ backgroundColor: colors.logoPrimaryBlue }}>
-            {translations.goBackButton || "Go Back"}
+            {translations.goBackButton}
           </button>
         </div>
       </div>

@@ -66,8 +66,14 @@ def read_users(
 def read_users_me(current_user: models.User = Depends(get_current_user)):
     """
     Geçerli token'a sahip olan kullanıcının kendi bilgilerini döndürür.
-    Bu, sayfa yenilendiğinde oturumu doğrulamak için kullanılır.
     """
+    
+    # --- DEBUG İÇİN EKLENDİ ---
+    print("--- VERİ OKUMA (/me) ---")
+    print(f"Veritabanından Okunan Kullanıcı: ID={current_user.id}, Dil={current_user.language}, Tema={current_user.theme}")
+    print("----------------------")
+    # --- BİTTİ ---
+
     return current_user
 # --- DÜZELTME SONU ---
 
@@ -108,6 +114,25 @@ def update_existing_user(
     updated_user = user_crud.update_user(db=db, db_user=db_user, user_in=user_in)
     return updated_user
 
+@router.put("/me", response_model=user_schemas.UserResponse)
+def update_own_profile(
+    user_in: user_schemas.ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Giriş yapmış kullanıcının kendi profilini güncellemesini sağlar."""
+    updated_user = user_crud.update_profile(db=db, db_user=current_user, user_in=user_in)
+    return updated_user
+
+@router.put("/me/preferences", response_model=user_schemas.UserResponse)
+def update_current_user_preferences(
+    preferences: user_schemas.UserPreferencesUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    """Giriş yapmış kullanıcının kendi dil ve tema tercihlerini günceller."""
+    # Bu rota, sizin zaten sahip olduğunuz doğru CRUD fonksiyonunu çağırır.
+    return user_crud.update_user_preferences(db=db, user=current_user, preferences=preferences)
 
 @router.delete("/{user_id}", response_model=user_schemas.UserResponse)
 def delete_existing_user(
@@ -135,15 +160,3 @@ def delete_existing_user(
         raise HTTPException(status_code=404, detail="User not found")
         
     return deleted_user
-
-@router.put("/me/preferences", response_model=user_schemas.UserResponse)
-def update_current_user_preferences(
-    preferences: user_schemas.UserPreferencesUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    """O anki giriş yapmış kullanıcının tercihlerini günceller."""
-    updated_user = user_crud.update_user_preferences(
-        db=db, user=current_user, preferences=preferences
-    )
-    return updated_user

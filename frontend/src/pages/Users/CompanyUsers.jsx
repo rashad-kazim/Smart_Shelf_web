@@ -1,4 +1,5 @@
 // src/pages/Users/CompanyUsers.jsx
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useUserFilters } from "../../hooks/useUserFilters";
@@ -19,11 +20,11 @@ const CompanyUsers = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Silme onayı için diyalog penceresi state'leri
+  // Dialog state for delete confirmation
   const [showDialog, setShowDialog] = useState(false);
   const [dialogContent, setDialogContent] = useState({});
 
-  // Merkezi filtreleme mantığını hook'tan alıyoruz
+  // Centralized filtering logic from hook
   const {
     filteredUsers,
     countryOptions,
@@ -35,17 +36,22 @@ const CompanyUsers = () => {
     resetFilters,
   } = useUserFilters(users, profileUser);
 
-  // Çeviri metinlerini useMemo ile kararlı hale getiriyoruz
-  const pageTranslations = useMemo(
-    () => appTranslations[language]?.users?.companyUsersPage || {},
-    [appTranslations, language]
-  );
   const userTranslations = useMemo(
-    () => appTranslations[language]?.users || {},
+    () => appTranslations[language]?.users,
     [appTranslations, language]
   );
 
-  // Backend'den şirket kullanıcılarını çeken ana fonksiyon
+  const pageTranslations = useMemo(
+    () => appTranslations[language]?.["users.companyUsersPage"],
+    [appTranslations, language]
+  );
+
+  const storesTranslations = useMemo(
+    () => appTranslations[language]?.stores,
+    [appTranslations, language]
+  );
+
+  // Main function to fetch company users from backend
   const fetchCompanyUsers = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -53,49 +59,41 @@ const CompanyUsers = () => {
       const response = await axiosInstance.get("/api/users?user_type=company");
       setUsers(response.data);
     } catch (err) {
-      console.error("Failed to fetch company users:", err);
-      setError("Failed to load users. Please try again later.");
+      setError(userTranslations.usersLoadError);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [userTranslations]);
 
-  // Sayfa yüklendiğinde ve kimlik doğrulama bittiğinde kullanıcıları çek
+  // Fetch users when page loads and after authentication is done
   useEffect(() => {
     if (!isAuthLoading) {
       fetchCompanyUsers();
     }
   }, [fetchCompanyUsers, isAuthLoading]);
 
-  // Kullanıcıyı silen API isteğini gönderen fonksiyon
+  // Function to send API request to delete user
   const performDelete = async (userId) => {
     setIsLoading(true);
     try {
       await axiosInstance.delete(`/api/users/${userId}`);
-      fetchCompanyUsers(); // Başarılı silme sonrası listeyi yenile
+      fetchCompanyUsers(); // Refresh list after successful delete
     } catch (err) {
-      console.error("Failed to delete user:", err);
-      setError(
-        err.response?.data?.detail ||
-          "An error occurred while deleting the user."
-      );
+      setError(userTranslations.userDeleteError);
       setIsLoading(false);
     }
   };
 
   const handleEdit = (user) => {
-    // Artık konsola yazdırmak yerine, kullanıcıyı düzenleme sayfasına yönlendiriyoruz
+    // Instead of logging, navigate to user edit page
     navigate(`/users/company/edit/${user.id}`);
   };
 
-  // Silme butonuna tıklandığında onay penceresini hazırlayan fonksiyon
+  // Function to prepare confirmation dialog when delete button is clicked
   const handleDelete = (user) => {
     setDialogContent({
-      title: userTranslations.confirmDeleteTitle || "Confirm Deletion",
-      message: `${
-        userTranslations.confirmDeleteMessage ||
-        "Are you sure you want to delete"
-      } '${user.name} ${user.surname}'?`,
+      title: storesTranslations.confirmDeleteTitle,
+      message: `${userTranslations.confirmDeleteMessage} '${user.name} ${user.surname}'?`,
       type: "confirm",
       confirmationText: `${user.name} ${user.surname}`,
       onConfirm: () => {
@@ -107,7 +105,7 @@ const CompanyUsers = () => {
     setShowDialog(true);
   };
 
-  // Tablodaki her satır için aksiyon butonlarını oluşturan fonksiyon
+  // Function to render action buttons for each row in the table
   const renderUserActions = (user) => (
     <div className="flex items-center justify-end space-x-2">
       <button
@@ -123,7 +121,7 @@ const CompanyUsers = () => {
     </div>
   );
 
-  // Kullanıcı bilgileri yüklenene kadar bekle
+  // Wait until user info is loaded
   if (isAuthLoading || !profileUser) {
     return <GlobalLoader />;
   }
@@ -135,16 +133,13 @@ const CompanyUsers = () => {
       {showDialog && <CustomDialog {...dialogContent} />}
       <div className="p-4 sm:p-6">
         <PageHeader
-          title={pageTranslations.title || "Company Users"}
-          subtitle={
-            pageTranslations.subtitle ||
-            "Manage administrators, country chiefs, and engineers"
-          }>
+          title={pageTranslations.title}
+          subtitle={pageTranslations.subtitle}>
           <Link
             to="/users/company/add"
             className="flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
             <PlusCircle size={20} className="mr-2" />
-            {pageTranslations.addUser || "Add User"}
+            {pageTranslations.addUser}
           </Link>
         </PageHeader>
 
@@ -153,9 +148,9 @@ const CompanyUsers = () => {
           cityOptions={cityOptions}
           selectedCountries={selectedCountries}
           selectedCities={selectedCities}
-          toggleCountry={toggleCountry}
-          toggleCity={toggleCity}
-          resetFilters={resetFilters}
+          onCountryChange={toggleCountry}
+          onCityChange={toggleCity}
+          onReset={resetFilters}
           isCountryDisabled={!isAdmin}
         />
 

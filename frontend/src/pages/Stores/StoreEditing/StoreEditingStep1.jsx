@@ -1,322 +1,277 @@
-// src/pages/Stores/StoreEditingStep1.jsx
-import React from "react";
+// src/pages/Stores/StoreEditing/StoreEditingStep1.jsx
+
+import React, { useState, useEffect, useMemo } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import axiosInstance from "../../../api/axiosInstance";
+import { ROLES } from "../../../config/roles";
 import { ChevronDown } from "lucide-react";
+import AutocompleteInput from "../../../components/common/AutocompleteInput";
 
 const StoreEditingStep1 = ({
-  editableStoreForm,
-  formErrors,
-  handleStoreFormChange,
-  handleStoreInfoNext,
-  countryOptions,
-  citiesOptions,
-  timeOptions,
-  colors,
-  translations,
-  isCountrySelectDisabled,
+  wizardData,
+  updateWizardData,
+  onBack,
+  onNext,
 }) => {
-  const inputStyle = {
-    backgroundColor: colors.pureWhite,
-    color: colors.darkText,
-    borderColor: colors.mediumGrayText,
-  };
-  const disabledInputStyle = {
-    backgroundColor: colors.lightGrayBg,
-    color: colors.mediumGrayText,
-    cursor: "not-allowed",
-    borderColor: colors.mediumGrayText,
+  const { profileUser, isDarkMode, appTranslations, language } = useAuth();
+  const isAdmin = profileUser?.role === ROLES.ADMIN;
+
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [citiesOptions, setCitiesOptions] = useState([]);
+
+  const storesTranslations = useMemo(
+    () => appTranslations[language]?.stores,
+    [appTranslations, language]
+  );
+  const editStoreTranslations = useMemo(
+    () => appTranslations[language]?.["stores.editStore"],
+    [appTranslations, language]
+  );
+
+  const capitalize = (s) =>
+    s && typeof s === "string" ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+  const timeOptions = Array.from(
+    { length: 24 },
+    (_, i) => `${String(i).padStart(2, "0")}:00`
+  );
+
+  useEffect(() => {
+    if (isAdmin) {
+      axiosInstance
+        .get("/api/utils/countries")
+        .then((res) => setCountryOptions((res.data || []).map(capitalize)))
+        .catch((err) => {});
+    } else if (profileUser?.country) {
+      setCountryOptions([capitalize(profileUser.country)]);
+    }
+  }, [profileUser, isAdmin]);
+
+  useEffect(() => {
+    if (wizardData.country) {
+      setCitiesOptions([]);
+      axiosInstance
+        .get(`/api/utils/cities?country=${wizardData.country.toLowerCase()}`)
+        .then((res) => setCitiesOptions((res.data || []).map(capitalize)))
+        .catch((err) => setCitiesOptions([]));
+    } else {
+      setCitiesOptions([]);
+    }
+  }, [wizardData.country]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    updateWizardData({ [name]: type === "checkbox" ? checked : value });
   };
 
+  const handleCountryChange = (value) =>
+    updateWizardData({ country: value || "", city: "" });
+  const handleCityChange = (value) => updateWizardData({ city: value || "" });
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onNext();
+  };
+
+  const labelClass = `block text-sm font-bold mb-2 ${
+    isDarkMode ? "text-gray-300" : "text-gray-700"
+  }`;
+  const inputClass = `w-full p-2 border rounded-md transition-colors ${
+    isDarkMode
+      ? "bg-gray-700 text-white border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+      : "bg-white text-gray-800 border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+  }`;
+
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h2
-        className="text-xl font-semibold mb-6 text-center"
-        style={{ color: colors.darkText }}>
-        {translations.editStoreDetailsStep1Title || "Store Information"}
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-4xl mx-auto p-8 rounded-lg shadow-lg"
+      style={{ backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF" }}>
+      <h2 className={`text-xl font-semibold mb-6 text-center ${labelClass}`}>
+        {editStoreTranslations.step1Title}
       </h2>
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Country and City (no change) */}
         <div>
-          <label htmlFor="country" className="block text-sm font-bold mb-1">
-            {translations.countryLabel}*
+          <label className={labelClass}>
+            {storesTranslations.countryLabel}
           </label>
-          <div className="relative">
-            <select
-              id="country"
-              name="country"
-              value={editableStoreForm.country}
-              onChange={handleStoreFormChange}
-              disabled={isCountrySelectDisabled}
-              className={`w-full p-2 border rounded-md appearance-none`}
-              style={
-                isCountrySelectDisabled
-                  ? disabledInputStyle
-                  : {
-                      ...inputStyle,
-                      borderColor: formErrors.country
-                        ? colors.errorRed
-                        : colors.mediumGrayText,
-                    }
-              }>
-              <option value="">
-                {translations.selectCountry || "Select Country"}
-              </option>
-              {countryOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-              size={20}
-            />
-          </div>
-          {formErrors.country && (
-            <p className="text-red-500 text-xs mt-1">{formErrors.country}</p>
-          )}
+          <AutocompleteInput
+            options={countryOptions}
+            selected={wizardData.country}
+            setSelected={handleCountryChange}
+            disabled={!isAdmin}
+          />
         </div>
         <div>
-          <label htmlFor="city" className="block text-sm font-bold mb-1">
-            {translations.cityLabel}*
-          </label>
-          <div className="relative">
-            <select
-              id="city"
-              name="city"
-              value={editableStoreForm.city}
-              onChange={handleStoreFormChange}
-              className={`w-full p-2 border rounded-md appearance-none`}
-              disabled={!editableStoreForm.country}
-              style={
-                !editableStoreForm.country
-                  ? disabledInputStyle
-                  : {
-                      ...inputStyle,
-                      borderColor: formErrors.city
-                        ? colors.errorRed
-                        : colors.mediumGrayText,
-                    }
-              }>
-              <option value="">
-                {translations.selectCity || "Select City"}
-              </option>
-              {citiesOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-              size={20}
-            />
-          </div>
-          {formErrors.city && (
-            <p className="text-red-500 text-xs mt-1">{formErrors.city}</p>
-          )}
+          <label className={labelClass}>{storesTranslations.cityLabel}</label>
+          <AutocompleteInput
+            options={citiesOptions}
+            selected={wizardData.city || ""}
+            setSelected={handleCityChange}
+            disabled={!wizardData.country}
+          />
         </div>
+        {/* Store Name (no change) */}
         <div className="md:col-span-2">
-          <label htmlFor="storeName" className="block text-sm font-bold mb-1">
-            {translations.storeNameLabel}*
+          <label htmlFor="name" className={labelClass}>
+            {storesTranslations.storeNameLabel}
           </label>
           <input
+            id="name"
             type="text"
-            id="storeName"
-            name="storeName"
-            value={editableStoreForm.storeName || ""}
-            onChange={handleStoreFormChange}
-            className={`w-full p-2 border rounded-md`}
-            style={{
-              ...inputStyle,
-              borderColor: formErrors.storeName
-                ? colors.errorRed
-                : colors.mediumGrayText,
-            }}
+            name="name"
+            value={wizardData.name || ""}
+            onChange={handleChange}
+            className={inputClass}
           />
-          {formErrors.storeName && (
-            <p className="text-red-500 text-xs mt-1">{formErrors.storeName}</p>
-          )}
         </div>
+        {/* Add Branch (no change) */}
         <div className="md:col-span-2 flex items-center">
           <input
             type="checkbox"
             id="addBranch"
             name="addBranch"
-            checked={editableStoreForm.addBranch}
-            onChange={handleStoreFormChange}
+            checked={wizardData.addBranch || false}
+            onChange={handleChange}
             className="mr-2 h-4 w-4"
           />
-          <label htmlFor="addBranch" className="text-sm font-medium">
-            {translations.addBranchLabel}
+          <label htmlFor="addBranch" className={`${labelClass} mb-0`}>
+            {storesTranslations.addBranchLabel}
           </label>
         </div>
-        {editableStoreForm.addBranch && (
+        {wizardData.addBranch && (
           <div className="md:col-span-2">
-            <label
-              htmlFor="branchName"
-              className="block text-sm font-bold mb-1">
-              {translations.branchNameLabel}*
+            <label htmlFor="branch" className={labelClass}>
+              {storesTranslations.branchNameLabel}
             </label>
             <input
+              id="branch"
               type="text"
-              id="branchName"
-              name="branchName"
-              value={editableStoreForm.branchName || ""}
-              onChange={handleStoreFormChange}
-              className="w-full p-2 border rounded-md"
-              style={{
-                ...inputStyle,
-                borderColor: formErrors.branchName
-                  ? colors.errorRed
-                  : colors.mediumGrayText,
-              }}
+              name="branch"
+              value={wizardData.branch || ""}
+              onChange={handleChange}
+              className={inputClass}
             />
-            {formErrors.branchName && (
-              <p className="text-red-500 text-xs mt-1">
-                {formErrors.branchName}
-              </p>
-            )}
           </div>
         )}
+        {/* Address (no change) */}
         <div className="md:col-span-2">
-          <label htmlFor="address" className="block text-sm font-bold mb-1">
-            {translations.storeBranchAddressLabel}*
+          <label htmlFor="address" className={labelClass}>
+            {storesTranslations.storeBranchAddressLabel}
           </label>
           <textarea
             id="address"
             name="address"
             rows="3"
-            value={editableStoreForm.address || ""}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md resize-y"
-            style={{
-              ...inputStyle,
-              borderColor: formErrors.address
-                ? colors.errorRed
-                : colors.mediumGrayText,
-            }}></textarea>
-          {formErrors.address && (
-            <p className="text-red-500 text-xs mt-1">{formErrors.address}</p>
-          )}
+            value={wizardData.address || ""}
+            onChange={handleChange}
+            className={`${inputClass} resize-y`}></textarea>
         </div>
-        <div className="flex items-center md:col-span-2">
+        {/* --- FIXED SECTION: Working Hours --- */}
+        <div className="md:col-span-2 flex items-center">
           <input
             type="checkbox"
-            id="allDayOpen"
-            name="allDayOpen"
-            checked={editableStoreForm.allDayOpen}
-            onChange={handleStoreFormChange}
+            id="all_day_open"
+            name="all_day_open" // matches the key in `wizardData`
+            checked={wizardData.all_day_open || false} // matches the key in `wizardData`
+            onChange={handleChange}
             className="mr-2 h-4 w-4"
           />
-          <label htmlFor="allDayOpen">{translations?.allDayOpenLabel}</label>
-        </div>
-        <div>
-          <label htmlFor="openingHour">
-            {translations?.openingHourLabel}
-            {!editableStoreForm.allDayOpen && "*"}
+          <label htmlFor="all_day_open" className={`${labelClass} mb-0`}>
+            {storesTranslations.allDayOpenLabel}
           </label>
-          <select
-            id="openingHour"
-            name="openingHour"
-            value={editableStoreForm.openingHour}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            disabled={editableStoreForm.allDayOpen}
-            style={
-              editableStoreForm.allDayOpen ? disabledInputStyle : inputStyle
-            }>
-            {timeOptions.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
         </div>
+        <div
+          className={`grid grid-cols-2 gap-6 md:col-span-2 ${
+            wizardData.all_day_open ? "opacity-50" : ""
+          }`}>
+          <div className="relative">
+            <label htmlFor="opening_hour" className={labelClass}>
+              {storesTranslations.openingHourLabel}
+            </label>
+            <select
+              id="opening_hour"
+              name="opening_hour" // matches the key in `wizardData`
+              value={wizardData.opening_hour || "09:00"} // matches the key in `wizardData`
+              onChange={handleChange}
+              disabled={wizardData.all_day_open}
+              className={`${inputClass} appearance-none`}>
+              {timeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="absolute right-3 top-10 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={18}
+            />
+          </div>
+          <div className="relative">
+            <label htmlFor="closing_hour" className={labelClass}>
+              {storesTranslations.closingHourLabel}
+            </label>
+            <select
+              id="closing_hour"
+              name="closing_hour" // matches the key in `wizardData`
+              value={wizardData.closing_hour || "21:00"} // matches the key in `wizardData`
+              onChange={handleChange}
+              disabled={wizardData.all_day_open}
+              className={`${inputClass} appearance-none`}>
+              {timeOptions.map((time) => (
+                <option key={time} value={time}>
+                  {time}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="absolute right-3 top-10 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={18}
+            />
+          </div>
+        </div>
+        {/* Owner Information (no change) */}
         <div>
-          <label htmlFor="closingHour">
-            {translations?.closingHourLabel}
-            {!editableStoreForm.allDayOpen && "*"}
+          <label htmlFor="owner_name" className={labelClass}>
+            {storesTranslations.ownerNameLabel}
           </label>
-          <select
-            id="closingHour"
-            name="closingHour"
-            value={editableStoreForm.closingHour}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            disabled={editableStoreForm.allDayOpen}
-            style={
-              editableStoreForm.allDayOpen ? disabledInputStyle : inputStyle
-            }>
-            {timeOptions.map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="ownerName">{translations?.ownerNameLabel}*</label>
           <input
+            id="owner_name"
             type="text"
-            id="ownerName"
-            name="ownerName"
-            value={editableStoreForm.ownerName || ""}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
+            name="owner_name"
+            value={wizardData.owner_name || ""}
+            onChange={handleChange}
+            className={inputClass}
           />
         </div>
         <div>
-          <label htmlFor="ownerSurname">
-            {translations?.ownerSurnameLabel}*
+          <label htmlFor="owner_surname" className={labelClass}>
+            {storesTranslations.ownerSurnameLabel}
           </label>
           <input
+            id="owner_surname"
             type="text"
-            id="ownerSurname"
-            name="ownerSurname"
-            value={editableStoreForm.ownerSurname || ""}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
+            name="owner_surname"
+            value={wizardData.owner_surname || ""}
+            onChange={handleChange}
+            className={inputClass}
           />
         </div>
-        <div>
-          <label htmlFor="installerName">
-            {translations?.installerNameLabel}*
-          </label>
-          <input
-            type="text"
-            id="installerName"
-            name="installerName"
-            value={editableStoreForm.installerName || ""}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
-          />
-        </div>
-        <div>
-          <label htmlFor="installerSurname">
-            {translations?.installerSurnameLabel}*
-          </label>
-          <input
-            type="text"
-            id="installerSurname"
-            name="installerSurname"
-            value={editableStoreForm.installerSurname || ""}
-            onChange={handleStoreFormChange}
-            className="w-full p-2 border rounded-md"
-            style={inputStyle}
-          />
-        </div>
-      </form>
-      <div className="flex justify-end mt-6">
+      </div>
+      <div className="mt-8 flex justify-between">
         <button
-          onClick={handleStoreInfoNext}
-          className="px-6 py-2 rounded-md font-bold text-white"
-          style={{ backgroundColor: colors.nextButtonBg }}>
-          {translations.nextButton || "Next"}
+          type="button"
+          onClick={onBack}
+          className="px-6 py-2 rounded-md text-sm font-medium bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+          {storesTranslations.previousButton}
+        </button>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700">
+          {storesTranslations.nextButton}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

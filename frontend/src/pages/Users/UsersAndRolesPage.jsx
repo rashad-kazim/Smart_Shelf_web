@@ -1,5 +1,6 @@
 // src/pages/Users/UsersAndRolesPage.jsx
-import React from "react";
+
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Users } from "lucide-react";
@@ -8,21 +9,21 @@ const UsersAndRolesPage = () => {
   const { currentColors, appTranslations, language } = useAuth();
   const navigate = useNavigate();
 
-  const translations = appTranslations[language]?.users || {};
+  const translations = useMemo(
+    () => appTranslations[language]?.users,
+    [appTranslations, language]
+  );
 
   const cardData = [
     {
-      title: translations.userForSupermarketTitle || "User For Supermarket",
-      description:
-        translations.userForSupermarketDesc ||
-        "Manage users for supermarket branches.",
+      title: translations.userForSupermarketTitle,
+      description: translations.userForSupermarketDesc,
       icon: Users,
       route: "/users/supermarket",
     },
     {
-      title: translations.userForCompanyTitle || "User For Company",
-      description:
-        translations.userForCompanyDesc || "Manage users for the main company.",
+      title: translations.userForCompanyTitle,
+      description: translations.userForCompanyDesc,
       icon: Users,
       route: "/users/company",
     },
@@ -38,7 +39,7 @@ const UsersAndRolesPage = () => {
       <h1
         className="text-3xl font-semibold mb-6"
         style={{ color: currentColors.darkText }}>
-        {translations.usersRolesTitle || "Users & Roles"}
+        {translations.usersRolesTitle}
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

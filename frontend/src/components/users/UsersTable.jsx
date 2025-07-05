@@ -1,12 +1,22 @@
-import React from "react";
+// src/components/users/UsersTable.jsx
+
+import React, { useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import GlobalLoader from "../common/GlobalLoader";
 
 const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
   const { currentColors, appTranslations, language, isDarkMode } = useAuth();
-  const translations = appTranslations[language]?.users || {};
 
-  // Sütun yapılarını ve veri anahtarlarını merkezi olarak tanımlıyoruz
+  const userTranslations = useMemo(
+    () => appTranslations[language]?.users || appTranslations.en?.users,
+    [appTranslations, language]
+  );
+  const commonTranslations = useMemo(
+    () => appTranslations[language]?.common || appTranslations.en?.common,
+    [appTranslations, language]
+  );
+
+  // Define column structures and data keys centrally
   const columns = {
     company: [
       { headerKey: "avatar", dataKey: "avatar" },
@@ -27,7 +37,7 @@ const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
 
   const activeColumns = columns[type] || [];
 
-  // Her bir hücrenin içeriğini oluşturan fonksiyon
+  // Function to generate the content of each cell
   const renderCell = (user, column) => {
     switch (column.dataKey) {
       case "avatar":
@@ -45,7 +55,7 @@ const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
         );
       case "fullName":
         return `${user.name} ${user.surname}`;
-      // Backend'den veri gelmeme ihtimaline karşı '|| "-"' kontrolü
+      // '|| "-"' check in case data is not received from the backend
       default:
         return user[column.dataKey] || "-";
     }
@@ -53,7 +63,7 @@ const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
 
   return (
     <div
-      className="overflow-x-auto rounded-lg border"
+      className="rounded-lg border min-h-[400px] max-h-[600px] overflow-x-auto  overflow-y-auto "
       style={{ borderColor: currentColors.borderColor }}>
       <table
         className="min-w-full divide-y"
@@ -65,12 +75,12 @@ const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
                 key={col.headerKey}
                 className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
                 style={{ color: currentColors.darkText }}>
-                {translations[col.headerKey] ||
+                {userTranslations[col.headerKey] ||
                   col.headerKey.replace("Header", "")}
               </th>
             ))}
             <th className="relative px-6 py-3">
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{commonTranslations.actionsLabel}</span>
             </th>
           </tr>
         </thead>
@@ -116,7 +126,7 @@ const UsersTable = ({ users, isLoading, renderActions, type = "company" }) => {
                 colSpan={activeColumns.length + 1}
                 className="text-center py-8 px-4 text-sm"
                 style={{ color: currentColors.mediumGrayText }}>
-                {translations.noUsersFound || "No users found."}
+                {userTranslations.noUsersFound}
               </td>
             </tr>
           )}

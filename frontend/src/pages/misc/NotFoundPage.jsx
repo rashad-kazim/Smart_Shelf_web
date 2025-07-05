@@ -1,28 +1,18 @@
 // NotFoundPage.js
 // 404 Not Found page
 // src/pages/misc/NotFoundPage.js
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { AlertTriangle } from "lucide-react";
 
 const NotFoundPage = () => {
-  // Since this page is usually outside the main layout,
-  // we can define the base colors here.
-  const currentColors = {
-    pureWhite: "#FFFFFF",
-    darkText: "#1F2937",
-    mediumGrayText: "#6B7280",
-    logoPrimaryBlue: "#00CFFF",
-    whiteText: "#FFFFFF",
-    warningOrange: "#FFC107",
-  };
+  const { currentColors, appTranslations, language } = useAuth();
 
-  const translations = {
-    notFoundTitle: "404 - Page Not Found",
-    notFoundMessage:
-      "The page you are looking for does not exist or has been moved.",
-    backToHomeButton: "Go to Homepage",
-  };
+  const translations = useMemo(
+    () => appTranslations[language]?.notFound,
+    [appTranslations, language]
+  );
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

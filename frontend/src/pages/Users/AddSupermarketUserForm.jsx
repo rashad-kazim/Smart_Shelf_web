@@ -1,3 +1,5 @@
+// src/pages/Users/AddCompanyUserForm.jsx
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import axiosInstance from "../../api/axiosInstance";
@@ -10,12 +12,23 @@ const AddSupermarketUserForm = () => {
   const { isDarkMode, appTranslations, language } = useAuth();
   const navigate = useNavigate();
 
-  const translations = useMemo(
-    () => appTranslations[language]?.users?.addSupermarketUserForm || {},
+  const addSuperMTranslations = useMemo(
+    () => appTranslations[language]?.["users.addSupermarketUserForm"],
     [appTranslations, language]
   );
-  const commonTranslations = useMemo(
-    () => appTranslations[language]?.common || {},
+
+  const addUserTranslations = useMemo(
+    () => appTranslations[language]?.["users.addUserForm"],
+    [appTranslations, language]
+  );
+
+  const userProfileTranslation = useMemo(
+    () => appTranslations[language]?.profile,
+    [appTranslations, language]
+  );
+
+  const commonTranslation = useMemo(
+    () => appTranslations[language]?.common,
     [appTranslations, language]
   );
 
@@ -25,7 +38,7 @@ const AddSupermarketUserForm = () => {
     email: "",
     password: "",
     repeatPassword: "",
-    role: ROLES.RUNNER, // Rol varsayılan olarak 'Runner' olarak sabitlendi
+    role: ROLES.RUNNER,
     assigned_store_id: "",
     profile_picture: null,
   });
@@ -37,7 +50,7 @@ const AddSupermarketUserForm = () => {
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Sayfa yüklendiğinde, atanabilecek mağazaların listesini API'den çek
+  // When the page loads, fetch the list of assignable stores from the API
   useEffect(() => {
     axiosInstance
       .get("/api/stores")
@@ -45,10 +58,9 @@ const AddSupermarketUserForm = () => {
         setStores(res.data || []);
       })
       .catch((err) => {
-        console.error("Failed to fetch stores", err);
-        setError(translations.fetchStoresError || "Failed to load stores.");
+        setError(addSuperMTranslations.fetchStoresError);
       });
-  }, [translations.fetchStoresError]);
+  }, [addSuperMTranslations.fetchStoresError]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -69,13 +81,11 @@ const AddSupermarketUserForm = () => {
     setError(null);
 
     if (formData.password !== formData.repeatPassword) {
-      setError(translations.passwordMismatchError || "Passwords do not match.");
+      setError(userProfileTranslation.passwordMismatchError);
       return;
     }
     if (!formData.assigned_store_id) {
-      setError(
-        translations.storeRequiredError || "Please assign a store to the user."
-      );
+      setError(addSuperMTranslations.storeRequiredError);
       return;
     }
 
@@ -86,7 +96,7 @@ const AddSupermarketUserForm = () => {
       await axiosInstance.post("/api/users", userData);
       navigate("/users/supermarket");
     } catch (err) {
-      let errorMessage = translations.genericError || "An error occurred.";
+      let errorMessage = commonTranslation.genericError;
       const errorDetail = err.response?.data?.detail;
       if (typeof errorDetail === "string") {
         errorMessage = errorDetail;
@@ -112,10 +122,8 @@ const AddSupermarketUserForm = () => {
   return (
     <div className="p-4 sm:p-6">
       <PageHeader
-        title={translations.title || "Add New Supermarket User"}
-        subtitle={
-          translations.subtitle || "Create a new user assigned to a store"
-        }
+        title={addSuperMTranslations.title}
+        subtitle={addSuperMTranslations.subtitle}
       />
       <div className="max-w-2xl mx-auto mt-6">
         <form
@@ -123,7 +131,7 @@ const AddSupermarketUserForm = () => {
           className={`p-8 rounded-lg shadow-lg ${formContainerClass}`}>
           <div className="flex flex-col items-center mb-6">
             <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
-              {translations.profilePictureLabel || "Profile Picture"}
+              {userProfileTranslation.profilePictureLabel}
             </label>
             <div
               onClick={() => fileInputRef.current.click()}
@@ -158,7 +166,7 @@ const AddSupermarketUserForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.nameLabel || "Name"}
+                {userProfileTranslation.nameLabel}
               </label>
               <input
                 type="text"
@@ -171,7 +179,7 @@ const AddSupermarketUserForm = () => {
             </div>
             <div>
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.surnameLabel || "Surname"}
+                {userProfileTranslation.surnameLabel}
               </label>
               <input
                 type="text"
@@ -184,7 +192,7 @@ const AddSupermarketUserForm = () => {
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.emailLabel || "Email"}
+                {userProfileTranslation.emailLabel}
               </label>
               <input
                 type="email"
@@ -197,7 +205,7 @@ const AddSupermarketUserForm = () => {
             </div>
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.passwordLabel || "Password"}
+                {addUserTranslations.passwordLabel}
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -219,7 +227,7 @@ const AddSupermarketUserForm = () => {
             </div>
             <div className="relative">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.repeatPasswordLabel || "Repeat Password"}
+                {addUserTranslations.repeatPasswordLabel}
               </label>
               <input
                 type={showRepeatPassword ? "text" : "password"}
@@ -241,7 +249,7 @@ const AddSupermarketUserForm = () => {
             </div>
             <div className="md:col-span-2">
               <label className={`block text-sm font-medium ${labelClass}`}>
-                {translations.assignStoreLabel || "Assign to Store"}
+                {addSuperMTranslations.assignStoreLabel}
               </label>
               <select
                 name="assigned_store_id"
@@ -250,7 +258,7 @@ const AddSupermarketUserForm = () => {
                 required
                 className={inputClass}>
                 <option value="" disabled>
-                  {translations.selectStore || "Select a store"}
+                  {addSuperMTranslations.selectStore}
                 </option>
                 {stores.map((store) => (
                   <option key={store.id} value={store.id}>
@@ -272,15 +280,15 @@ const AddSupermarketUserForm = () => {
               type="button"
               onClick={() => navigate(-1)}
               className="px-6 py-2 rounded-md text-sm font-medium bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
-              {commonTranslations.cancel || "Cancel"}
+              {commonTranslation.cancel}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="bg-blue-600 text-white px-6 py-2 rounded-md font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
               {isSubmitting
-                ? commonTranslations.saving || "Saving..."
-                : translations.saveButton || "Save User"}
+                ? commonTranslation.saving
+                : addUserTranslations.saveButton}
             </button>
           </div>
         </form>

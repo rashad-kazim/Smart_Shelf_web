@@ -34,7 +34,11 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     created_at: datetime
+    role: str
     
+    language: Optional[str] = None
+    theme: Optional[str] = None
+
     # --- YENİ EKLENEN ALANLAR ---
     profile_picture: Optional[str] = None
     assigned_store_id: Optional[int] = None
@@ -46,3 +50,16 @@ class UserResponse(UserBase):
 class UserPreferencesUpdate(BaseModel):
     language: Optional[str] = None
     theme: Optional[str] = None
+
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None # Yeni şifre için opsiyonel alan
+    profile_picture: Optional[str] = None
+
+class LoginResponse(BaseModel):
+    user: UserResponse
+    token: str
+    token_type: str = "bearer"
